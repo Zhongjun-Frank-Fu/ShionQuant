@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request Custom Report · Shion Quant Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@200;300;400;500;600&family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafbff; --bg-soft: #f2f4fc;
+    --royal: #2347d4; --royal-deep: #1a35a8; --royal-light: #3b5ee8;
+    --gold: #c8a84b;
+    --ink: #0d1020; --ink-mid: #2a2f4a; --ink-soft: #4a5070; --silver: #8896b8;
+    --rule: rgba(35,71,212,0.10); --rule-strong: rgba(35,71,212,0.18);
+    --gain: #2d8a5d; --gain-soft: rgba(45,138,93,0.10);
+    --loss: #c45252; --warn: #c8a84b; --warn-soft: rgba(200,168,75,0.12);
+    --serif-en: 'Libre Baskerville', Georgia, serif;
+    --sans-en: 'Outfit', sans-serif;
+    --serif-zh: 'Noto Serif SC', 'STSong', serif;
+    --sans-zh: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans-en); font-weight: 300; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .zh, .zh-inline { display: none; } .en { display: block; } .en-inline { display: inline; }
+  body.lang-zh .en, body.lang-zh .en-inline { display: none; }
+  body.lang-zh .zh { display: block; } body.lang-zh .zh-inline { display: inline; }
+  body.lang-zh { font-family: var(--sans-zh); }
+
+  .portal-nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0.78rem 2.4rem; background: rgba(250,251,255,0.94); backdrop-filter: blur(20px); border-bottom: 1px solid var(--rule); }
+  .nav-left { display: flex; align-items: center; gap: 3rem; }
+  .nav-logo { font-family: var(--serif-en); font-size: 1.18rem; font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+  .nav-logo .hl { color: var(--royal); }
+  body.lang-zh .nav-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-tabs { display: flex; gap: 2.2rem; list-style: none; }
+  .portal-tabs a { font-family: var(--sans-en); font-size: 0.72rem; font-weight: 400; letter-spacing: 0.08em; color: var(--ink-soft); text-decoration: none; text-transform: uppercase; padding: 0.4rem 0; position: relative; transition: color 0.2s; }
+  body.lang-zh .portal-tabs a { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .portal-tabs a.active { color: var(--ink); }
+  .portal-tabs a.active::after { content: ''; position: absolute; bottom: -0.4rem; left: 0; right: 0; height: 2px; background: var(--royal); }
+  .portal-tabs a:hover { color: var(--royal); }
+  .nav-right-portal { display: flex; align-items: center; gap: 1.2rem; }
+  .lang-toggle { display: flex; background: rgba(35,71,212,0.06); border-radius: 18px; padding: 2px; }
+  .lang-btn { font-family: var(--sans-en); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.06em; padding: 0.26rem 0.62rem; border: none; background: transparent; color: var(--ink-soft); cursor: pointer; border-radius: 14px; transition: all 0.25s; }
+  .lang-btn.active { background: var(--royal); color: #fff; box-shadow: 0 2px 6px rgba(35,71,212,0.25); }
+  .user-menu { display: flex; align-items: center; gap: 0.6rem; background: transparent; border: 1px solid var(--rule); border-radius: 30px; padding: 0.26rem 0.85rem 0.26rem 0.28rem; cursor: pointer; transition: all 0.25s; font-family: var(--sans-en); }
+  body.lang-zh .user-menu { font-family: var(--sans-zh); }
+  .user-menu:hover { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+  .avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--royal-light), var(--royal-deep)); color: #fff; font-family: var(--serif-en); font-size: 0.66rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .user-name { font-size: 0.74rem; font-weight: 400; color: var(--ink); }
+
+  .breadcrumb { padding: 1.4rem 2.4rem 0; font-family: var(--sans-en); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--silver); display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  body.lang-zh .breadcrumb { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .breadcrumb a { color: var(--silver); text-decoration: none; transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--royal); }
+  .breadcrumb .chev { opacity: 0.5; }
+  .breadcrumb .current { color: var(--ink-mid); }
+
+  .page { max-width: 720px; margin: 0 auto; padding: 2.2rem 2rem 4rem; }
+
+  .pg-head { margin-bottom: 1.8rem; }
+  .pg-eyebrow {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.55rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  body.lang-zh .pg-eyebrow { font-family: var(--sans-zh); letter-spacing: 0.08em; text-transform: none; }
+  .pg-eyebrow::before { content: ''; width: 18px; height: 1.5px; background: var(--gold); }
+
+  .pg-title {
+    font-family: var(--serif-en); font-size: 1.5rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.02em; line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+  body.lang-zh .pg-title { font-family: var(--serif-zh); }
+  .pg-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .pg-sub {
+    font-family: var(--sans-en); font-size: 0.86rem; color: var(--ink-soft);
+    font-weight: 300; line-height: 1.6; max-width: 60ch;
+  }
+  body.lang-zh .pg-sub { font-family: var(--sans-zh); max-width: 32em; }
+
+  /* PROCESS STRIP */
+  .process-strip {
+    margin-bottom: 2rem;
+    padding: 1rem 1.2rem;
+    background: var(--bg-soft);
+    border-radius: 4px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .process-step {
+    padding: 0 1rem;
+    border-left: 1px solid var(--rule);
+  }
+  .process-step:first-child { padding-left: 0; border-left: none; }
+  .ps-num {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--royal);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.35rem;
+  }
+  .ps-name {
+    font-family: var(--serif-en);
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.2rem;
+  }
+  body.lang-zh .ps-name { font-family: var(--serif-zh); }
+  .ps-time {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--silver);
+    letter-spacing: 0.04em;
+  }
+
+  .sec { margin-bottom: 2rem; }
+  .sec-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 0.85rem; gap: 1rem;
+  }
+  .sec-title {
+    font-family: var(--serif-en); font-size: 0.88rem; font-weight: 700;
+    color: var(--ink);
+  }
+  body.lang-zh .sec-title { font-family: var(--serif-zh); }
+  .sec-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .sec-meta {
+    font-family: var(--sans-en); font-size: 0.66rem;
+    color: var(--silver); letter-spacing: 0.04em;
+  }
+  body.lang-zh .sec-meta { font-family: var(--sans-zh); }
+
+  .card { background: #fff; border: 1px solid var(--rule); border-radius: 4px; }
+
+  /* PROJECT TYPE TILES */
+  .types-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+  .type-tile {
+    padding: 1rem 1rem;
+    border: 1px solid var(--rule);
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    position: relative;
+  }
+  .type-tile:hover { border-color: var(--rule-strong); }
+  .type-tile.selected {
+    border-color: var(--royal);
+    background: rgba(35,71,212,0.03);
+  }
+  .type-tile.selected::before {
+    content: '';
+    position: absolute;
+    top: 0.6rem; right: 0.6rem;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--royal);
+  }
+  .type-tile.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 0.5rem; right: 0.65rem;
+    width: 14px; height: 14px;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+  }
+  .tt-name {
+    font-family: var(--serif-en);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.35rem;
+  }
+  body.lang-zh .tt-name { font-family: var(--serif-zh); }
+  .tt-name em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .tt-desc {
+    font-family: var(--sans-en);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    font-weight: 300;
+    margin-bottom: 0.6rem;
+  }
+  body.lang-zh .tt-desc { font-family: var(--sans-zh); }
+  .tt-fee {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--silver);
+    letter-spacing: 0.04em;
+  }
+  .tt-fee strong {
+    color: var(--ink-mid);
+    font-weight: 500;
+  }
+
+  /* FORM */
+  .field { padding: 0.95rem 1.1rem; border-top: 1px solid var(--rule); }
+  .field:first-child { border-top: none; }
+  .field-row { display: grid; gap: 0.85rem; }
+  .field-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .field label.field-k {
+    display: block;
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.45rem;
+  }
+  body.lang-zh .field label.field-k { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .field input[type="text"], .field input[type="email"], .field textarea, .field select {
+    width: 100%;
+    font-family: var(--sans-en);
+    font-size: 0.86rem;
+    color: var(--ink);
+    background: var(--bg-soft);
+    border: 1px solid transparent;
+    padding: 0.55rem 0.75rem;
+    border-radius: 3px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  body.lang-zh .field input, body.lang-zh .field textarea, body.lang-zh .field select { font-family: var(--sans-zh); }
+  .field textarea { resize: vertical; min-height: 110px; line-height: 1.55; }
+  .field select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='none' stroke='%238896b8' stroke-width='1.5' d='M1 1l4 4 4-4'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    padding-right: 2rem;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--royal);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(35,71,212,0.08);
+  }
+  .field input::placeholder, .field textarea::placeholder { color: var(--silver); font-weight: 300; }
+  .field-hint {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    color: var(--silver);
+    margin-top: 0.35rem;
+    line-height: 1.45;
+  }
+  body.lang-zh .field-hint { font-family: var(--sans-zh); }
+
+  /* TIMELINE chips */
+  .timeline-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .tl-chip {
+    font-family: var(--sans-en);
+    font-size: 0.7rem; font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--rule);
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  body.lang-zh .tl-chip { font-family: var(--sans-zh); letter-spacing: 0.02em; }
+  .tl-chip input { position: absolute; opacity: 0; }
+  .tl-chip:hover { border-color: var(--rule-strong); background: #fff; color: var(--ink); }
+  .tl-chip.selected { background: var(--royal); color: #fff; border-color: var(--royal); }
+  .tl-chip .premium {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    margin-left: 0.4rem;
+    opacity: 0.75;
+    letter-spacing: 0;
+  }
+
+  /* FEE ESTIMATE PANEL */
+  .fee-panel {
+    margin-bottom: 1.4rem;
+    padding: 1.2rem 1.4rem;
+    background: linear-gradient(135deg, var(--ink) 0%, var(--ink-mid) 100%);
+    color: #fff;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .fee-panel::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .fee-eyebrow {
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.55rem;
+    display: flex; align-items: center; gap: 0.6rem;
+    z-index: 1; position: relative;
+  }
+  body.lang-zh .fee-eyebrow { font-family: var(--sans-zh); letter-spacing: 0.08em; text-transform: none; }
+  .fee-eyebrow::before { content: ''; width: 18px; height: 1.5px; background: var(--gold); }
+
+  .fee-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5rem;
+    align-items: end;
+    position: relative;
+    z-index: 1;
+  }
+  .fee-breakdown { min-width: 0; }
+  .fee-breakdown .br-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    padding: 0.4rem 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.75);
+  }
+  body.lang-zh .fee-breakdown .br-row { font-family: var(--sans-zh); }
+  .fee-breakdown .br-row:first-child { border-top: none; }
+  .fee-breakdown .br-amt {
+    font-family: var(--mono);
+    color: rgba(255,255,255,0.92);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+  .fee-total {
+    text-align: right;
+  }
+  .fee-total-label {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 0.35rem;
+  }
+  body.lang-zh .fee-total-label { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .fee-total-amt {
+    font-family: var(--serif-en);
+    font-size: 1.55rem;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .fee-total-range {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: rgba(255,255,255,0.45);
+    margin-top: 0.3rem;
+    letter-spacing: 0.04em;
+  }
+  .fee-disclaimer {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    position: relative;
+    z-index: 1;
+  }
+  body.lang-zh .fee-disclaimer { font-family: var(--sans-zh); }
+  .fee-disclaimer strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+  /* PAST PROJECTS */
+  .past-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-top: 1px solid var(--rule);
+    align-items: center;
+  }
+  .past-row:first-child { border-top: none; }
+  .past-info { min-width: 0; }
+  .past-name {
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink);
+    font-weight: 400;
+    margin-bottom: 0.2rem;
+  }
+  body.lang-zh .past-name { font-family: var(--sans-zh); }
+  .past-meta {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--silver);
+    letter-spacing: 0.02em;
+  }
+  .past-amt {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .past-link {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    color: var(--royal);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    transition: color 0.2s;
+  }
+  body.lang-zh .past-link { font-family: var(--sans-zh); }
+  .past-link:hover { color: var(--royal-deep); text-decoration: underline; text-underline-offset: 3px; }
+
+  /* SUBMIT */
+  .submit-bar {
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .submit-meta {
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+  body.lang-zh .submit-meta { font-family: var(--sans-zh); }
+  .submit-meta strong { color: var(--ink-mid); font-weight: 500; }
+  .submit-actions { display: flex; gap: 0.5rem; }
+  .ha-btn {
+    font-family: var(--sans-en); font-size: 0.66rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-soft); background: transparent;
+    border: 1px solid var(--rule); padding: 0.6rem 1rem;
+    cursor: pointer; border-radius: 3px; transition: all 0.25s;
+    text-decoration: none; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  body.lang-zh .ha-btn { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .ha-btn:hover { border-color: var(--royal); color: var(--royal); }
+  .ha-btn.primary { background: var(--royal); color: #fff; border-color: var(--royal); }
+  .ha-btn.primary:hover { background: var(--royal-deep); border-color: var(--royal-deep); transform: translateY(-1px); }
+
+  .portal-foot { background: var(--ink); padding: 0.9rem 2.4rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .portal-foot-logo { font-family: var(--serif-en); font-size: 0.85rem; font-weight: 700; color: #fff; }
+  .portal-foot-logo .hl { color: var(--royal-light); }
+  body.lang-zh .portal-foot-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-foot-meta { font-family: var(--sans-en); font-size: 0.58rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.32); text-transform: uppercase; display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  body.lang-zh .portal-foot-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .portal-foot-meta a { color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+  .portal-foot-meta a:hover { color: #fff; }
+
+  @media (max-width: 1180px) { .portal-tabs { gap: 1.6rem; } .portal-tabs a { font-size: 0.7rem; } }
+  @media (max-width: 1024px) {
+    .portal-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.8rem; }
+    .nav-left { gap: 1.5rem; flex: 1 1 auto; }
+    .portal-tabs { display: none; }
+    .breadcrumb { padding: 1rem 1.5rem 0; }
+    .page { padding: 1.6rem 1.2rem 3rem; }
+    .process-strip { grid-template-columns: 1fr 1fr; gap: 1rem 0; }
+    .process-step { padding: 0.5rem 1rem; border-left: none; border-top: 1px solid var(--rule); }
+    .process-step:nth-child(-n+2) { border-top: none; }
+    .types-grid { grid-template-columns: 1fr; }
+    .field-row.cols-2 { grid-template-columns: 1fr; }
+    .fee-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .fee-total { text-align: left; }
+    .past-row { grid-template-columns: 1fr auto; }
+    .past-amt { grid-column: 1; padding: 0; }
+    .portal-foot { padding: 1.4rem 1.5rem; flex-direction: column; gap: 0.6rem; text-align: center; }
+  }
+</style>
+</head>
+<body id="body">
+
+<nav class="portal-nav">
+  <div class="nav-left">
+    <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="nav-logo">
+      <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+      <span class="zh-inline">欣安<span class="hl">量化</span></span>
+    </a>
+    <ul class="portal-tabs">
+      <li><a href="Shion Quant Portal.html"><span class="en-inline">Portfolio</span><span class="zh-inline">投资组合</span></a></li>
+      <li><a href="Shion Quant Schedules.html"><span class="en-inline">Schedules</span><span class="zh-inline">日程安排</span></a></li>
+      <li><a href="Shion Quant Reports.html" class="active"><span class="en-inline">Reports</span><span class="zh-inline">分析报告</span></a></li>
+      <li><a href="Shion Quant Documents.html"><span class="en-inline">Documents</span><span class="zh-inline">文件资料</span></a></li>
+    </ul>
+  </div>
+  <div class="nav-right-portal">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+    </div>
+    <button class="user-menu">
+      <span class="avatar">CH</span>
+      <span class="user-name"><span class="en-inline">Mr. Chen</span><span class="zh-inline">陈先生</span></span>
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="Shion Quant Reports.html"><span class="en-inline">Reports</span><span class="zh-inline">分析报告</span></a>
+  <span class="chev">›</span>
+  <span class="current"><span class="en-inline">Custom research</span><span class="zh-inline">委托研究</span></span>
+</div>
+
+<main class="page">
+
+  <div class="pg-head">
+    <div class="pg-eyebrow"><span class="en-inline">Build Tier project</span><span class="zh-inline">定制开发项目</span></div>
+    <h1 class="pg-title">
+      <span class="en">Commission a <em>research project</em></span>
+      <span class="zh">委托一份<em>定制研究</em></span>
+    </h1>
+    <p class="pg-sub">
+      <span class="en-inline">For questions that need original research, custom backtests, or full strategy build-out beyond the monthly retainer. Initial scoping is always complimentary.</span>
+      <span class="zh-inline">用于需要原创研究、自定义回测或完整策略开发的需求——超出月度顾问范围的工作。<strong>初步范围沟通免费。</strong></span>
+    </p>
+  </div>
+
+  <!-- 1. PROCESS STRIP -->
+  <div class="process-strip">
+    <div class="process-step">
+      <div class="ps-num">01</div>
+      <div class="ps-name"><span class="en-inline">Scoping call</span><span class="zh-inline">范围沟通</span></div>
+      <div class="ps-time"><span class="en-inline">free · 1–2 days</span><span class="zh-inline">免费 · 1–2 日</span></div>
+    </div>
+    <div class="process-step">
+      <div class="ps-num">02</div>
+      <div class="ps-name"><span class="en-inline">Proposal &amp; SOW</span><span class="zh-inline">方案 + SOW</span></div>
+      <div class="ps-time"><span class="en-inline">3–5 days</span><span class="zh-inline">3–5 日</span></div>
+    </div>
+    <div class="process-step">
+      <div class="ps-num">03</div>
+      <div class="ps-name"><span class="en-inline">Research &amp; build</span><span class="zh-inline">研究与开发</span></div>
+      <div class="ps-time"><span class="en-inline">2–6 weeks</span><span class="zh-inline">2–6 周</span></div>
+    </div>
+    <div class="process-step">
+      <div class="ps-num">04</div>
+      <div class="ps-name"><span class="en-inline">Delivery + handover</span><span class="zh-inline">交付与移交</span></div>
+      <div class="ps-time"><span class="en-inline">90-day support</span><span class="zh-inline">90 天后续支持</span></div>
+    </div>
+  </div>
+
+  <!-- 2. PROJECT TYPE -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2 class="sec-title"><span class="en">What kind of <em>project</em>?</span><span class="zh">项目<em>类型</em></span></h2>
+      <span class="sec-meta"><span class="en-inline">choose one · affects fee estimate</span><span class="zh-inline">选一项 · 影响费用估算</span></span>
+    </div>
+    <div class="types-grid">
+
+      <button class="type-tile" data-type="strategy" data-base="35000">
+        <div class="tt-name"><span class="en">Strategy <em>research</em></span><span class="zh">策略<em>研究</em></span></div>
+        <div class="tt-desc"><span class="en-inline">New alpha source, factor model, or signal — from hypothesis to walk-forward validated signal.</span><span class="zh-inline">新 Alpha 源、因子模型或信号——从假设到滚动前向验证。</span></div>
+        <div class="tt-fee"><strong>$35k–$60k</strong> · 4–8 weeks</div>
+      </button>
+
+      <button class="type-tile selected" data-type="deepdive" data-base="22000">
+        <div class="tt-name"><span class="en">Position <em>deep-dive</em></span><span class="zh">单仓<em>深度分析</em></span></div>
+        <div class="tt-desc"><span class="en-inline">Single-name, multi-angle: factor exposure, hedge structure, scenario analysis, sizing model.</span><span class="zh-inline">单只标的多维度分析：因子敞口、对冲结构、情景模拟、仓位模型。</span></div>
+        <div class="tt-fee"><strong>$22k–$32k</strong> · 3–4 weeks</div>
+      </button>
+
+      <button class="type-tile" data-type="backtest" data-base="28000">
+        <div class="tt-name"><span class="en"><em>Backtest</em> a hypothesis</span><span class="zh"><em>回测</em>一个假设</span></div>
+        <div class="tt-desc"><span class="en-inline">"What if I had done X?" — historical simulation with realistic costs, slippage, regime conditions.</span><span class="zh-inline">「如果我当时这样做？」——含真实成本、滑点、体制条件的历史模拟。</span></div>
+        <div class="tt-fee"><strong>$28k–$45k</strong> · 3–6 weeks</div>
+      </button>
+
+      <button class="type-tile" data-type="taxopt" data-base="18000">
+        <div class="tt-name"><span class="en">Tax / structure <em>optimization</em></span><span class="zh">税务 / 架构<em>优化</em></span></div>
+        <div class="tt-desc"><span class="en-inline">Lot harvesting, wash-sale optimization, jurisdiction layering, beneficial ownership structures.</span><span class="zh-inline">批次收割、洗售优化、跨辖区结构、受益所有权架构。</span></div>
+        <div class="tt-fee"><strong>$18k–$28k</strong> · 2–3 weeks</div>
+      </button>
+
+      <button class="type-tile" data-type="automation" data-base="40000">
+        <div class="tt-name"><span class="en">Strategy <em>automation</em></span><span class="zh">策略<em>自动化</em></span></div>
+        <div class="tt-desc"><span class="en-inline">Take an existing strategy from manual to systematic — IBKR / Alpaca integration, monitoring, kill-switch.</span><span class="zh-inline">将既有策略从手工迁至系统化——IBKR / Alpaca 接入、监控、熔断。</span></div>
+        <div class="tt-fee"><strong>$40k–$80k</strong> · 6–10 weeks</div>
+      </button>
+
+      <button class="type-tile" data-type="other" data-base="15000">
+        <div class="tt-name"><span class="en"><em>Other</em></span><span class="zh"><em>其他</em></span></div>
+        <div class="tt-desc"><span class="en-inline">Something not on this list — describe in detail below and KT will scope &amp; quote.</span><span class="zh-inline">不在以上列表 — 在下方详述，KT 将确认范围并报价。</span></div>
+        <div class="tt-fee"><strong>$15k+</strong> · scoped &amp; quoted</div>
+      </button>
+
+    </div>
+  </section>
+
+  <!-- 3. PROJECT BRIEF -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2 class="sec-title"><span class="en">Project <em>brief</em></span><span class="zh">项目<em>简述</em></span></h2>
+    </div>
+    <div class="card">
+
+      <div class="field">
+        <label class="field-k"><span class="en-inline">Working title</span><span class="zh-inline">项目代号</span></label>
+        <input type="text" placeholder="e.g. NVDA gamma exposure systematic hedge framework">
+      </div>
+
+      <div class="field">
+        <label class="field-k"><span class="en-inline">What question are you trying to answer?</span><span class="zh-inline">想回答什么问题？</span></label>
+        <textarea placeholder="The clearer the question, the sharper the deliverable. Examples:&#10;— Should I systematize my discretionary AAPL covered-call program?&#10;— Is there alpha in volatility-targeted rotation between QQQ and TLT?&#10;— What's the optimal hedge ratio for my NVDA position given current implied surface?">Build a systematic decision framework for adjusting NVDA position size and hedge ratio based on (1) implied volatility surface, (2) earnings cycle proximity, and (3) macro regime. Goal: replace ad-hoc judgment with rules I can audit.</textarea>
+      </div>
+
+      <div class="field-row cols-2">
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Linked positions / tickers</span><span class="zh-inline">关联持仓 / 标的</span></label>
+          <input type="text" value="NVDA, SPY">
+          <p class="field-hint"><span class="en-inline">If specific to held positions</span><span class="zh-inline">若与既有仓位相关</span></p>
+        </div>
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Capital at stake</span><span class="zh-inline">涉及资金</span></label>
+          <input type="text" value="~$510k (NVDA position)">
+          <p class="field-hint"><span class="en-inline">Helps calibrate cost-benefit threshold</span><span class="zh-inline">用于校准收益成本阈值</span></p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-k"><span class="en-inline">Timeline preference</span><span class="zh-inline">时间偏好</span></label>
+        <div class="timeline-row">
+          <label class="tl-chip">
+            <input type="radio" name="timeline">
+            <span class="en-inline">Rush</span><span class="zh-inline">加急</span>
+            <span class="premium">+25%</span>
+          </label>
+          <label class="tl-chip selected">
+            <input type="radio" name="timeline" checked>
+            <span class="en-inline">Standard</span><span class="zh-inline">标准</span>
+            <span class="premium">base</span>
+          </label>
+          <label class="tl-chip">
+            <input type="radio" name="timeline">
+            <span class="en-inline">Flexible</span><span class="zh-inline">弹性</span>
+            <span class="premium">−10%</span>
+          </label>
+        </div>
+        <p class="field-hint"><span class="en-inline">Flexible (we slot you between other projects) saves cost. Rush bumps you to head of queue.</span><span class="zh-inline">弹性（在其他项目之间插入）可降本。加急可优先排程。</span></p>
+      </div>
+
+      <div class="field">
+        <label class="field-k"><span class="en-inline">Reference materials (optional)</span><span class="zh-inline">参考材料（可选）</span></label>
+        <textarea placeholder="Papers you've read, prior work to build on, or examples of the deliverable you want." style="min-height: 70px;">Reference: 4 Mar 2026 SPY Wheel Optimization deliverable — same level of rigor and walk-forward testing, applied to NVDA framework instead.</textarea>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. FEE ESTIMATE -->
+  <div class="fee-panel">
+    <div class="fee-eyebrow"><span class="en-inline">Estimated fee · indicative</span><span class="zh-inline">费用估算 · 仅供参考</span></div>
+    <div class="fee-grid">
+      <div class="fee-breakdown">
+        <div class="br-row">
+          <span><span class="en-inline">Position deep-dive · base scope</span><span class="zh-inline">单仓深度分析 · 基础范围</span></span>
+          <span class="br-amt">$22,000</span>
+        </div>
+        <div class="br-row">
+          <span><span class="en-inline">Multi-asset (NVDA + SPY) complexity</span><span class="zh-inline">多资产（NVDA + SPY）复杂度</span></span>
+          <span class="br-amt">+$3,500</span>
+        </div>
+        <div class="br-row">
+          <span><span class="en-inline">Implied surface modeling</span><span class="zh-inline">隐含波动率曲面建模</span></span>
+          <span class="br-amt">+$2,500</span>
+        </div>
+        <div class="br-row">
+          <span><span class="en-inline">Standard timeline · 4 weeks</span><span class="zh-inline">标准时间 · 4 周</span></span>
+          <span class="br-amt">no premium</span>
+        </div>
+      </div>
+      <div class="fee-total">
+        <div class="fee-total-label"><span class="en-inline">Indicative total</span><span class="zh-inline">估算总额</span></div>
+        <div class="fee-total-amt">$28,000</div>
+        <div class="fee-total-range">range $25k–$32k</div>
+      </div>
+    </div>
+    <p class="fee-disclaimer">
+      <strong><span class="en-inline">Indicative only.</span><span class="zh-inline">仅供参考。</span></strong>
+      <span class="en-inline">Final fee confirmed in the SOW after the scoping call. <strong>50%</strong> on signing, <strong>50%</strong> on delivery. Project work is billed separately from your retainer.</span>
+      <span class="zh-inline">最终费用在范围沟通后于 SOW 中确认。<strong>50%</strong> 签约时支付，<strong>50%</strong> 交付时支付。项目工作与月度顾问分别计费。</span>
+    </p>
+  </div>
+
+  <!-- 5. PAST PROJECTS REFERENCE -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2 class="sec-title"><span class="en">Your <em>past projects</em></span><span class="zh">您的<em>历史项目</em></span></h2>
+    </div>
+    <div class="card">
+      <div class="past-row">
+        <div class="past-info">
+          <div class="past-name"><span class="en-inline">SPY Wheel · walk-forward optimization</span><span class="zh-inline">SPY Wheel · 滚动前向优化</span></div>
+          <div class="past-meta">PRJ-2026-002 · Mar 2026 · 22 pp deliverable · 3 weeks</div>
+        </div>
+        <div class="past-amt">$22,000</div>
+        <a href="#" class="past-link"><span class="en-inline">SOW</span><span class="zh-inline">SOW</span></a>
+      </div>
+      <div class="past-row">
+        <div class="past-info">
+          <div class="past-name"><span class="en-inline">Tail-hedge framework reset (post-2024 vol regime)</span><span class="zh-inline">尾部对冲框架重置（2024 后波动率体制）</span></div>
+          <div class="past-meta">PRJ-2025-001 · May 2025 · 16 pp · 2.5 weeks</div>
+        </div>
+        <div class="past-amt">$15,500</div>
+        <a href="#" class="past-link"><span class="en-inline">SOW</span><span class="zh-inline">SOW</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SUBMIT -->
+  <div class="submit-bar">
+    <span class="submit-meta">
+      <span class="en-inline">KT will reply with a scoping call slot within <strong>1 business day</strong></span>
+      <span class="zh-inline">KT 将在 <strong>1 个工作日内</strong>回复并约定范围沟通时间</span>
+    </span>
+    <div class="submit-actions">
+      <a href="Shion Quant Reports.html" class="ha-btn"><span class="en-inline">Cancel</span><span class="zh-inline">取消</span></a>
+      <button class="ha-btn"><span class="en-inline">Save draft</span><span class="zh-inline">存为草稿</span></button>
+      <button class="ha-btn primary"><span class="en-inline">Request scoping call</span><span class="zh-inline">申请范围沟通</span></button>
+    </div>
+  </div>
+
+</main>
+
+<footer class="portal-foot">
+  <span class="portal-foot-logo">
+    <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+    <span class="zh-inline">欣安<span class="hl">量化</span></span>
+  </span>
+  <span class="portal-foot-meta">
+    <span class="en-inline">Custom research request · audit-logged ·</span>
+    <span class="zh-inline">委托研究请求 · 操作留痕 ·</span>
+    <a href="Shion Quant Reports.html"><span class="en-inline">Back to reports</span><span class="zh-inline">返回报告</span></a>
+  </span>
+</footer>
+
+<script>
+  function setLang(lang) {
+    const body = document.getElementById('body');
+    const btnEn = document.getElementById('btn-en');
+    const btnZh = document.getElementById('btn-zh');
+    if (lang === 'zh') { body.classList.add('lang-zh'); btnZh.classList.add('active'); btnEn.classList.remove('active'); document.documentElement.lang = 'zh-Hans'; }
+    else { body.classList.remove('lang-zh'); btnEn.classList.add('active'); btnZh.classList.remove('active'); document.documentElement.lang = 'en'; }
+  }
+
+  // Type tile selection
+  document.querySelectorAll('.type-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      document.querySelectorAll('.type-tile').forEach(t => t.classList.remove('selected'));
+      tile.classList.add('selected');
+    });
+  });
+
+  // Timeline chip selection
+  document.querySelectorAll('.tl-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'INPUT') {
+        const input = chip.querySelector('input');
+        if (input) input.checked = true;
+      }
+      document.querySelectorAll('.tl-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    });
+  });
+</script>
+<script>
+/* SQ-DROPDOWN-V1 — Account dropdown injected globally across all portal pages */
+(function() {
+  const css = `
+    .user-wrap { position: relative; }
+    .user-wrap .user-menu { position: relative; z-index: 2; }
+    .user-wrap.open .user-menu { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 0.7rem);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      box-shadow: 0 28px 72px rgba(35,71,212,0.18), 0 4px 12px rgba(13,16,32,0.06);
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.3s cubic-bezier(0.25,1,0.5,1);
+      z-index: 200;
+      overflow: hidden;
+    }
+    .user-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 22px;
+      width: 12px; height: 12px;
+      background: #fff;
+      border-left: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
+      transform: rotate(45deg);
+      z-index: 1;
+    }
+    .user-wrap.open .user-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .ud-header {
+      padding: 1.05rem 1.2rem;
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .ud-avatar-lg {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--royal-light), var(--royal-deep));
+      color: #fff;
+      font-family: var(--serif-en);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.15rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(35,71,212,0.20);
+    }
+    .ud-info { min-width: 0; flex: 1; }
+    .ud-name {
+      font-family: var(--serif-en);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.18rem;
+      line-height: 1.15;
+    }
+    body.lang-zh .ud-name { font-family: var(--serif-zh); }
+    .ud-email {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: var(--ink-soft);
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.02em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ud-meta {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ud-pill {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      background: rgba(35,71,212,0.10);
+      color: var(--royal);
+      padding: 0.14rem 0.45rem;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+    .ud-pill-text {
+      font-family: var(--sans-en);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    body.lang-zh .ud-pill-text { font-family: var(--sans-zh); }
+
+    .ud-section {
+      padding: 0.4rem 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .ud-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem 1.2rem;
+      font-family: var(--sans-en);
+      font-size: 0.82rem;
+      color: var(--ink-mid);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s, padding-left 0.18s;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    body.lang-zh .ud-item { font-family: var(--sans-zh); }
+    .ud-item:hover {
+      background: rgba(35,71,212,0.04);
+      color: var(--royal);
+      padding-left: 1.45rem;
+    }
+    .ud-item .ud-icon {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      color: var(--silver);
+      transition: color 0.15s;
+    }
+    .ud-item:hover .ud-icon { color: var(--royal); }
+    .ud-item .ud-shortcut {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    .ud-item .ud-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      background: var(--warn-soft);
+      color: var(--warn);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+      font-weight: 500;
+    }
+    .ud-item.signout {
+      color: var(--loss);
+    }
+    .ud-item.signout .ud-icon { color: var(--loss); }
+    .ud-item.signout:hover {
+      background: rgba(196,82,82,0.06);
+      color: var(--loss);
+    }
+    .ud-item.signout:hover .ud-icon { color: var(--loss); }
+
+    @media (max-width: 1024px) {
+      .user-dropdown { width: 280px; right: -0.5rem; }
+      .user-dropdown::before { right: 30px; }
+    }
+  `;
+
+  const styleEl = document.createElement('style');
+  styleEl.setAttribute('data-sq-dropdown', '');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  const btn = document.querySelector('.user-menu');
+  if (!btn) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'user-wrap';
+  btn.parentNode.insertBefore(wrap, btn);
+  wrap.appendChild(btn);
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'user-dropdown';
+  dropdown.setAttribute('role', 'menu');
+  dropdown.setAttribute('aria-label', 'Account menu');
+  dropdown.innerHTML = `
+    <div class="ud-header">
+      <div class="ud-avatar-lg">陈</div>
+      <div class="ud-info">
+        <div class="ud-name">
+          <span class="en-inline">Chen Wei-Ming</span><span class="zh-inline">陈伟铭</span>
+        </div>
+        <div class="ud-email">w.chen@private-domain.com</div>
+        <div class="ud-meta">
+          <span class="ud-pill">CLIENT 0042</span>
+          <span class="ud-pill-text">
+            <span class="en-inline">Retainer · since Jul 2024</span>
+            <span class="zh-inline">月度顾问 · 2024/7 起</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant Profile.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="en-inline">Profile</span><span class="zh-inline">个人资料</span>
+      </a>
+      <a href="Shion Quant Security.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="en-inline">Security &amp; devices</span><span class="zh-inline">安全与设备</span>
+        <span class="ud-badge">85</span>
+      </a>
+      <a href="Shion Quant Billing.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <line x1="2" y1="10" x2="22" y2="10"/>
+        </svg>
+        <span class="en-inline">Billing &amp; invoices</span><span class="zh-inline">账单与发票</span>
+      </a>
+      <a href="Shion Quant Calendar Settings.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="en-inline">Notifications</span><span class="zh-inline">通知设置</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span class="en-inline">Help &amp; support</span><span class="zh-inline">帮助与支持</span>
+      </a>
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="13" y2="17"/>
+        </svg>
+        <span class="en-inline">What's new</span><span class="zh-inline">更新日志</span>
+        <span class="ud-shortcut">v1.1</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="ud-item signout" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span class="en-inline">Sign out</span><span class="zh-inline">退出登录</span>
+      </a>
+    </div>
+  `;
+  wrap.appendChild(dropdown);
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) wrap.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') wrap.classList.remove('open');
+  });
+})();
+</script>
+
+</body>
+</html>

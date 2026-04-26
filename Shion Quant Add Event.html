@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Event · Shion Quant Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@200;300;400;500;600&family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafbff; --bg-soft: #f2f4fc;
+    --royal: #2347d4; --royal-deep: #1a35a8; --royal-light: #3b5ee8;
+    --gold: #c8a84b;
+    --ink: #0d1020; --ink-mid: #2a2f4a; --ink-soft: #4a5070; --silver: #8896b8;
+    --rule: rgba(35,71,212,0.10); --rule-strong: rgba(35,71,212,0.18);
+    --gain: #2d8a5d; --loss: #c45252; --warn: #c8a84b; --warn-soft: rgba(200,168,75,0.12);
+    --serif-en: 'Libre Baskerville', Georgia, serif;
+    --sans-en: 'Outfit', sans-serif;
+    --serif-zh: 'Noto Serif SC', 'STSong', serif;
+    --sans-zh: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans-en); font-weight: 300; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .zh, .zh-inline { display: none; } .en { display: block; } .en-inline { display: inline; }
+  body.lang-zh .en, body.lang-zh .en-inline { display: none; }
+  body.lang-zh .zh { display: block; } body.lang-zh .zh-inline { display: inline; }
+  body.lang-zh { font-family: var(--sans-zh); }
+
+  .portal-nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0.78rem 2.4rem; background: rgba(250,251,255,0.94); backdrop-filter: blur(20px); border-bottom: 1px solid var(--rule); }
+  .nav-left { display: flex; align-items: center; gap: 3rem; }
+  .nav-logo { font-family: var(--serif-en); font-size: 1.18rem; font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+  .nav-logo .hl { color: var(--royal); }
+  body.lang-zh .nav-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-tabs { display: flex; gap: 2.2rem; list-style: none; }
+  .portal-tabs a { font-family: var(--sans-en); font-size: 0.72rem; font-weight: 400; letter-spacing: 0.08em; color: var(--ink-soft); text-decoration: none; text-transform: uppercase; padding: 0.4rem 0; position: relative; transition: color 0.2s; }
+  body.lang-zh .portal-tabs a { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .portal-tabs a.active { color: var(--ink); }
+  .portal-tabs a.active::after { content: ''; position: absolute; bottom: -0.4rem; left: 0; right: 0; height: 2px; background: var(--royal); }
+  .portal-tabs a:hover { color: var(--royal); }
+  .nav-right-portal { display: flex; align-items: center; gap: 1.2rem; }
+  .lang-toggle { display: flex; background: rgba(35,71,212,0.06); border-radius: 18px; padding: 2px; }
+  .lang-btn { font-family: var(--sans-en); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.06em; padding: 0.26rem 0.62rem; border: none; background: transparent; color: var(--ink-soft); cursor: pointer; border-radius: 14px; transition: all 0.25s; }
+  .lang-btn.active { background: var(--royal); color: #fff; box-shadow: 0 2px 6px rgba(35,71,212,0.25); }
+  .user-menu { display: flex; align-items: center; gap: 0.6rem; background: transparent; border: 1px solid var(--rule); border-radius: 30px; padding: 0.26rem 0.85rem 0.26rem 0.28rem; cursor: pointer; transition: all 0.25s; font-family: var(--sans-en); }
+  body.lang-zh .user-menu { font-family: var(--sans-zh); }
+  .user-menu:hover { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+  .avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--royal-light), var(--royal-deep)); color: #fff; font-family: var(--serif-en); font-size: 0.66rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .user-name { font-size: 0.74rem; font-weight: 400; color: var(--ink); }
+
+  .breadcrumb { padding: 1.4rem 2.4rem 0; font-family: var(--sans-en); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--silver); display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  body.lang-zh .breadcrumb { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .breadcrumb a { color: var(--silver); text-decoration: none; transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--royal); }
+  .breadcrumb .chev { opacity: 0.5; }
+  .breadcrumb .current { color: var(--ink-mid); }
+
+  .portal-header { padding: 1.5rem 2.4rem 1.7rem; border-bottom: 1px solid var(--rule); }
+  .greeting { font-family: var(--serif-en); font-size: clamp(1.5rem, 2.4vw, 2.05rem); font-weight: 700; line-height: 1.08; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 0.45rem; }
+  body.lang-zh .greeting { font-family: var(--serif-zh); }
+  .greeting em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .header-sub { font-family: var(--sans-en); font-size: 0.86rem; color: var(--ink-soft); font-weight: 300; line-height: 1.55; max-width: 60ch; }
+  body.lang-zh .header-sub { font-family: var(--sans-zh); max-width: 32em; }
+
+  /* MAIN BODY */
+  .form-body {
+    padding: 2rem 2.4rem 3rem;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2.4rem;
+    align-items: start;
+  }
+
+  /* FORM CARD */
+  .form-card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1.8rem 1.9rem;
+  }
+  .form-section { margin-bottom: 1.6rem; }
+  .form-section:last-child { margin-bottom: 0; }
+  .fs-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .fs-num {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--royal);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+  .fs-title {
+    font-family: var(--serif-en);
+    font-size: 0.96rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  body.lang-zh .fs-title { font-family: var(--serif-zh); }
+  .fs-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .fs-hint {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    color: var(--silver);
+    margin-left: auto;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .fs-hint { font-family: var(--sans-zh); }
+
+  /* Type selector — radio-as-tiles */
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+  .type-tile {
+    padding: 0.85rem 0.7rem;
+    border: 1px solid var(--rule);
+    background: var(--bg-soft);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+  }
+  .type-tile:hover { border-color: var(--rule-strong); background: #fff; }
+  .type-tile input { position: absolute; opacity: 0; }
+  .type-tile.selected { border-color: var(--royal); background: #fff; box-shadow: 0 0 0 2px rgba(35,71,212,0.10); }
+  .type-tile .tt-icon {
+    width: 18px; height: 18px;
+    color: var(--ink-soft);
+    margin: 0 auto 0.5rem;
+    display: block;
+  }
+  .type-tile.selected .tt-icon { color: var(--royal); }
+  .type-tile .tt-label {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--ink-mid);
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .type-tile .tt-label { font-family: var(--sans-zh); }
+  .type-tile.selected .tt-label { color: var(--ink); }
+
+  /* Fields */
+  .field { margin-bottom: 0.85rem; }
+  .field label {
+    display: block;
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.4rem;
+  }
+  body.lang-zh .field label { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .field label .req { color: var(--royal); margin-left: 0.2rem; }
+  .field input[type="text"], .field input[type="date"], .field input[type="time"],
+  .field textarea, .field select {
+    width: 100%;
+    font-family: var(--sans-en);
+    font-size: 0.86rem;
+    color: var(--ink);
+    background: var(--bg-soft);
+    border: 1px solid transparent;
+    padding: 0.62rem 0.75rem;
+    border-radius: 3px;
+    outline: none;
+    transition: all 0.2s;
+    font-weight: 400;
+  }
+  body.lang-zh .field input, body.lang-zh .field textarea, body.lang-zh .field select { font-family: var(--sans-zh); }
+  .field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+  .field select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='none' stroke='%238896b8' stroke-width='1.5' d='M1 1l4 4 4-4'/></svg>"); background-repeat: no-repeat; background-position: right 0.85rem center; padding-right: 2rem; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--royal); background: #fff; box-shadow: 0 0 0 3px rgba(35,71,212,0.08); }
+  .field input::placeholder, .field textarea::placeholder { color: var(--silver); font-weight: 300; }
+  .field-row { display: grid; gap: 0.85rem; }
+  .field-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .field-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* Recurrence chips */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chip {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--bg-soft);
+    border: 1px solid transparent;
+    padding: 0.42rem 0.85rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  body.lang-zh .chip { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .chip:hover { border-color: var(--rule-strong); background: #fff; color: var(--ink); }
+  .chip.selected { background: var(--royal); color: #fff; border-color: var(--royal); }
+
+  /* Reminder rows */
+  .reminder-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.55rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .reminder-row:first-of-type { border-top: none; }
+  .reminder-row .rr-channel {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-mid);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  body.lang-zh .reminder-row .rr-channel { font-family: var(--sans-zh); }
+  .reminder-row select {
+    font-family: var(--sans-en); font-size: 0.78rem;
+    color: var(--ink); background: var(--bg-soft);
+    border: 1px solid transparent; padding: 0.4rem 1.6rem 0.4rem 0.7rem;
+    border-radius: 3px; outline: none; cursor: pointer;
+    appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='none' stroke='%238896b8' stroke-width='1.5' d='M1 1l4 4 4-4'/></svg>"); background-repeat: no-repeat; background-position: right 0.6rem center;
+    transition: all 0.2s;
+    min-width: 130px;
+  }
+  body.lang-zh .reminder-row select { font-family: var(--sans-zh); }
+  .reminder-row select:focus { border-color: var(--royal); background-color: #fff; }
+  .switch { position: relative; display: inline-block; width: 32px; height: 18px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; inset: 0; background: rgba(35,71,212,0.18); border-radius: 18px; transition: 0.25s; }
+  .slider::before { content: ''; position: absolute; height: 12px; width: 12px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.25s cubic-bezier(0.25,1,0.5,1); }
+  .switch input:checked + .slider { background: var(--royal); }
+  .switch input:checked + .slider::before { transform: translateX(14px); }
+
+  .form-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 1.4rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .ha-btn { font-family: var(--sans-en); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); background: transparent; border: 1px solid var(--rule); padding: 0.6rem 1rem; cursor: pointer; border-radius: 3px; transition: all 0.25s; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; white-space: nowrap; }
+  body.lang-zh .ha-btn { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .ha-btn:hover { border-color: var(--royal); color: var(--royal); }
+  .ha-btn.primary { background: var(--royal); color: #fff; border-color: var(--royal); }
+  .ha-btn.primary:hover { background: var(--royal-deep); border-color: var(--royal-deep); transform: translateY(-1px); }
+
+  /* Preview */
+  .preview-wrap { position: sticky; top: 4.5rem; }
+  .preview-eyebrow {
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--royal);
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 0.85rem;
+  }
+  body.lang-zh .preview-eyebrow { font-family: var(--sans-zh); letter-spacing: 0.08em; text-transform: none; }
+  .preview-eyebrow::before { content: ''; width: 18px; height: 1.5px; background: var(--royal); }
+
+  .preview-event {
+    background: var(--bg-soft);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1.4rem 1.5rem;
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 1.2rem;
+  }
+  .pe-date { line-height: 1; }
+  .pe-day {
+    display: block;
+    font-family: var(--serif-en);
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+  }
+  .pe-month {
+    display: block;
+    font-family: var(--sans-en);
+    font-size: 0.56rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--royal);
+    font-weight: 500;
+    margin-top: 0.3rem;
+  }
+  body.lang-zh .pe-month { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .pe-weekday {
+    display: block;
+    font-family: var(--sans-en);
+    font-size: 0.56rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--silver);
+    font-weight: 400;
+    margin-top: 0.18rem;
+  }
+  body.lang-zh .pe-weekday { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+
+  .pe-meta {
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 0.32rem;
+    display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;
+  }
+  body.lang-zh .pe-meta { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .pe-meta .tag {
+    background: rgba(35,71,212,0.10);
+    color: var(--royal);
+    padding: 0.13rem 0.45rem;
+    border-radius: 2px;
+    letter-spacing: 0.14em;
+    font-weight: 500;
+  }
+  body.lang-zh .pe-meta .tag { letter-spacing: 0.04em; }
+  .pe-meta .time { font-family: var(--mono); color: var(--ink-mid); letter-spacing: 0.04em; }
+
+  .pe-title {
+    font-family: var(--serif-en);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.22rem;
+    letter-spacing: -0.01em;
+  }
+  body.lang-zh .pe-title { font-family: var(--serif-zh); }
+  .pe-desc {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+  body.lang-zh .pe-desc { font-family: var(--sans-zh); }
+  .pe-detail {
+    margin-top: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    color: var(--silver);
+    display: flex; gap: 0.85rem; flex-wrap: wrap;
+  }
+  .pe-detail strong { color: var(--ink-mid); font-weight: 500; margin-left: 0.25rem; }
+
+  .helper-callout {
+    margin-top: 1.2rem;
+    padding: 0.85rem 1rem;
+    background: rgba(35,71,212,0.04);
+    border-left: 2px solid var(--royal);
+    border-radius: 0 3px 3px 0;
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  body.lang-zh .helper-callout { font-family: var(--sans-zh); }
+  .helper-callout strong { color: var(--royal); font-weight: 500; }
+
+  /* Footer */
+  .portal-foot { background: var(--ink); padding: 0.9rem 2.4rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .portal-foot-logo { font-family: var(--serif-en); font-size: 0.85rem; font-weight: 700; color: #fff; }
+  .portal-foot-logo .hl { color: var(--royal-light); }
+  body.lang-zh .portal-foot-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-foot-meta { font-family: var(--sans-en); font-size: 0.58rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.32); text-transform: uppercase; display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  body.lang-zh .portal-foot-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .portal-foot-meta a { color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+  .portal-foot-meta a:hover { color: #fff; }
+
+  @media (max-width: 1180px) { .portal-tabs { gap: 1.6rem; } .portal-tabs a { font-size: 0.7rem; } }
+  @media (max-width: 1024px) {
+    .portal-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.8rem; }
+    .nav-left { gap: 1.5rem; flex: 1 1 auto; }
+    .portal-tabs { display: none; }
+    .breadcrumb { padding: 1rem 1.5rem 0; }
+    .portal-header { padding: 1.4rem 1.5rem 1.5rem; }
+    .form-body { grid-template-columns: 1fr; padding: 1.5rem 1.5rem 2rem; }
+    .preview-wrap { position: static; }
+    .type-grid { grid-template-columns: repeat(2, 1fr); }
+    .field-row.cols-2, .field-row.cols-3 { grid-template-columns: 1fr; }
+    .portal-foot { padding: 1.4rem 1.5rem; flex-direction: column; gap: 0.6rem; text-align: center; }
+  }
+</style>
+</head>
+<body id="body">
+
+<nav class="portal-nav">
+  <div class="nav-left">
+    <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="nav-logo">
+      <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+      <span class="zh-inline">欣安<span class="hl">量化</span></span>
+    </a>
+    <ul class="portal-tabs">
+      <li><a href="Shion Quant Portal.html"><span class="en-inline">Portfolio</span><span class="zh-inline">投资组合</span></a></li>
+      <li><a href="Shion Quant Schedules.html" class="active"><span class="en-inline">Schedules</span><span class="zh-inline">日程安排</span></a></li>
+      <li><a href="Shion Quant Reports.html"><span class="en-inline">Reports</span><span class="zh-inline">分析报告</span></a></li>
+      <li><a href="Shion Quant Documents.html"><span class="en-inline">Documents</span><span class="zh-inline">文件资料</span></a></li>
+    </ul>
+  </div>
+  <div class="nav-right-portal">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+    </div>
+    <button class="user-menu">
+      <span class="avatar">CH</span>
+      <span class="user-name"><span class="en-inline">Mr. Chen</span><span class="zh-inline">陈先生</span></span>
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="Shion Quant Schedules.html"><span class="en-inline">Schedules</span><span class="zh-inline">日程安排</span></a>
+  <span class="chev">›</span>
+  <span class="current"><span class="en-inline">New event</span><span class="zh-inline">新建事件</span></span>
+</div>
+
+<header class="portal-header">
+  <h1 class="greeting">
+    <span class="en">Add a custom <em>event</em></span>
+    <span class="zh">新建<em>自定义事件</em></span>
+  </h1>
+  <p class="header-sub">
+    <span class="en-inline">Manual entries appear alongside auto-synced events. Use them for personal reminders, watch-list items, or trade decisions you want to flag for yourself.</span>
+    <span class="zh-inline">手动添加的事件与自动同步事件并列展示。适用于个人提醒、关注清单项目，或希望自我标记的交易决策。</span>
+  </p>
+</header>
+
+<div class="form-body">
+
+  <!-- LEFT: form -->
+  <main>
+    <div class="form-card">
+
+      <!-- 01 TYPE -->
+      <div class="form-section">
+        <div class="fs-head">
+          <span class="fs-num">01</span>
+          <span class="fs-title"><span class="en">Event <em>type</em></span><span class="zh">事件<em>类型</em></span></span>
+          <span class="fs-hint"><span class="en-inline">choose one</span><span class="zh-inline">选一项</span></span>
+        </div>
+        <div class="type-grid">
+          <label class="type-tile selected">
+            <input type="radio" name="type" checked>
+            <svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div class="tt-label"><span class="en-inline">Reminder</span><span class="zh-inline">提醒</span></div>
+          </label>
+          <label class="type-tile">
+            <input type="radio" name="type">
+            <svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <div class="tt-label"><span class="en-inline">Trade Action</span><span class="zh-inline">交易操作</span></div>
+          </label>
+          <label class="type-tile">
+            <input type="radio" name="type">
+            <svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            <div class="tt-label"><span class="en-inline">Watch List</span><span class="zh-inline">关注</span></div>
+          </label>
+          <label class="type-tile">
+            <input type="radio" name="type">
+            <svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <div class="tt-label"><span class="en-inline">Personal Note</span><span class="zh-inline">个人备注</span></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 02 TITLE & DESC -->
+      <div class="form-section">
+        <div class="fs-head">
+          <span class="fs-num">02</span>
+          <span class="fs-title"><span class="en">Title &amp; <em>description</em></span><span class="zh">标题与<em>描述</em></span></span>
+        </div>
+        <div class="field">
+          <label><span class="en-inline">Title</span><span class="zh-inline">标题</span><span class="req">*</span></label>
+          <input type="text" placeholder="e.g. Review TSM position before earnings" value="Check NVDA gamma exposure before FOMC">
+        </div>
+        <div class="field">
+          <label><span class="en-inline">Description</span><span class="zh-inline">描述（可选）</span></label>
+          <textarea placeholder="Optional. What does future-you need to remember?">If implied move spreads above 3% pre-FOMC, consider partial trim or short-dated hedge. Reference: 19 Apr memo.</textarea>
+        </div>
+      </div>
+
+      <!-- 03 DATE TIME -->
+      <div class="form-section">
+        <div class="fs-head">
+          <span class="fs-num">03</span>
+          <span class="fs-title"><span class="en"><em>When</em></span><span class="zh"><em>时间</em></span></span>
+        </div>
+        <div class="field-row cols-3">
+          <div class="field">
+            <label><span class="en-inline">Date</span><span class="zh-inline">日期</span><span class="req">*</span></label>
+            <input type="date" value="2026-04-30">
+          </div>
+          <div class="field">
+            <label><span class="en-inline">Time</span><span class="zh-inline">时间</span></label>
+            <input type="time" value="09:30">
+          </div>
+          <div class="field">
+            <label><span class="en-inline">Timezone</span><span class="zh-inline">时区</span></label>
+            <select>
+              <option>America/New_York · ET</option>
+              <option>Asia/Hong_Kong · HKT</option>
+              <option>Asia/Shanghai · CST</option>
+              <option>UTC</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label><span class="en-inline">All-day event</span><span class="zh-inline">全天事件</span></label>
+          <label class="switch" style="vertical-align:middle;"><input type="checkbox"><span class="slider"></span></label>
+          <span style="font-family:var(--sans-en); font-size:0.74rem; color:var(--ink-soft); margin-left:0.6rem; vertical-align:middle;">
+            <span class="en-inline">Disabled — uses time above</span>
+            <span class="zh-inline">关闭 · 使用上方时间</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- 04 LINKAGE -->
+      <div class="form-section">
+        <div class="fs-head">
+          <span class="fs-num">04</span>
+          <span class="fs-title"><span class="en"><em>Link</em> to position</span><span class="zh">关联<em>持仓</em>（可选）</span></span>
+        </div>
+        <div class="field-row cols-2">
+          <div class="field">
+            <label><span class="en-inline">Ticker</span><span class="zh-inline">标的代码</span></label>
+            <input type="text" placeholder="e.g. NVDA · SPY · AAPL" value="NVDA">
+          </div>
+          <div class="field">
+            <label><span class="en-inline">Linked position</span><span class="zh-inline">关联仓位</span></label>
+            <select>
+              <option>NVDA · 800 shares · long</option>
+              <option>NVDA 580P × 3 · CSP</option>
+              <option>None</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 RECURRENCE -->
+      <div class="form-section">
+        <div class="fs-head">
+          <span class="fs-num">05</span>
+          <span class="fs-title"><span class="en"><em>Recurrence</em></span><span class="zh"><em>重复</em></span></span>
+        </div>
+        <div class="chip-row">
+          <button class="chip selected"><span class="en-inline">None</span><span class="zh-inline">不重复</span></button>
+          <button class="chip"><span class="en-inline">Daily</span><span class="zh-inline">每天</span></button>
+          <button class="chip"><span class="en-inline">Weekly</span><span class="zh-inline">每周</span></button>
+          <button class="chip"><span class="en-inline">Monthly</span><span class="zh-inline">每月</span></button>
+          <button class="chip"><span class="en-inline">Quarterly</span><span class="zh-inline">每季度</span></button>
+          <button class="chip"><span class="en-inline">Custom…</span><span class="zh-inline">自定义…</span></button>
+        </div>
+      </div>
+
+      <!-- 06 REMINDERS -->
+      <div class="form-section">
+        <div class="fs-head">
+          <span class="fs-num">06</span>
+          <span class="fs-title"><span class="en"><em>Reminders</em></span><span class="zh"><em>提醒</em></span></span>
+        </div>
+        <div class="reminder-row">
+          <span class="rr-channel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span class="en-inline">Email</span><span class="zh-inline">邮箱</span>
+          </span>
+          <select>
+            <option>1 day before</option>
+            <option>3 hours before</option>
+            <option>30 min before</option>
+            <option>At event time</option>
+          </select>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="reminder-row">
+          <span class="rr-channel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span class="en-inline">In-app push</span><span class="zh-inline">门户推送</span>
+          </span>
+          <select>
+            <option>30 min before</option>
+            <option>3 hours before</option>
+            <option>1 day before</option>
+            <option>At event time</option>
+          </select>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="reminder-row">
+          <span class="rr-channel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="en-inline">SMS</span><span class="zh-inline">短信</span>
+          </span>
+          <select>
+            <option>At event time</option>
+            <option>30 min before</option>
+          </select>
+          <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a href="Shion Quant Schedules.html" class="ha-btn"><span class="en-inline">Cancel</span><span class="zh-inline">取消</span></a>
+        <button class="ha-btn"><span class="en-inline">Save as draft</span><span class="zh-inline">存为草稿</span></button>
+        <button class="ha-btn primary"><span class="en-inline">Add to Schedule</span><span class="zh-inline">添加至日程</span></button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT: live preview -->
+  <aside>
+    <div class="preview-wrap">
+      <p class="preview-eyebrow">
+        <span class="en-inline">Live preview · how it'll look</span>
+        <span class="zh-inline">实时预览 · 显示效果</span>
+      </p>
+
+      <div class="preview-event">
+        <div class="pe-date">
+          <span class="pe-day">30</span>
+          <span class="pe-month"><span class="en-inline">Apr</span><span class="zh-inline">4 月</span></span>
+          <span class="pe-weekday"><span class="en-inline">Wed</span><span class="zh-inline">周三</span></span>
+        </div>
+        <div>
+          <div class="pe-meta">
+            <span class="time">09:30 ET</span>
+            <span class="tag"><span class="en-inline">Reminder</span><span class="zh-inline">提醒</span></span>
+            <span><span class="en-inline">Personal</span><span class="zh-inline">个人</span></span>
+          </div>
+          <div class="pe-title">
+            <span class="en-inline">Check NVDA gamma exposure before FOMC</span>
+            <span class="zh-inline">FOMC 前检查 NVDA gamma 敞口</span>
+          </div>
+          <div class="pe-desc">
+            <span class="en-inline">If implied move spreads above 3% pre-FOMC, consider partial trim or short-dated hedge.</span>
+            <span class="zh-inline">若 FOMC 前隐含波幅扩大至 3% 以上，考虑部分减仓或短期对冲。</span>
+          </div>
+          <div class="pe-detail">
+            <span><span class="en-inline">Linked</span><span class="zh-inline">关联</span><strong>NVDA · 800 sh</strong></span>
+            <span><span class="en-inline">Reminders</span><span class="zh-inline">提醒</span><strong>2 channels</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <p class="helper-callout">
+        <strong><span class="en-inline">Tip.</span><span class="zh-inline">提示。</span></strong>
+        <span class="en-inline">Personal events are visible only to you. Auto-synced events (broker, macro, advisor) cannot be edited here — adjust their sources in <a href="Shion Quant Calendar Settings.html" style="color:var(--royal); text-decoration:none;">Calendar Settings</a>.</span>
+        <span class="zh-inline">个人事件仅您可见。自动同步事件（券商 / 宏观 / 顾问）无法在此编辑——请在<a href="Shion Quant Calendar Settings.html" style="color:var(--royal); text-decoration:none;">日历设置</a>中调整源。</span>
+      </p>
+    </div>
+  </aside>
+
+</div>
+
+<footer class="portal-foot">
+  <span class="portal-foot-logo">
+    <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+    <span class="zh-inline">欣安<span class="hl">量化</span></span>
+  </span>
+  <span class="portal-foot-meta">
+    <span class="en-inline">Custom event · saves to your account · audit-logged ·</span>
+    <span class="zh-inline">自定义事件 · 保存至您的账户 · 操作留痕 ·</span>
+    <a href="Shion Quant Schedules.html"><span class="en-inline">Back to schedules</span><span class="zh-inline">返回日程</span></a>
+  </span>
+</footer>
+
+<script>
+  function setLang(lang) {
+    const body = document.getElementById('body');
+    const btnEn = document.getElementById('btn-en');
+    const btnZh = document.getElementById('btn-zh');
+    if (lang === 'zh') { body.classList.add('lang-zh'); btnZh.classList.add('active'); btnEn.classList.remove('active'); document.documentElement.lang = 'zh-Hans'; }
+    else { body.classList.remove('lang-zh'); btnEn.classList.add('active'); btnZh.classList.remove('active'); document.documentElement.lang = 'en'; }
+  }
+  document.querySelectorAll('.type-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      document.querySelectorAll('.type-tile').forEach(t => t.classList.remove('selected'));
+      tile.classList.add('selected');
+    });
+  });
+  document.querySelectorAll('.chip-row .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip-row .chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    });
+  });
+</script>
+<script>
+/* SQ-DROPDOWN-V1 — Account dropdown injected globally across all portal pages */
+(function() {
+  const css = `
+    .user-wrap { position: relative; }
+    .user-wrap .user-menu { position: relative; z-index: 2; }
+    .user-wrap.open .user-menu { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 0.7rem);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      box-shadow: 0 28px 72px rgba(35,71,212,0.18), 0 4px 12px rgba(13,16,32,0.06);
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.3s cubic-bezier(0.25,1,0.5,1);
+      z-index: 200;
+      overflow: hidden;
+    }
+    .user-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 22px;
+      width: 12px; height: 12px;
+      background: #fff;
+      border-left: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
+      transform: rotate(45deg);
+      z-index: 1;
+    }
+    .user-wrap.open .user-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .ud-header {
+      padding: 1.05rem 1.2rem;
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .ud-avatar-lg {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--royal-light), var(--royal-deep));
+      color: #fff;
+      font-family: var(--serif-en);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.15rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(35,71,212,0.20);
+    }
+    .ud-info { min-width: 0; flex: 1; }
+    .ud-name {
+      font-family: var(--serif-en);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.18rem;
+      line-height: 1.15;
+    }
+    body.lang-zh .ud-name { font-family: var(--serif-zh); }
+    .ud-email {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: var(--ink-soft);
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.02em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ud-meta {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ud-pill {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      background: rgba(35,71,212,0.10);
+      color: var(--royal);
+      padding: 0.14rem 0.45rem;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+    .ud-pill-text {
+      font-family: var(--sans-en);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    body.lang-zh .ud-pill-text { font-family: var(--sans-zh); }
+
+    .ud-section {
+      padding: 0.4rem 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .ud-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem 1.2rem;
+      font-family: var(--sans-en);
+      font-size: 0.82rem;
+      color: var(--ink-mid);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s, padding-left 0.18s;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    body.lang-zh .ud-item { font-family: var(--sans-zh); }
+    .ud-item:hover {
+      background: rgba(35,71,212,0.04);
+      color: var(--royal);
+      padding-left: 1.45rem;
+    }
+    .ud-item .ud-icon {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      color: var(--silver);
+      transition: color 0.15s;
+    }
+    .ud-item:hover .ud-icon { color: var(--royal); }
+    .ud-item .ud-shortcut {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    .ud-item .ud-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      background: var(--warn-soft);
+      color: var(--warn);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+      font-weight: 500;
+    }
+    .ud-item.signout {
+      color: var(--loss);
+    }
+    .ud-item.signout .ud-icon { color: var(--loss); }
+    .ud-item.signout:hover {
+      background: rgba(196,82,82,0.06);
+      color: var(--loss);
+    }
+    .ud-item.signout:hover .ud-icon { color: var(--loss); }
+
+    @media (max-width: 1024px) {
+      .user-dropdown { width: 280px; right: -0.5rem; }
+      .user-dropdown::before { right: 30px; }
+    }
+  `;
+
+  const styleEl = document.createElement('style');
+  styleEl.setAttribute('data-sq-dropdown', '');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  const btn = document.querySelector('.user-menu');
+  if (!btn) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'user-wrap';
+  btn.parentNode.insertBefore(wrap, btn);
+  wrap.appendChild(btn);
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'user-dropdown';
+  dropdown.setAttribute('role', 'menu');
+  dropdown.setAttribute('aria-label', 'Account menu');
+  dropdown.innerHTML = `
+    <div class="ud-header">
+      <div class="ud-avatar-lg">陈</div>
+      <div class="ud-info">
+        <div class="ud-name">
+          <span class="en-inline">Chen Wei-Ming</span><span class="zh-inline">陈伟铭</span>
+        </div>
+        <div class="ud-email">w.chen@private-domain.com</div>
+        <div class="ud-meta">
+          <span class="ud-pill">CLIENT 0042</span>
+          <span class="ud-pill-text">
+            <span class="en-inline">Retainer · since Jul 2024</span>
+            <span class="zh-inline">月度顾问 · 2024/7 起</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant Profile.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="en-inline">Profile</span><span class="zh-inline">个人资料</span>
+      </a>
+      <a href="Shion Quant Security.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="en-inline">Security &amp; devices</span><span class="zh-inline">安全与设备</span>
+        <span class="ud-badge">85</span>
+      </a>
+      <a href="Shion Quant Billing.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <line x1="2" y1="10" x2="22" y2="10"/>
+        </svg>
+        <span class="en-inline">Billing &amp; invoices</span><span class="zh-inline">账单与发票</span>
+      </a>
+      <a href="Shion Quant Calendar Settings.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="en-inline">Notifications</span><span class="zh-inline">通知设置</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span class="en-inline">Help &amp; support</span><span class="zh-inline">帮助与支持</span>
+      </a>
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="13" y2="17"/>
+        </svg>
+        <span class="en-inline">What's new</span><span class="zh-inline">更新日志</span>
+        <span class="ud-shortcut">v1.1</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="ud-item signout" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span class="en-inline">Sign out</span><span class="zh-inline">退出登录</span>
+      </a>
+    </div>
+  `;
+  wrap.appendChild(dropdown);
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) wrap.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') wrap.classList.remove('open');
+  });
+})();
+</script>
+
+</body>
+</html>

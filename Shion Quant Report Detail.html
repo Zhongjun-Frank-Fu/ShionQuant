@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>April Risk Attribution Report · Shion Quant Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@200;300;400;500;600&family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #fafbff;
+    --bg-soft:     #f2f4fc;
+    --paper:       #ffffff;
+    --royal:       #2347d4;
+    --royal-deep:  #1a35a8;
+    --royal-light: #3b5ee8;
+    --gold:        #c8a84b;
+    --ink:         #0d1020;
+    --ink-mid:     #2a2f4a;
+    --ink-soft:    #4a5070;
+    --ink-prose:   #1c2138;
+    --silver:      #8896b8;
+    --rule:        rgba(35,71,212,0.10);
+    --rule-strong: rgba(35,71,212,0.18);
+    --gain:        #2d8a5d;
+    --gain-soft:   rgba(45,138,93,0.10);
+    --loss:        #c45252;
+    --loss-soft:   rgba(196,82,82,0.10);
+    --warn:        #c8a84b;
+    --warn-soft:   rgba(200,168,75,0.12);
+    --serif-en:    'Libre Baskerville', Georgia, serif;
+    --sans-en:     'Outfit', sans-serif;
+    --serif-zh:    'Noto Serif SC', 'STSong', serif;
+    --sans-zh:     'Noto Sans SC', 'PingFang SC', sans-serif;
+    --mono:        'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans-en);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .zh, .zh-inline { display: none; }
+  .en { display: block; }
+  .en-inline { display: inline; }
+  body.lang-zh .en, body.lang-zh .en-inline { display: none; }
+  body.lang-zh .zh { display: block; }
+  body.lang-zh .zh-inline { display: inline; }
+  body.lang-zh { font-family: var(--sans-zh); }
+
+  /* ── PORTAL NAV ── */
+  .portal-nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.78rem 2.4rem;
+    background: rgba(250,251,255,0.94);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav-left { display: flex; align-items: center; gap: 3rem; }
+  .nav-logo { font-family: var(--serif-en); font-size: 1.18rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; text-decoration: none; }
+  .nav-logo .hl { color: var(--royal); }
+  body.lang-zh .nav-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-tabs { display: flex; gap: 2.2rem; list-style: none; }
+  .portal-tabs a {
+    font-family: var(--sans-en); font-size: 0.72rem; font-weight: 400;
+    letter-spacing: 0.08em; color: var(--ink-soft);
+    text-decoration: none; text-transform: uppercase;
+    padding: 0.4rem 0; position: relative; transition: color 0.2s;
+  }
+  body.lang-zh .portal-tabs a { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .portal-tabs a.active { color: var(--ink); }
+  .portal-tabs a.active::after { content: ''; position: absolute; bottom: -0.4rem; left: 0; right: 0; height: 2px; background: var(--royal); }
+  .portal-tabs a:hover { color: var(--royal); }
+  .nav-right-portal { display: flex; align-items: center; gap: 1.2rem; }
+  .lang-toggle { display: flex; align-items: center; background: rgba(35,71,212,0.06); border-radius: 18px; padding: 2px; }
+  .lang-btn {
+    font-family: var(--sans-en);
+    font-size: 0.62rem; font-weight: 500; letter-spacing: 0.06em;
+    padding: 0.26rem 0.62rem;
+    border: none; background: transparent;
+    color: var(--ink-soft); cursor: pointer;
+    border-radius: 14px; transition: all 0.25s;
+  }
+  .lang-btn.active { background: var(--royal); color: #fff; box-shadow: 0 2px 6px rgba(35,71,212,0.25); }
+  .user-menu {
+    display: flex; align-items: center; gap: 0.6rem;
+    background: transparent; border: 1px solid var(--rule); border-radius: 30px;
+    padding: 0.26rem 0.85rem 0.26rem 0.28rem;
+    cursor: pointer; transition: border-color 0.25s, background 0.25s;
+    font-family: var(--sans-en);
+  }
+  body.lang-zh .user-menu { font-family: var(--sans-zh); }
+  .user-menu:hover { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+  .avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--royal-light), var(--royal-deep));
+    color: #fff; font-family: var(--serif-en);
+    font-size: 0.66rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .user-name { font-size: 0.74rem; font-weight: 400; color: var(--ink); }
+
+  /* ── BREADCRUMB ── */
+  .breadcrumb {
+    padding: 1.4rem 2.4rem 0;
+    font-family: var(--sans-en);
+    font-size: 0.66rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--silver);
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  body.lang-zh .breadcrumb { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .breadcrumb a { color: var(--silver); text-decoration: none; transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--royal); }
+  .breadcrumb .chev { opacity: 0.5; }
+  .breadcrumb .current { color: var(--ink-mid); }
+
+  /* ── REPORT HEADER ── */
+  .report-header {
+    padding: 1.5rem 2.4rem 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .rh-meta {
+    font-family: var(--sans-en);
+    font-size: 0.6rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--silver);
+    display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;
+    margin-bottom: 0.95rem;
+  }
+  body.lang-zh .rh-meta { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .rh-meta .tag {
+    background: var(--royal); color: #fff;
+    padding: 0.22rem 0.6rem; border-radius: 2px;
+    letter-spacing: 0.14em; font-weight: 500; font-size: 0.56rem;
+  }
+  body.lang-zh .rh-meta .tag { letter-spacing: 0.04em; }
+  .rh-meta .date, .rh-meta .author { color: var(--ink-mid); font-weight: 400; }
+
+  .rh-title {
+    font-family: var(--serif-en);
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 0.85rem;
+    max-width: 22ch;
+  }
+  body.lang-zh .rh-title { font-family: var(--serif-zh); max-width: 16em; }
+  .rh-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+
+  .rh-lede {
+    font-family: var(--serif-en);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--ink-soft);
+    font-weight: 400;
+    line-height: 1.55;
+    max-width: 70ch;
+  }
+  body.lang-zh .rh-lede { font-family: var(--serif-zh); font-style: normal; max-width: 36em; }
+
+  .rh-stats {
+    display: flex;
+    gap: 0;
+    margin-top: 1.6rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 1.2rem;
+  }
+  .rh-stats > div {
+    padding: 0 1.4rem;
+    border-left: 1px solid var(--rule);
+  }
+  .rh-stats > div:first-child { padding-left: 0; border-left: none; }
+  .rh-stats .rs-label {
+    font-family: var(--sans-en);
+    font-size: 0.54rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--silver);
+    display: block; margin-bottom: 0.35rem;
+  }
+  body.lang-zh .rh-stats .rs-label { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .rh-stats .rs-value {
+    font-family: var(--serif-en);
+    font-size: 1.15rem; font-style: italic;
+    font-weight: 400; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── BODY LAYOUT ── */
+  .reading-body {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 0;
+  }
+  .reading-main {
+    padding: 2.4rem 2.4rem 4rem;
+    background: var(--paper);
+    border-right: 1px solid var(--rule);
+  }
+  .reading-aside {
+    padding: 2.4rem 1.8rem 4rem;
+    background: var(--bg-soft);
+    position: relative;
+  }
+  .reading-aside > .aside-inner {
+    position: sticky;
+    top: 4rem;
+  }
+
+  /* ── REPORT SECTIONS ── */
+  .rep-section {
+    max-width: 720px;
+    margin-bottom: 2.6rem;
+  }
+  .rep-section:last-child { margin-bottom: 0; }
+  .rs-num-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .rs-num {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--royal);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+  .rs-title {
+    font-family: var(--serif-en);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+  body.lang-zh .rs-title { font-family: var(--serif-zh); }
+  .rs-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+
+  .rs-lead {
+    font-family: var(--serif-en);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 1.2rem;
+    font-weight: 400;
+    padding-left: 0;
+    max-width: 65ch;
+  }
+  body.lang-zh .rs-lead { font-family: var(--serif-zh); font-style: normal; max-width: 32em; }
+
+  .rs-prose {
+    font-family: var(--serif-en);
+    font-size: 0.93rem;
+    line-height: 1.8;
+    color: var(--ink-prose);
+    font-weight: 400;
+    max-width: 65ch;
+    margin-bottom: 1.1rem;
+  }
+  body.lang-zh .rs-prose { font-family: var(--serif-zh); font-size: 0.92rem; line-height: 1.85; max-width: 34em; }
+  .rs-prose strong {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .rs-prose em {
+    font-style: italic;
+    color: var(--royal);
+  }
+  body.lang-zh .rs-prose em { color: var(--royal); font-style: normal; font-weight: 600; }
+
+  /* Pull quote */
+  .pull-quote {
+    border-left: 2px solid var(--royal);
+    padding: 0.6rem 0 0.6rem 1.4rem;
+    margin: 1.4rem 0;
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 1.1rem;
+    line-height: 1.55;
+    color: var(--royal-deep);
+    font-weight: 400;
+    max-width: 60ch;
+  }
+  body.lang-zh .pull-quote { font-family: var(--serif-zh); font-style: normal; }
+
+  /* Inline data table */
+  .data-table {
+    width: 100%;
+    max-width: 720px;
+    border-collapse: collapse;
+    font-family: var(--sans-en);
+    font-variant-numeric: tabular-nums;
+    margin: 1.2rem 0 1.4rem;
+  }
+  body.lang-zh .data-table { font-family: var(--sans-zh); }
+  .data-table caption {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    text-align: left;
+    margin-bottom: 0.55rem;
+    font-weight: 500;
+  }
+  body.lang-zh .data-table caption { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .data-table th {
+    text-align: right;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.54rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  body.lang-zh .data-table th { letter-spacing: 0.06em; text-transform: none; }
+  .data-table th:first-child { text-align: left; padding-left: 0; }
+  .data-table td {
+    padding: 0.55rem 0.65rem;
+    text-align: right;
+    font-size: 0.78rem;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule);
+  }
+  .data-table td:first-child {
+    text-align: left;
+    padding-left: 0;
+    color: var(--ink-mid);
+  }
+  .data-table .sym {
+    font-family: var(--mono);
+    color: var(--royal);
+    font-weight: 500;
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
+  }
+  .data-table .gain { color: var(--gain); }
+  .data-table .loss { color: var(--loss); }
+  .data-table tfoot td {
+    border-bottom: none;
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 0.84rem;
+    padding-top: 0.85rem;
+  }
+  .data-table tfoot td:first-child {
+    font-family: var(--sans-en);
+    font-style: normal;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mid);
+    font-weight: 500;
+  }
+  body.lang-zh .data-table tfoot td:first-child { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+
+  /* Inline chart */
+  .chart-figure {
+    margin: 1.2rem 0 1.6rem;
+    max-width: 720px;
+  }
+  .chart-figure svg { width: 100%; display: block; }
+  .chart-figure figcaption {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    color: var(--silver);
+    margin-top: 0.55rem;
+    line-height: 1.45;
+    letter-spacing: 0.02em;
+  }
+  body.lang-zh .chart-figure figcaption { font-family: var(--sans-zh); }
+  .chart-figure figcaption strong {
+    color: var(--ink-mid);
+    font-weight: 500;
+  }
+  .chart-axis {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--silver);
+    margin-top: 0.4rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* Recommendation list */
+  .rec-list {
+    list-style: none;
+    margin: 1rem 0 1.4rem;
+    max-width: 65ch;
+  }
+  .rec-item {
+    padding: 0.85rem 0 0.85rem 2.4rem;
+    border-top: 1px solid var(--rule);
+    position: relative;
+  }
+  .rec-item:last-child { border-bottom: 1px solid var(--rule); }
+  .rec-item::before {
+    content: counter(rec-counter, decimal-leading-zero);
+    counter-increment: rec-counter;
+    position: absolute;
+    left: 0; top: 1.05rem;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--royal);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+  .rec-list { counter-reset: rec-counter; }
+  .rec-title {
+    font-family: var(--sans-en);
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+  body.lang-zh .rec-title { font-family: var(--sans-zh); }
+  .rec-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .rec-desc {
+    font-family: var(--sans-en);
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  body.lang-zh .rec-desc { font-family: var(--sans-zh); }
+  .rec-desc strong { color: var(--ink-mid); font-weight: 500; }
+
+  /* Footnotes */
+  .footnotes {
+    margin-top: 3rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: var(--silver);
+    line-height: 1.6;
+    max-width: 70ch;
+  }
+  body.lang-zh .footnotes { font-family: var(--sans-zh); }
+  .footnotes p { margin-bottom: 0.55rem; }
+  .footnotes strong { color: var(--ink-mid); font-weight: 500; }
+
+  /* ── ASIDE ── */
+  .aside-block {
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .aside-block:first-child { padding-top: 0; }
+  .aside-block:last-child { border-bottom: none; }
+  .aside-label {
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--royal);
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  body.lang-zh .aside-label { font-family: var(--sans-zh); letter-spacing: 0.08em; text-transform: none; }
+  .aside-label::before {
+    content: '';
+    width: 18px; height: 1.5px;
+    background: var(--royal);
+  }
+
+  .toc-list { list-style: none; }
+  .toc-item {
+    padding: 0.45rem 0;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    gap: 0.7rem;
+    align-items: baseline;
+    text-decoration: none;
+    color: var(--ink-mid);
+    transition: color 0.2s, padding-left 0.2s;
+  }
+  .toc-item:first-child { border-top: none; }
+  .toc-item:hover { color: var(--royal); padding-left: 0.3rem; }
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--silver);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .toc-text {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    flex: 1;
+    line-height: 1.4;
+  }
+  body.lang-zh .toc-text { font-family: var(--sans-zh); }
+
+  .actions-stack { display: flex; flex-direction: column; gap: 0.5rem; }
+  .ha-btn {
+    font-family: var(--sans-en);
+    font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-soft); background: transparent;
+    border: 1px solid var(--rule);
+    padding: 0.55rem 0.95rem;
+    cursor: pointer; border-radius: 3px;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    text-decoration: none; white-space: nowrap;
+    width: 100%;
+  }
+  body.lang-zh .ha-btn { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .ha-btn:hover { border-color: var(--royal); color: var(--royal); background: #fff; }
+  .ha-btn.primary { background: var(--royal); color: #fff; border-color: var(--royal); }
+  .ha-btn.primary:hover { background: var(--royal-deep); border-color: var(--royal-deep); transform: translateY(-1px); }
+
+  .author-card {
+    display: flex; gap: 0.75rem; align-items: center;
+    padding: 0.85rem 1rem;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+  }
+  .au-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--royal-light), var(--royal-deep));
+    color: #fff;
+    font-family: var(--serif-en);
+    font-size: 0.82rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .au-name {
+    font-family: var(--sans-en);
+    font-size: 0.82rem; font-weight: 500;
+    color: var(--ink); margin-bottom: 0.1rem;
+  }
+  body.lang-zh .au-name { font-family: var(--sans-zh); }
+  .au-role {
+    font-family: var(--sans-en);
+    font-size: 0.66rem; color: var(--ink-soft); font-weight: 300;
+  }
+  body.lang-zh .au-role { font-family: var(--sans-zh); }
+
+  .related-list { display: flex; flex-direction: column; }
+  .related-item {
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+    transition: padding-left 0.2s, color 0.2s;
+    display: block;
+  }
+  .related-item:first-child { border-top: none; }
+  .related-item:hover { padding-left: 0.3rem; color: var(--royal); }
+  .ri-meta {
+    font-family: var(--sans-en);
+    font-size: 0.55rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--silver);
+    margin-bottom: 0.25rem;
+    display: flex; gap: 0.5rem;
+  }
+  body.lang-zh .ri-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .ri-title {
+    font-family: var(--serif-en);
+    font-size: 0.84rem; font-weight: 700;
+    line-height: 1.3; letter-spacing: -0.01em;
+    color: inherit;
+  }
+  body.lang-zh .ri-title { font-family: var(--serif-zh); }
+
+  /* ── FOOTER ── */
+  .portal-foot {
+    background: var(--ink);
+    padding: 0.9rem 2.4rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; justify-content: space-between;
+    align-items: center; gap: 1rem;
+  }
+  .portal-foot-logo { font-family: var(--serif-en); font-size: 0.85rem; font-weight: 700; color: #fff; }
+  .portal-foot-logo .hl { color: var(--royal-light); }
+  body.lang-zh .portal-foot-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-foot-meta {
+    font-family: var(--sans-en);
+    font-size: 0.58rem; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.32); text-transform: uppercase;
+    display: flex; gap: 0.6rem; flex-wrap: wrap;
+  }
+  body.lang-zh .portal-foot-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .portal-foot-meta a { color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+  .portal-foot-meta a:hover { color: #fff; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1180px) {
+    .portal-tabs { gap: 1.6rem; }
+    .portal-tabs a { font-size: 0.7rem; }
+    .reading-body { grid-template-columns: 1fr 240px; }
+  }
+  @media (max-width: 1024px) {
+    .portal-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.8rem; }
+    .nav-left { gap: 1.5rem; flex: 1 1 auto; }
+    .portal-tabs { display: none; }
+    .breadcrumb { padding: 1rem 1.5rem 0; }
+    .report-header { padding: 1rem 1.5rem 1.6rem; }
+    .rh-stats { flex-wrap: wrap; }
+    .rh-stats > div { padding: 0.6rem 1rem; border-left: none; border-right: 1px solid var(--rule); }
+    .rh-stats > div:first-child { padding-left: 0; }
+    .reading-body { grid-template-columns: 1fr; }
+    .reading-main { padding: 2rem 1.5rem 3rem; border-right: none; border-bottom: 1px solid var(--rule); }
+    .reading-aside { padding: 2rem 1.5rem 3rem; }
+    .reading-aside > .aside-inner { position: static; }
+    .data-table { display: block; overflow-x: auto; white-space: nowrap; }
+    .portal-foot { padding: 1.4rem 1.5rem; flex-direction: column; gap: 0.6rem; text-align: center; }
+  }
+</style>
+</head>
+<body id="body">
+
+<!-- ── PORTAL NAV ── -->
+<nav class="portal-nav">
+  <div class="nav-left">
+    <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="nav-logo">
+      <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+      <span class="zh-inline">欣安<span class="hl">量化</span></span>
+    </a>
+    <ul class="portal-tabs">
+      <li><a href="Shion Quant Portal.html"><span class="en-inline">Portfolio</span><span class="zh-inline">投资组合</span></a></li>
+      <li><a href="Shion Quant Schedules.html"><span class="en-inline">Schedules</span><span class="zh-inline">日程安排</span></a></li>
+      <li><a href="Shion Quant Reports.html" class="active"><span class="en-inline">Reports</span><span class="zh-inline">分析报告</span></a></li>
+      <li><a href="Shion Quant Documents.html"><span class="en-inline">Documents</span><span class="zh-inline">文件资料</span></a></li>
+    </ul>
+  </div>
+  <div class="nav-right-portal">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+    </div>
+    <button class="user-menu">
+      <span class="avatar">CH</span>
+      <span class="user-name"><span class="en-inline">Mr. Chen</span><span class="zh-inline">陈先生</span></span>
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ── BREADCRUMB ── -->
+<div class="breadcrumb">
+  <a href="Shion Quant Reports.html"><span class="en-inline">Reports</span><span class="zh-inline">分析报告</span></a>
+  <span class="chev">›</span>
+  <a href="Shion Quant Reports.html"><span class="en-inline">April 2026</span><span class="zh-inline">2026 年 4 月</span></a>
+  <span class="chev">›</span>
+  <span class="current"><span class="en-inline">Risk Attribution</span><span class="zh-inline">风险归因</span></span>
+</div>
+
+<!-- ── REPORT HEADER ── -->
+<header class="report-header">
+  <div class="rh-meta">
+    <span class="tag"><span class="en-inline">Monthly Risk</span><span class="zh-inline">月度风险</span></span>
+    <span class="date">22 Apr 2026</span>
+    <span>·</span>
+    <span class="author"><span class="en-inline">K. Tanaka</span><span class="zh-inline">K. Tanaka 撰</span></span>
+    <span>·</span>
+    <span>18 pp</span>
+    <span>·</span>
+    <span><span class="en-inline">Confidential · Client 0042</span><span class="zh-inline">机密 · 客户编号 0042</span></span>
+  </div>
+  <h1 class="rh-title">
+    <span class="en">April <em>Risk Attribution</em> Report</span>
+    <span class="zh">4 月<em>风险归因</em>报告</span>
+  </h1>
+  <p class="rh-lede">
+    <span class="en-inline">Net portfolio beta drifted from 0.78 to 0.82 in April, primarily driven by NVDA position growth. Tail hedges reduced effective downside by 31% under simulated 5% market drop. Concentration trigger now active.</span>
+    <span class="zh-inline">4 月组合 Beta 由 0.78 漂移至 0.82，主因 NVDA 仓位扩张。尾部对冲在模拟 5% 跌幅下将实际下行减少 31%。集中度预警已生效。</span>
+  </p>
+  <div class="rh-stats">
+    <div>
+      <span class="rs-label"><span class="en-inline">Pages</span><span class="zh-inline">页数</span></span>
+      <span class="rs-value">18</span>
+    </div>
+    <div>
+      <span class="rs-label"><span class="en-inline">Charts</span><span class="zh-inline">图表</span></span>
+      <span class="rs-value">12</span>
+    </div>
+    <div>
+      <span class="rs-label"><span class="en-inline">Tables</span><span class="zh-inline">数据表</span></span>
+      <span class="rs-value">7</span>
+    </div>
+    <div>
+      <span class="rs-label"><span class="en-inline">Read time</span><span class="zh-inline">阅读时长</span></span>
+      <span class="rs-value">~22 min</span>
+    </div>
+    <div>
+      <span class="rs-label"><span class="en-inline">Sections</span><span class="zh-inline">章节</span></span>
+      <span class="rs-value">6</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── BODY ── -->
+<div class="reading-body">
+
+  <!-- MAIN COLUMN -->
+  <main class="reading-main">
+
+    <!-- Section 01 -->
+    <section class="rep-section" id="sec-01">
+      <div class="rs-num-wrap">
+        <span class="rs-num">01</span>
+        <h2 class="rs-title">
+          <span class="en">Performance <em>attribution</em></span>
+          <span class="zh">业绩<em>归因</em></span>
+        </h2>
+      </div>
+      <p class="rs-lead">
+        <span class="en-inline">April closed +4.4% net of fees, ahead of SPY's +2.9% and largely driven by NVDA's +8.7% monthly contribution. The trailing 90-day Sharpe held at 1.74 despite increased dispersion in single-name returns.</span>
+        <span class="zh-inline">4 月扣费后收益 +4.4%，跑赢 SPY 的 +2.9%，主要由 NVDA 单月 +8.7% 的贡献驱动。尽管个股收益离散度上升，近 90 日 Sharpe 仍维持在 1.74。</span>
+      </p>
+      <p class="rs-prose">
+        <span class="en-inline">Top contributors followed the concentration pattern flagged in the March report: <strong>NVDA, AAPL, and MSFT together accounted for 76% of monthly equity P/L</strong>, with NVDA alone delivering 58 bps to total portfolio return. Detractors were modest in scale — LMT's defense-sector pullback (−3.2%) clipped 12 bps, and the protective put position drag amounted to a further 8 bps net of any unrealized gain on the puts themselves.</span>
+        <span class="zh-inline">主要贡献者延续了 3 月报告所标记的集中模式：<strong>NVDA、AAPL、MSFT 三者合计贡献 4 月股票盈亏的 76%</strong>，仅 NVDA 一只就贡献了组合总收益 58 bps。拖累项规模有限——LMT 国防板块回调（−3.2%）削减 12 bps，保护性看跌仓位的净拖累再为 8 bps（含 put 自身浮盈对冲后）。</span>
+      </p>
+
+      <table class="data-table">
+        <caption><span class="en-inline">Top 5 contributors · April 2026</span><span class="zh-inline">4 月主要贡献者 Top 5</span></caption>
+        <thead>
+          <tr>
+            <th><span class="en-inline">Symbol</span><span class="zh-inline">代码</span></th>
+            <th><span class="en-inline">Avg Weight</span><span class="zh-inline">平均权重</span></th>
+            <th><span class="en-inline">Return</span><span class="zh-inline">收益</span></th>
+            <th><span class="en-inline">Contrib (bps)</span><span class="zh-inline">贡献（bps）</span></th>
+            <th><span class="en-inline">% of Equity P/L</span><span class="zh-inline">股票盈亏占比</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="sym">NVDA</td><td>16.8%</td><td class="gain">+8.7%</td><td class="gain">+58</td><td>34.2%</td></tr>
+          <tr><td class="sym">AAPL</td><td>11.2%</td><td class="gain">+5.4%</td><td class="gain">+24</td><td>14.1%</td></tr>
+          <tr><td class="sym">MSFT</td><td>9.0%</td><td class="gain">+4.8%</td><td class="gain">+22</td><td>12.9%</td></tr>
+          <tr><td class="sym">TSM</td><td>5.4%</td><td class="gain">+6.1%</td><td class="gain">+15</td><td>8.8%</td></tr>
+          <tr><td class="sym">BRK.B</td><td>4.5%</td><td class="gain">+3.2%</td><td class="gain">+8</td><td>4.7%</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><span class="en-inline">Subtotal</span><span class="zh-inline">小计</span></td>
+            <td>46.9%</td>
+            <td>—</td>
+            <td>+127 bps</td>
+            <td>74.7%</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <p class="rs-prose">
+        <span class="en-inline">The remaining 25% of equity P/L came from BRK.B (+4.7%), GOOGL (+3.1%), partly offset by LMT (−2.5%). Bond and option sleeves contributed +0.18% and −0.05% respectively. Cash drag was −0.04%.</span>
+        <span class="zh-inline">余下约 25% 的股票盈亏来自 BRK.B（+4.7%）、GOOGL（+3.1%），部分被 LMT（−2.5%）抵消。债券与期权层分别贡献 +0.18% 与 −0.05%。现金拖累 −0.04%。</span>
+      </p>
+    </section>
+
+    <!-- Section 02 -->
+    <section class="rep-section" id="sec-02">
+      <div class="rs-num-wrap">
+        <span class="rs-num">02</span>
+        <h2 class="rs-title">
+          <span class="en">Beta <em>drift</em> attribution</span>
+          <span class="zh">Beta <em>漂移</em>归因</span>
+        </h2>
+      </div>
+      <p class="rs-lead">
+        <span class="en-inline">Net portfolio beta increased from 0.78 (end-March) to 0.82 (end-April), with the 30-day rolling estimate now at the upper edge of the policy band [0.65, 0.85].</span>
+        <span class="zh-inline">组合净 Beta 由 3 月底 0.78 上升至 4 月底 0.82，30 日滚动估计已接近政策区间 [0.65, 0.85] 的上沿。</span>
+      </p>
+      <p class="rs-prose">
+        <span class="en-inline">The drift is mechanical, not behavioural — no purchases were made in April. The +0.05 contribution from NVDA is a pure mark-to-market effect: as price appreciated 8.7% over the month, NVDA's portfolio weight rose from 16.5% to 18.0%, lifting the weighted exposure to its high beta (β ≈ 1.6). The hedge offset of −0.02 reflects the SPY 530P delta, which deepens as the underlying moves up (paradoxically, the put has more delta now than at initiation because of vega and term-structure effects).</span>
+        <span class="zh-inline">本次漂移是机械性的，而非主动操作——4 月并未进行买入。NVDA 贡献的 +0.05 完全来自市价变动效应：价格月内上涨 8.7%，使 NVDA 权重由 16.5% 升至 18.0%，进而拉高其高 Beta（β ≈ 1.6）的加权敞口。−0.02 的对冲抵消反映 SPY 530P 的 delta——随着标的上涨反而加深（看似反直觉，但因 vega 与期限结构效应所致）。</span>
+      </p>
+
+      <figure class="chart-figure">
+        <svg viewBox="0 0 720 220" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="betaG" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#2347d4" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#2347d4" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- policy band -->
+          <rect x="0" y="55" width="720" height="80" fill="rgba(45,138,93,0.04)"/>
+          <line x1="0" y1="55" x2="720" y2="55" stroke="rgba(45,138,93,0.25)" stroke-dasharray="4 4" stroke-width="1"/>
+          <line x1="0" y1="135" x2="720" y2="135" stroke="rgba(45,138,93,0.25)" stroke-dasharray="4 4" stroke-width="1"/>
+          <text x="6" y="50" font-family="JetBrains Mono" font-size="10" fill="#2d8a5d">β = 0.85 ceiling</text>
+          <text x="6" y="148" font-family="JetBrains Mono" font-size="10" fill="#2d8a5d">β = 0.65 floor</text>
+
+          <!-- area + line: rolling 30d beta from March 1 to April 30 -->
+          <path d="M 0,108 L 36,114 L 72,108 L 108,102 L 144,96 L 180,92 L 216,98 L 252,90 L 288,86 L 324,82 L 360,84 L 396,78 L 432,72 L 468,68 L 504,72 L 540,64 L 576,60 L 612,58 L 648,62 L 684,58 L 720,55 L 720,220 L 0,220 Z" fill="url(#betaG)"/>
+          <polyline points="0,108 36,114 72,108 108,102 144,96 180,92 216,98 252,90 288,86 324,82 360,84 396,78 432,72 468,68 504,72 540,64 576,60 612,58 648,62 684,58 720,55" fill="none" stroke="#2347d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- end marker -->
+          <circle cx="720" cy="55" r="4" fill="#fff" stroke="#c8a84b" stroke-width="2"/>
+
+          <!-- midpoint (March 31 marker) -->
+          <line x1="360" y1="0" x2="360" y2="220" stroke="rgba(35,71,212,0.15)" stroke-dasharray="2 4" stroke-width="1"/>
+          <text x="364" y="14" font-family="JetBrains Mono" font-size="10" fill="rgba(35,71,212,0.6)">31 Mar</text>
+        </svg>
+        <div class="chart-axis">
+          <span>1 Mar</span>
+          <span>15 Mar</span>
+          <span>31 Mar</span>
+          <span>15 Apr</span>
+          <span>30 Apr</span>
+        </div>
+        <figcaption>
+          <strong><span class="en-inline">Fig. 02 ·</span><span class="zh-inline">图 02 ·</span></strong>
+          <span class="en-inline">Rolling 30-day portfolio beta vs. SPY across March–April 2026. Green band marks the policy range [0.65, 0.85]. Closing value of 0.82 sits at the 96th percentile of the trailing 12 months — but still inside policy.</span>
+          <span class="zh-inline">2026 年 3–4 月组合相对 SPY 的 30 日滚动 Beta。绿色区域标示政策区间 [0.65, 0.85]。月末值 0.82 处于过去 12 个月的第 96 分位——仍在政策范围内。</span>
+        </figcaption>
+      </figure>
+
+      <table class="data-table">
+        <caption><span class="en-inline">Beta drift decomposition · March → April</span><span class="zh-inline">Beta 漂移分解 · 3 月 → 4 月</span></caption>
+        <thead>
+          <tr>
+            <th><span class="en-inline">Source</span><span class="zh-inline">来源</span></th>
+            <th><span class="en-inline">Δβ Contribution</span><span class="zh-inline">Δβ 贡献</span></th>
+            <th><span class="en-inline">Mechanism</span><span class="zh-inline">机制</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="sym">NVDA</td><td class="loss">+0.050</td><td><span class="en-inline">Weight ↑ via price</span><span class="zh-inline">权重因价格上升</span></td></tr>
+          <tr><td class="sym">AAPL</td><td class="loss">+0.012</td><td><span class="en-inline">Weight ↑ via price</span><span class="zh-inline">权重因价格上升</span></td></tr>
+          <tr><td class="sym">MSFT</td><td class="loss">+0.008</td><td><span class="en-inline">Weight ↑ via price</span><span class="zh-inline">权重因价格上升</span></td></tr>
+          <tr><td class="sym">SPY 530P</td><td class="gain">−0.022</td><td><span class="en-inline">Δ deepening with underlying ↑</span><span class="zh-inline">Δ 随标的上行加深</span></td></tr>
+          <tr><td class="sym">UST</td><td class="gain">−0.005</td><td><span class="en-inline">Duration · negative β</span><span class="zh-inline">久期 · 负 β</span></td></tr>
+          <tr><td class="sym">Other</td><td>−0.003</td><td><span class="en-inline">BRK.B, GOOGL, LMT, cash drift</span><span class="zh-inline">BRK.B / GOOGL / LMT / 现金漂移</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><span class="en-inline">Net Δβ</span><span class="zh-inline">净 Δβ</span></td>
+            <td>+0.040</td>
+            <td>0.78 → 0.82</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="pull-quote">
+        <span class="en-inline">"Beta drift this month is the price of doing nothing while concentration grew. The hedge did its job in restraining further drift, but cannot reverse it on its own."</span>
+        <span class="zh-inline">「本月的 Beta 漂移，是在集中度持续上升时按兵不动所付出的代价。对冲限制了进一步漂移，但无法独自将其逆转。」</span>
+      </div>
+    </section>
+
+    <!-- Section 03 -->
+    <section class="rep-section" id="sec-03">
+      <div class="rs-num-wrap">
+        <span class="rs-num">03</span>
+        <h2 class="rs-title">
+          <span class="en">Hedge <em>effectiveness</em></span>
+          <span class="zh">对冲<em>有效性</em></span>
+        </h2>
+      </div>
+      <p class="rs-lead">
+        <span class="en-inline">The SPY 530P (8 contracts, 20 June expiry) reduced effective downside by 31% in our 5%-market-drop simulation, slightly outperforming the 25% target set in the March memo.</span>
+        <span class="zh-inline">SPY 530P（8 张合约，6/20 到期）在 5% 市场跌幅模拟中将实际下行减少 31%，略高于 3 月备忘设定的 25% 目标。</span>
+      </p>
+      <p class="rs-prose">
+        <span class="en-inline">We re-ran the counterfactual with three alternative hedge constructions: <em>do nothing</em>, <em>same notional via 480P</em> (out-of-the-money), and <em>same premium via 540P</em> (closer-to-the-money). The 530P struck the best risk-cost trade in this quarter's volatility regime, though its margin of advantage over 540P is narrow (~3% of protection efficiency for ~8% lower premium spend).</span>
+        <span class="zh-inline">我们以三种替代对冲方案重做反事实测算：<em>不对冲</em>、<em>同名义额度 480P</em>（深虚值）、<em>同保费 540P</em>（接近平值）。本季度波动率体制下 530P 实现了最佳风险-成本平衡，但相较 540P 的边际优势不大（保护效率约高 3%，保费成本约低 8%）。</span>
+      </p>
+
+      <table class="data-table">
+        <caption><span class="en-inline">Hedge counterfactual · 5% market drop scenario</span><span class="zh-inline">对冲反事实 · 5% 市场跌幅情景</span></caption>
+        <thead>
+          <tr>
+            <th><span class="en-inline">Construction</span><span class="zh-inline">构造</span></th>
+            <th><span class="en-inline">Premium Paid</span><span class="zh-inline">保费</span></th>
+            <th><span class="en-inline">Naked Loss</span><span class="zh-inline">裸跌损失</span></th>
+            <th><span class="en-inline">Hedged Loss</span><span class="zh-inline">对冲后</span></th>
+            <th><span class="en-inline">Reduction</span><span class="zh-inline">下行减少</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="en-inline">Do nothing</span><span class="zh-inline">不对冲</span></td><td>$0</td><td class="loss">−$142,367</td><td class="loss">−$142,367</td><td>0%</td></tr>
+          <tr><td><span class="en-inline">SPY 480P × 12</span><span class="zh-inline">SPY 480P × 12</span></td><td>−$5,640</td><td class="loss">−$142,367</td><td class="loss">−$118,512</td><td class="gain">17%</td></tr>
+          <tr style="background:rgba(35,71,212,0.04);"><td><strong><span class="en-inline">SPY 530P × 8 (current)</span><span class="zh-inline">SPY 530P × 8（实际持有）</span></strong></td><td>−$7,520</td><td class="loss">−$142,367</td><td class="loss">−$98,233</td><td class="gain">31%</td></tr>
+          <tr><td><span class="en-inline">SPY 540P × 8</span><span class="zh-inline">SPY 540P × 8</span></td><td>−$8,160</td><td class="loss">−$142,367</td><td class="loss">−$93,872</td><td class="gain">34%</td></tr>
+        </tbody>
+      </table>
+
+      <p class="rs-prose">
+        <span class="en-inline">The 530P will require a roll decision in mid-June. On current volatility surface, the September 540P offers similar protection efficiency at +18% premium. We recommend rolling at the next quarterly OPEX (20 June) regardless of where SPY trades — gamma decay accelerates substantially in the final 30 days.</span>
+        <span class="zh-inline">530P 将在 6 月中旬面临展期决策。基于当前波动率曲面，9 月 540P 可提供相近的保护效率，保费成本上升约 18%。建议无论 SPY 价格如何，都在下一个季度 OPEX（6/20）展期——最后 30 天 gamma 衰减显著加速。</span>
+      </p>
+    </section>
+
+    <!-- Section 04 -->
+    <section class="rep-section" id="sec-04">
+      <div class="rs-num-wrap">
+        <span class="rs-num">04</span>
+        <h2 class="rs-title">
+          <span class="en">Factor <em>decomposition</em></span>
+          <span class="zh">因子<em>分解</em></span>
+        </h2>
+      </div>
+      <p class="rs-lead">
+        <span class="en-inline">Style exposures remained tilted toward Quality and Momentum, with a modest Low-Volatility short. Sector exposure is concentrated in Technology (44% vs. SPY's 30%).</span>
+        <span class="zh-inline">风格暴露持续偏向 Quality 与 Momentum，伴随小幅 Low-Volatility 空头。行业敞口集中于科技（44%，对比 SPY 的 30%）。</span>
+      </p>
+
+      <table class="data-table">
+        <caption><span class="en-inline">Style factor exposures vs. SPY</span><span class="zh-inline">风格因子敞口 · 对比 SPY</span></caption>
+        <thead>
+          <tr>
+            <th><span class="en-inline">Factor</span><span class="zh-inline">因子</span></th>
+            <th><span class="en-inline">Portfolio</span><span class="zh-inline">组合</span></th>
+            <th><span class="en-inline">SPY</span></th>
+            <th><span class="en-inline">Active</span><span class="zh-inline">主动暴露</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="en-inline">Quality</span><span class="zh-inline">质量</span></td><td>+0.84</td><td>+0.18</td><td class="gain">+0.66</td></tr>
+          <tr><td><span class="en-inline">Momentum</span><span class="zh-inline">动量</span></td><td>+0.72</td><td>+0.22</td><td class="gain">+0.50</td></tr>
+          <tr><td><span class="en-inline">Growth</span><span class="zh-inline">成长</span></td><td>+0.55</td><td>+0.32</td><td class="gain">+0.23</td></tr>
+          <tr><td><span class="en-inline">Value</span><span class="zh-inline">价值</span></td><td>−0.41</td><td>−0.08</td><td class="loss">−0.33</td></tr>
+          <tr><td><span class="en-inline">Low Vol</span><span class="zh-inline">低波动</span></td><td>−0.28</td><td>−0.05</td><td class="loss">−0.23</td></tr>
+          <tr><td><span class="en-inline">Size (small)</span><span class="zh-inline">规模（小盘）</span></td><td>−0.65</td><td>−0.30</td><td class="loss">−0.35</td></tr>
+        </tbody>
+      </table>
+
+      <p class="rs-prose">
+        <span class="en-inline">The active Quality + Momentum tilt is consistent with the strategy mandate. The Value short is structural and unintended — primarily a function of NVDA, MSFT, and GOOGL's growth profiles. <strong>If the Q1 earnings cycle delivers a value-rotation surprise, this factor exposure becomes the dominant risk driver, exceeding even concentration risk in magnitude.</strong></span>
+        <span class="zh-inline">主动 Quality + Momentum 倾斜符合策略授权。Value 空头则是结构性、非主动的——主要由 NVDA、MSFT、GOOGL 的成长属性所致。<strong>若 Q1 财报周期意外引发 Value 风格轮动，此因子敞口将成为最主要的风险来源，量级超过集中度风险。</strong></span>
+      </p>
+    </section>
+
+    <!-- Section 05 -->
+    <section class="rep-section" id="sec-05">
+      <div class="rs-num-wrap">
+        <span class="rs-num">05</span>
+        <h2 class="rs-title">
+          <span class="en">Forward <em>scenarios</em></span>
+          <span class="zh">前瞻<em>情景</em></span>
+        </h2>
+      </div>
+      <p class="rs-lead">
+        <span class="en-inline">Three scenarios projected over 30 and 90 days, with current portfolio composition held constant. Bull and bear paths assume single shock + drift; base path is regime-conditional.</span>
+        <span class="zh-inline">基于当前组合不变，对未来 30 日与 90 日做三种情景投影。多/空情景假设单次冲击叠加趋势，基准情景按市场体制条件推演。</span>
+      </p>
+
+      <table class="data-table">
+        <caption><span class="en-inline">Scenario projections · current allocation</span><span class="zh-inline">情景预测 · 维持当前配置</span></caption>
+        <thead>
+          <tr>
+            <th><span class="en-inline">Scenario</span><span class="zh-inline">情景</span></th>
+            <th><span class="en-inline">SPY assumption</span><span class="zh-inline">SPY 假设</span></th>
+            <th><span class="en-inline">30d return</span><span class="zh-inline">30 日收益</span></th>
+            <th><span class="en-inline">90d return</span><span class="zh-inline">90 日收益</span></th>
+            <th><span class="en-inline">Probability</span><span class="zh-inline">概率</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="en-inline">Bull · soft landing confirmed</span><span class="zh-inline">多 · 软着陆确认</span></td><td>+5%</td><td class="gain">+6.2%</td><td class="gain">+11.4%</td><td>32%</td></tr>
+          <tr style="background:rgba(35,71,212,0.04);"><td><strong><span class="en-inline">Base · range-bound</span><span class="zh-inline">基准 · 区间震荡</span></strong></td><td>±2%</td><td class="gain">+1.4%</td><td class="gain">+3.8%</td><td>48%</td></tr>
+          <tr><td><span class="en-inline">Bear · regime shift</span><span class="zh-inline">空 · 体制切换</span></td><td>−8%</td><td class="loss">−5.4%</td><td class="loss">−9.1%</td><td>20%</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><span class="en-inline">Probability-weighted</span><span class="zh-inline">概率加权</span></td>
+            <td>—</td>
+            <td>+1.55%</td>
+            <td>+3.55%</td>
+            <td>100%</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <p class="rs-prose">
+        <span class="en-inline">The bear case loss (−9.1% over 90d) sits comfortably inside the policy max-drawdown ceiling of −12%, but only because of the active SPY hedge. Without it, the same simulation produces −13.2% — outside policy.</span>
+        <span class="zh-inline">空头情景的 90 日损失 −9.1% 仍在政策最大回撤上限 −12% 之内，但这完全依赖现有 SPY 对冲。若移除该对冲，相同模拟将产生 −13.2%，已突破政策。</span>
+      </p>
+    </section>
+
+    <!-- Section 06 -->
+    <section class="rep-section" id="sec-06">
+      <div class="rs-num-wrap">
+        <span class="rs-num">06</span>
+        <h2 class="rs-title">
+          <span class="en"><em>Recommendations</em></span>
+          <span class="zh"><em>建议</em></span>
+        </h2>
+      </div>
+      <p class="rs-lead">
+        <span class="en-inline">Six action items in priority order. Items 1–2 require client decision before 22 May rebalance window opens; items 3–6 are advisory and will be executed at our discretion under the standing mandate.</span>
+        <span class="zh-inline">按优先级列出 6 项行动建议。第 1–2 项须在 5/22 再平衡窗口开启前由客户决策；第 3–6 项为顾问性建议，将在标准授权下由我方执行。</span>
+      </p>
+
+      <ol class="rec-list">
+        <li class="rec-item">
+          <div class="rec-title">
+            <span class="en">Trim NVDA <em>200 shares</em> pre-earnings</span>
+            <span class="zh">财报前减持 NVDA <em>200 股</em></span>
+          </div>
+          <div class="rec-desc">
+            <span class="en-inline">Restores concentration buffer. <strong>Decision required by 30 Apr 16:00 ET.</strong> See companion strategy memo of 19 Apr.</span>
+            <span class="zh-inline">恢复集中度安全边际。<strong>须于 4/30 16:00 ET 前决定。</strong>详见 4/19 配套策略备忘。</span>
+          </div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">
+            <span class="en">Roll SPY 530P forward to <em>September cycle</em></span>
+            <span class="zh">将 SPY 530P 展期至 <em>9 月周期</em></span>
+          </div>
+          <div class="rec-desc">
+            <span class="en-inline">Execute on 20 Jun OPEX regardless of underlying. Premium budget: <strong>~$8,800</strong> for 540P × 8.</span>
+            <span class="zh-inline">无论标的价格如何，于 6/20 OPEX 执行。保费预算：<strong>约 $8,800</strong>（540P × 8 张）。</span>
+          </div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">
+            <span class="en">Reduce 2Y UST allocation from <em>43% → 30%</em> of bond sleeve</span>
+            <span class="zh">将 2Y UST 由债券层 <em>43% 降至 30%</em></span>
+          </div>
+          <div class="rec-desc">
+            <span class="en-inline">Reallocate to 7Y duration to capture expected curve steepening. Per 15 Apr Macro Update.</span>
+            <span class="zh-inline">转配至 7 年久期以捕捉预期的曲线变陡。详见 4/15 宏观更新。</span>
+          </div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">
+            <span class="en">Initiate <em>covered call</em> ladder on AAPL</span>
+            <span class="zh">在 AAPL 启动<em>备兑看涨</em>梯式</span>
+          </div>
+          <div class="rec-desc">
+            <span class="en-inline">Sell 5 ct each at 230C / 240C / 250C across May / Jun / Jul. Yield enhancement on existing 1,500 sh position.</span>
+            <span class="zh-inline">在 5/6/7 月各卖出 5 张 230C / 240C / 250C。基于现有 1,500 股 AAPL 持仓增强收益。</span>
+          </div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">
+            <span class="en">Add small <em>defensive</em> position (KO or MCD)</span>
+            <span class="zh">小仓位补充<em>防御性</em>仓位（KO 或 MCD）</span>
+          </div>
+          <div class="rec-desc">
+            <span class="en-inline">Counterbalance Quality + Momentum tilt. Target weight 2–3% from existing cash.</span>
+            <span class="zh-inline">对冲 Quality + Momentum 倾斜。从现金中划拨 2–3% 目标权重。</span>
+          </div>
+        </li>
+        <li class="rec-item">
+          <div class="rec-title">
+            <span class="en">Reduce digital assets to <em>5% target</em></span>
+            <span class="zh">将数字资产<em>降至 5% 目标</em></span>
+          </div>
+          <div class="rec-desc">
+            <span class="en-inline">Currently 6.2% — drifted up with BTC's run. Trim 0.2 BTC, settle to USD.</span>
+            <span class="zh-inline">当前 6.2%——随 BTC 上涨自然漂移。减持 0.2 BTC，结算为美元。</span>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Footnotes -->
+    <div class="footnotes">
+      <p>
+        <strong>1.</strong>
+        <span class="en-inline">All performance figures net of management fees and trading costs unless explicitly noted. Returns calculated using time-weighted methodology, geometric linking.</span>
+        <span class="zh-inline">除特别注明外，所有业绩数据均扣除管理费与交易成本。收益采用时间加权方法、几何衔接计算。</span>
+      </p>
+      <p>
+        <strong>2.</strong>
+        <span class="en-inline">Beta calculated against SPDR S&amp;P 500 ETF (SPY) using 30-day rolling regression of daily log returns. Risk-free proxy: 3-month T-bill, 4.85% annualized.</span>
+        <span class="zh-inline">Beta 以日对数收益对 SPY ETF 30 日滚动回归计算。无风险利率参照 3 个月 T-bill，年化 4.85%。</span>
+      </p>
+      <p>
+        <strong>3.</strong>
+        <span class="en-inline">Scenario probabilities derived from blended sell-side consensus and Shion Quant proprietary regime model (Markov-switching). Final calibration: 22 Apr 2026.</span>
+        <span class="zh-inline">情景概率由卖方共识与欣安量化自有体制模型（马尔可夫切换）混合得出。最终校准日期：2026/4/22。</span>
+      </p>
+      <p>
+        <strong>4.</strong>
+        <span class="en-inline">Confidential. Prepared exclusively for Client 0042. Distribution restricted under Engagement Letter §4.2.</span>
+        <span class="zh-inline">保密文件。专供客户编号 0042 使用。依据合作协议第 4.2 条限制分发。</span>
+      </p>
+    </div>
+
+  </main>
+
+  <!-- ASIDE -->
+  <aside class="reading-aside">
+    <div class="aside-inner">
+
+      <div class="aside-block">
+        <div class="aside-label"><span class="en-inline">Contents</span><span class="zh-inline">目录</span></div>
+        <ul class="toc-list">
+          <li><a href="#sec-01" class="toc-item">
+            <span class="toc-num">01</span>
+            <span class="toc-text"><span class="en-inline">Performance attribution</span><span class="zh-inline">业绩归因</span></span>
+          </a></li>
+          <li><a href="#sec-02" class="toc-item">
+            <span class="toc-num">02</span>
+            <span class="toc-text"><span class="en-inline">Beta drift attribution</span><span class="zh-inline">Beta 漂移归因</span></span>
+          </a></li>
+          <li><a href="#sec-03" class="toc-item">
+            <span class="toc-num">03</span>
+            <span class="toc-text"><span class="en-inline">Hedge effectiveness</span><span class="zh-inline">对冲有效性</span></span>
+          </a></li>
+          <li><a href="#sec-04" class="toc-item">
+            <span class="toc-num">04</span>
+            <span class="toc-text"><span class="en-inline">Factor decomposition</span><span class="zh-inline">因子分解</span></span>
+          </a></li>
+          <li><a href="#sec-05" class="toc-item">
+            <span class="toc-num">05</span>
+            <span class="toc-text"><span class="en-inline">Forward scenarios</span><span class="zh-inline">前瞻情景</span></span>
+          </a></li>
+          <li><a href="#sec-06" class="toc-item">
+            <span class="toc-num">06</span>
+            <span class="toc-text"><span class="en-inline">Recommendations</span><span class="zh-inline">建议</span></span>
+          </a></li>
+        </ul>
+      </div>
+
+      <div class="aside-block">
+        <div class="aside-label"><span class="en-inline">Actions</span><span class="zh-inline">操作</span></div>
+        <div class="actions-stack">
+          <a href="#" class="ha-btn primary">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span class="en-inline">Download PDF</span><span class="zh-inline">下载 PDF</span>
+          </a>
+          <a href="#" class="ha-btn">
+            <span class="en-inline">Bookmark</span><span class="zh-inline">收藏</span>
+          </a>
+          <a href="#" class="ha-btn">
+            <span class="en-inline">Forward to advisor</span><span class="zh-inline">转发顾问</span>
+          </a>
+          <a href="#" class="ha-btn">
+            <span class="en-inline">Print</span><span class="zh-inline">打印</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="aside-block">
+        <div class="aside-label"><span class="en-inline">Authored by</span><span class="zh-inline">作者</span></div>
+        <div class="author-card">
+          <div class="au-avatar">KT</div>
+          <div>
+            <div class="au-name">K. Tanaka</div>
+            <div class="au-role">
+              <span class="en-inline">Senior Quant · San Diego</span>
+              <span class="zh-inline">高级量化 · 圣地亚哥</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="aside-block">
+        <div class="aside-label"><span class="en-inline">Related</span><span class="zh-inline">相关</span></div>
+        <div class="related-list">
+          <a href="#" class="related-item">
+            <div class="ri-meta">
+              <span><span class="en-inline">Memo</span><span class="zh-inline">备忘</span></span>
+              <span>·</span>
+              <span>19 Apr</span>
+            </div>
+            <div class="ri-title">
+              <span class="en">NVDA position sizing after Q1 earnings</span>
+              <span class="zh">NVDA Q1 财报后仓位调整</span>
+            </div>
+          </a>
+          <a href="#" class="related-item">
+            <div class="ri-meta">
+              <span><span class="en-inline">Macro</span><span class="zh-inline">宏观</span></span>
+              <span>·</span>
+              <span>15 Apr</span>
+            </div>
+            <div class="ri-title">
+              <span class="en">Fed pivot watch · April update</span>
+              <span class="zh">Fed 转向观察 · 4 月更新</span>
+            </div>
+          </a>
+          <a href="#" class="related-item">
+            <div class="ri-meta">
+              <span><span class="en-inline">Risk</span><span class="zh-inline">风险</span></span>
+              <span>·</span>
+              <span>24 Mar</span>
+            </div>
+            <div class="ri-title">
+              <span class="en">March risk attribution report</span>
+              <span class="zh">3 月风险归因报告</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer class="portal-foot">
+  <span class="portal-foot-logo">
+    <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+    <span class="zh-inline">欣安<span class="hl">量化</span></span>
+  </span>
+  <span class="portal-foot-meta">
+    <span class="en-inline">April Risk Attribution · v1.0 · published 22 Apr 2026 ·</span>
+    <span class="zh-inline">4 月风险归因 · v1.0 · 发布于 2026/4/22 ·</span>
+    <a href="Shion Quant Reports.html"><span class="en-inline">Back to reports</span><span class="zh-inline">返回报告</span></a>
+  </span>
+</footer>
+
+<script>
+  function setLang(lang) {
+    const body = document.getElementById('body');
+    const btnEn = document.getElementById('btn-en');
+    const btnZh = document.getElementById('btn-zh');
+    if (lang === 'zh') {
+      body.classList.add('lang-zh');
+      btnZh.classList.add('active'); btnEn.classList.remove('active');
+      document.documentElement.lang = 'zh-Hans';
+    } else {
+      body.classList.remove('lang-zh');
+      btnEn.classList.add('active'); btnZh.classList.remove('active');
+      document.documentElement.lang = 'en';
+    }
+  }
+</script>
+<script>
+/* SQ-DROPDOWN-V1 — Account dropdown injected globally across all portal pages */
+(function() {
+  const css = `
+    .user-wrap { position: relative; }
+    .user-wrap .user-menu { position: relative; z-index: 2; }
+    .user-wrap.open .user-menu { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 0.7rem);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      box-shadow: 0 28px 72px rgba(35,71,212,0.18), 0 4px 12px rgba(13,16,32,0.06);
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.3s cubic-bezier(0.25,1,0.5,1);
+      z-index: 200;
+      overflow: hidden;
+    }
+    .user-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 22px;
+      width: 12px; height: 12px;
+      background: #fff;
+      border-left: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
+      transform: rotate(45deg);
+      z-index: 1;
+    }
+    .user-wrap.open .user-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .ud-header {
+      padding: 1.05rem 1.2rem;
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .ud-avatar-lg {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--royal-light), var(--royal-deep));
+      color: #fff;
+      font-family: var(--serif-en);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.15rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(35,71,212,0.20);
+    }
+    .ud-info { min-width: 0; flex: 1; }
+    .ud-name {
+      font-family: var(--serif-en);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.18rem;
+      line-height: 1.15;
+    }
+    body.lang-zh .ud-name { font-family: var(--serif-zh); }
+    .ud-email {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: var(--ink-soft);
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.02em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ud-meta {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ud-pill {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      background: rgba(35,71,212,0.10);
+      color: var(--royal);
+      padding: 0.14rem 0.45rem;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+    .ud-pill-text {
+      font-family: var(--sans-en);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    body.lang-zh .ud-pill-text { font-family: var(--sans-zh); }
+
+    .ud-section {
+      padding: 0.4rem 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .ud-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem 1.2rem;
+      font-family: var(--sans-en);
+      font-size: 0.82rem;
+      color: var(--ink-mid);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s, padding-left 0.18s;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    body.lang-zh .ud-item { font-family: var(--sans-zh); }
+    .ud-item:hover {
+      background: rgba(35,71,212,0.04);
+      color: var(--royal);
+      padding-left: 1.45rem;
+    }
+    .ud-item .ud-icon {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      color: var(--silver);
+      transition: color 0.15s;
+    }
+    .ud-item:hover .ud-icon { color: var(--royal); }
+    .ud-item .ud-shortcut {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    .ud-item .ud-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      background: var(--warn-soft);
+      color: var(--warn);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+      font-weight: 500;
+    }
+    .ud-item.signout {
+      color: var(--loss);
+    }
+    .ud-item.signout .ud-icon { color: var(--loss); }
+    .ud-item.signout:hover {
+      background: rgba(196,82,82,0.06);
+      color: var(--loss);
+    }
+    .ud-item.signout:hover .ud-icon { color: var(--loss); }
+
+    @media (max-width: 1024px) {
+      .user-dropdown { width: 280px; right: -0.5rem; }
+      .user-dropdown::before { right: 30px; }
+    }
+  `;
+
+  const styleEl = document.createElement('style');
+  styleEl.setAttribute('data-sq-dropdown', '');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  const btn = document.querySelector('.user-menu');
+  if (!btn) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'user-wrap';
+  btn.parentNode.insertBefore(wrap, btn);
+  wrap.appendChild(btn);
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'user-dropdown';
+  dropdown.setAttribute('role', 'menu');
+  dropdown.setAttribute('aria-label', 'Account menu');
+  dropdown.innerHTML = `
+    <div class="ud-header">
+      <div class="ud-avatar-lg">陈</div>
+      <div class="ud-info">
+        <div class="ud-name">
+          <span class="en-inline">Chen Wei-Ming</span><span class="zh-inline">陈伟铭</span>
+        </div>
+        <div class="ud-email">w.chen@private-domain.com</div>
+        <div class="ud-meta">
+          <span class="ud-pill">CLIENT 0042</span>
+          <span class="ud-pill-text">
+            <span class="en-inline">Retainer · since Jul 2024</span>
+            <span class="zh-inline">月度顾问 · 2024/7 起</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant Profile.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="en-inline">Profile</span><span class="zh-inline">个人资料</span>
+      </a>
+      <a href="Shion Quant Security.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="en-inline">Security &amp; devices</span><span class="zh-inline">安全与设备</span>
+        <span class="ud-badge">85</span>
+      </a>
+      <a href="Shion Quant Billing.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <line x1="2" y1="10" x2="22" y2="10"/>
+        </svg>
+        <span class="en-inline">Billing &amp; invoices</span><span class="zh-inline">账单与发票</span>
+      </a>
+      <a href="Shion Quant Calendar Settings.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="en-inline">Notifications</span><span class="zh-inline">通知设置</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span class="en-inline">Help &amp; support</span><span class="zh-inline">帮助与支持</span>
+      </a>
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="13" y2="17"/>
+        </svg>
+        <span class="en-inline">What's new</span><span class="zh-inline">更新日志</span>
+        <span class="ud-shortcut">v1.1</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="ud-item signout" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span class="en-inline">Sign out</span><span class="zh-inline">退出登录</span>
+      </a>
+    </div>
+  `;
+  wrap.appendChild(dropdown);
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) wrap.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') wrap.classList.remove('open');
+  });
+})();
+</script>
+
+</body>
+</html>

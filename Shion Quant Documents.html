@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documents · Shion Quant Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@200;300;400;500;600&family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafbff; --bg-soft: #f2f4fc;
+    --royal: #2347d4; --royal-deep: #1a35a8; --royal-light: #3b5ee8;
+    --gold: #c8a84b;
+    --ink: #0d1020; --ink-mid: #2a2f4a; --ink-soft: #4a5070; --silver: #8896b8;
+    --rule: rgba(35,71,212,0.10); --rule-strong: rgba(35,71,212,0.18);
+    --gain: #2d8a5d; --loss: #c45252;
+    --warn: #c8a84b; --warn-soft: rgba(200,168,75,0.12);
+    --serif-en: 'Libre Baskerville', Georgia, serif;
+    --sans-en: 'Outfit', sans-serif;
+    --serif-zh: 'Noto Serif SC', 'STSong', serif;
+    --sans-zh: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans-en); font-weight: 300; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .zh, .zh-inline { display: none; } .en { display: block; } .en-inline { display: inline; }
+  body.lang-zh .en, body.lang-zh .en-inline { display: none; }
+  body.lang-zh .zh { display: block; } body.lang-zh .zh-inline { display: inline; }
+  body.lang-zh { font-family: var(--sans-zh); }
+
+  .portal-nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0.78rem 2.4rem; background: rgba(250,251,255,0.94); backdrop-filter: blur(20px); border-bottom: 1px solid var(--rule); }
+  .nav-left { display: flex; align-items: center; gap: 3rem; }
+  .nav-logo { font-family: var(--serif-en); font-size: 1.18rem; font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+  .nav-logo .hl { color: var(--royal); }
+  body.lang-zh .nav-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-tabs { display: flex; gap: 2.2rem; list-style: none; }
+  .portal-tabs a { font-family: var(--sans-en); font-size: 0.72rem; font-weight: 400; letter-spacing: 0.08em; color: var(--ink-soft); text-decoration: none; text-transform: uppercase; padding: 0.4rem 0; position: relative; transition: color 0.2s; }
+  body.lang-zh .portal-tabs a { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .portal-tabs a.active { color: var(--ink); }
+  .portal-tabs a.active::after { content: ''; position: absolute; bottom: -0.4rem; left: 0; right: 0; height: 2px; background: var(--royal); }
+  .portal-tabs a:hover { color: var(--royal); }
+  .nav-right-portal { display: flex; align-items: center; gap: 1.2rem; }
+  .lang-toggle { display: flex; background: rgba(35,71,212,0.06); border-radius: 18px; padding: 2px; }
+  .lang-btn { font-family: var(--sans-en); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.06em; padding: 0.26rem 0.62rem; border: none; background: transparent; color: var(--ink-soft); cursor: pointer; border-radius: 14px; transition: all 0.25s; }
+  .lang-btn.active { background: var(--royal); color: #fff; box-shadow: 0 2px 6px rgba(35,71,212,0.25); }
+  .user-menu { display: flex; align-items: center; gap: 0.6rem; background: transparent; border: 1px solid var(--rule); border-radius: 30px; padding: 0.26rem 0.85rem 0.26rem 0.28rem; cursor: pointer; transition: all 0.25s; font-family: var(--sans-en); }
+  body.lang-zh .user-menu { font-family: var(--sans-zh); }
+  .user-menu:hover { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+  .avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--royal-light), var(--royal-deep)); color: #fff; font-family: var(--serif-en); font-size: 0.66rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .user-name { font-size: 0.74rem; font-weight: 400; color: var(--ink); }
+
+  .breadcrumb { padding: 1.4rem 2.4rem 0; font-family: var(--sans-en); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--silver); display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  body.lang-zh .breadcrumb { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .breadcrumb a { color: var(--silver); text-decoration: none; transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--royal); }
+  .breadcrumb .chev { opacity: 0.5; }
+  .breadcrumb .current { color: var(--ink-mid); }
+
+  .page { max-width: 800px; margin: 0 auto; padding: 2.2rem 2rem 4rem; }
+
+  .pg-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.6rem;
+    flex-wrap: wrap;
+  }
+  .pg-head-text { flex: 1; min-width: 240px; }
+  .pg-title {
+    font-family: var(--serif-en); font-size: 1.5rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.02em; line-height: 1.15;
+    margin-bottom: 0.3rem;
+  }
+  body.lang-zh .pg-title { font-family: var(--serif-zh); }
+  .pg-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .pg-meta {
+    font-family: var(--sans-en); font-size: 0.78rem;
+    color: var(--ink-soft); font-weight: 300;
+  }
+  body.lang-zh .pg-meta { font-family: var(--sans-zh); }
+  .pg-meta .dot { color: var(--silver); margin: 0 0.4rem; }
+  .pg-meta strong { color: var(--ink-mid); font-weight: 500; }
+  .pg-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .ha-btn {
+    font-family: var(--sans-en); font-size: 0.66rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-soft); background: transparent;
+    border: 1px solid var(--rule); padding: 0.55rem 0.9rem;
+    cursor: pointer; border-radius: 3px; transition: all 0.25s;
+    text-decoration: none; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  body.lang-zh .ha-btn { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .ha-btn:hover { border-color: var(--royal); color: var(--royal); }
+  .ha-btn.primary { background: var(--royal); color: #fff; border-color: var(--royal); }
+  .ha-btn.primary:hover { background: var(--royal-deep); border-color: var(--royal-deep); transform: translateY(-1px); }
+
+  .pending {
+    margin-bottom: 1.5rem;
+    padding: 0.95rem 1.2rem;
+    background: var(--warn-soft);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 3px 3px 0;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .pending-text {
+    flex: 1; min-width: 240px;
+    font-family: var(--sans-en);
+    font-size: 0.82rem;
+    color: var(--ink-mid);
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  body.lang-zh .pending-text { font-family: var(--sans-zh); }
+  .pending-text strong { color: var(--gold); font-weight: 500; }
+  .pending-action {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--gold);
+    border: none;
+    padding: 0.55rem 0.95rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  body.lang-zh .pending-action { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .pending-action:hover { background: #b89638; }
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .search {
+    flex: 1; min-width: 220px;
+    display: flex; align-items: center; gap: 0.55rem;
+    border: 1px solid var(--rule); border-radius: 30px;
+    padding: 0.4rem 0.95rem 0.4rem 0.85rem;
+    background: #fff;
+    transition: border-color 0.2s;
+  }
+  .search:focus-within { border-color: var(--royal); }
+  .search svg { color: var(--silver); flex-shrink: 0; }
+  .search input {
+    border: none; outline: none; background: transparent;
+    font-family: var(--sans-en); font-size: 0.8rem;
+    color: var(--ink); width: 100%; font-weight: 400;
+  }
+  body.lang-zh .search input { font-family: var(--sans-zh); }
+  .search input::placeholder { color: var(--silver); }
+
+  .chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .chip {
+    font-family: var(--sans-en);
+    font-size: 0.66rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-soft); background: transparent;
+    border: 1px solid var(--rule);
+    padding: 0.4rem 0.8rem; border-radius: 30px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  body.lang-zh .chip { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .chip:hover { border-color: var(--royal); color: var(--royal); }
+  .chip.active { background: var(--royal); color: #fff; border-color: var(--royal); }
+
+  .cat { margin-bottom: 1.6rem; }
+  .cat-head {
+    display: flex; align-items: baseline; gap: 0.7rem;
+    margin-bottom: 0.55rem;
+  }
+  .cat-title {
+    font-family: var(--serif-en); font-size: 0.88rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.005em;
+  }
+  body.lang-zh .cat-title { font-family: var(--serif-zh); }
+  .cat-count {
+    font-family: var(--mono); font-size: 0.66rem;
+    color: var(--silver); letter-spacing: 0.04em;
+  }
+
+  .doc-list { background: #fff; border: 1px solid var(--rule); border-radius: 4px; }
+
+  .doc-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto auto;
+    gap: 0.85rem;
+    padding: 0.7rem 1rem;
+    border-top: 1px solid var(--rule);
+    align-items: center;
+    transition: padding-left 0.2s, background 0.15s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .doc-row:first-child { border-top: none; }
+  .doc-row:hover { padding-left: 1.2rem; background: rgba(35,71,212,0.025); }
+  .doc-icon {
+    width: 22px; height: 28px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    color: var(--royal);
+    font-weight: 500;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .doc-icon::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 6px; height: 6px;
+    background: var(--rule);
+    clip-path: polygon(0 0, 100% 100%, 0 100%);
+  }
+  .doc-icon.tax { color: var(--gold); border-color: rgba(200,168,75,0.3); }
+  .doc-icon.tax::before { background: rgba(200,168,75,0.3); }
+  .doc-icon.kyc { color: var(--gain); border-color: rgba(45,138,93,0.3); }
+  .doc-icon.kyc::before { background: rgba(45,138,93,0.3); }
+  .doc-icon.warn { color: var(--gold); border-color: rgba(200,168,75,0.5); background: var(--warn-soft); }
+  .doc-icon.warn::before { background: rgba(200,168,75,0.5); }
+
+  .doc-info { min-width: 0; }
+  .doc-title {
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink);
+    font-weight: 400;
+    margin-bottom: 0.18rem;
+    line-height: 1.3;
+  }
+  body.lang-zh .doc-title { font-family: var(--sans-zh); }
+  .doc-title strong {
+    font-family: var(--mono);
+    font-weight: 500;
+    color: var(--royal);
+    margin-right: 0.45rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+  }
+  .doc-title .pending-tag {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    background: var(--warn-soft);
+    color: var(--gold);
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+    margin-left: 0.4rem;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .doc-meta {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+  body.lang-zh .doc-meta { font-family: var(--sans-zh); }
+  .doc-meta .src { color: var(--ink-mid); font-weight: 400; }
+  .doc-meta .bullet { color: var(--silver); margin: 0 0.3rem; }
+
+  .doc-date {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--silver);
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .doc-action {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--silver);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .doc-action:hover { color: var(--royal); background: rgba(35,71,212,0.06); }
+
+  details.cat-more summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.55rem 1rem;
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    transition: color 0.2s, background 0.15s;
+  }
+  body.lang-zh details.cat-more summary { font-family: var(--sans-zh); }
+  details.cat-more summary::-webkit-details-marker { display: none; }
+  details.cat-more summary::after {
+    content: '';
+    width: 6px; height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-1px);
+    transition: transform 0.2s;
+    margin-left: auto;
+  }
+  details.cat-more[open] summary::after { transform: rotate(225deg) translateY(0); }
+  details.cat-more summary:hover { color: var(--royal); background: rgba(35,71,212,0.025); }
+
+  details.cat-folded > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    margin-bottom: 0.55rem;
+  }
+  details.cat-folded > summary::-webkit-details-marker { display: none; }
+  details.cat-folded > summary::after {
+    content: '›';
+    margin-left: auto;
+    color: var(--silver);
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    transition: transform 0.2s;
+  }
+  details.cat-folded[open] > summary::after { transform: rotate(90deg); }
+
+  .storage-note {
+    margin-top: 1.6rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--silver);
+    letter-spacing: 0.02em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .storage-note strong { color: var(--ink-mid); font-weight: 500; }
+  .storage-note a {
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: var(--royal);
+    text-decoration: none;
+    letter-spacing: 0;
+  }
+  body.lang-zh .storage-note a { font-family: var(--sans-zh); }
+  .storage-note a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  .portal-foot { background: var(--ink); padding: 0.9rem 2.4rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .portal-foot-logo { font-family: var(--serif-en); font-size: 0.85rem; font-weight: 700; color: #fff; }
+  .portal-foot-logo .hl { color: var(--royal-light); }
+  body.lang-zh .portal-foot-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-foot-meta { font-family: var(--sans-en); font-size: 0.58rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.32); text-transform: uppercase; display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  body.lang-zh .portal-foot-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .portal-foot-meta a { color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+  .portal-foot-meta a:hover { color: #fff; }
+
+  @media (max-width: 1180px) { .portal-tabs { gap: 1.6rem; } .portal-tabs a { font-size: 0.7rem; } }
+  @media (max-width: 1024px) {
+    .portal-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.8rem; }
+    .nav-left { gap: 1.5rem; flex: 1 1 auto; }
+    .portal-tabs { display: none; }
+    .breadcrumb { padding: 1rem 1.5rem 0; }
+    .page { padding: 1.6rem 1.2rem 3rem; }
+    .doc-date { display: none; }
+    .portal-foot { padding: 1.4rem 1.5rem; flex-direction: column; gap: 0.6rem; text-align: center; }
+  }
+</style>
+</head>
+<body id="body">
+
+<nav class="portal-nav">
+  <div class="nav-left">
+    <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="nav-logo">
+      <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+      <span class="zh-inline">欣安<span class="hl">量化</span></span>
+    </a>
+    <ul class="portal-tabs">
+      <li><a href="Shion Quant Portal.html"><span class="en-inline">Portfolio</span><span class="zh-inline">投资组合</span></a></li>
+      <li><a href="Shion Quant Schedules.html"><span class="en-inline">Schedules</span><span class="zh-inline">日程安排</span></a></li>
+      <li><a href="Shion Quant Reports.html"><span class="en-inline">Reports</span><span class="zh-inline">分析报告</span></a></li>
+      <li><a href="Shion Quant Documents.html" class="active"><span class="en-inline">Documents</span><span class="zh-inline">文件资料</span></a></li>
+    </ul>
+  </div>
+  <div class="nav-right-portal">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+    </div>
+    <button class="user-menu">
+      <span class="avatar">CH</span>
+      <span class="user-name"><span class="en-inline">Mr. Chen</span><span class="zh-inline">陈先生</span></span>
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="Shion Quant Portal.html"><span class="en-inline">Account</span><span class="zh-inline">账户</span></a>
+  <span class="chev">›</span>
+  <span class="current"><span class="en-inline">Documents</span><span class="zh-inline">文件资料</span></span>
+</div>
+
+<main class="page">
+
+  <div class="pg-head">
+    <div class="pg-head-text">
+      <h1 class="pg-title">
+        <span class="en">Document <em>vault</em></span>
+        <span class="zh">文件<em>仓库</em></span>
+      </h1>
+      <p class="pg-meta">
+        <span class="en-inline"><strong>32 files</strong> · 6 categories</span>
+        <span class="zh-inline"><strong>32 份文件</strong> · 6 个类别</span>
+        <span class="dot">·</span>
+        <span class="en-inline">7-year retention · AES-256</span>
+        <span class="zh-inline">保留 7 年 · AES-256</span>
+      </p>
+    </div>
+    <div class="pg-actions">
+      <a href="Shion Quant Upload.html" class="ha-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="en-inline">Upload</span><span class="zh-inline">上传</span>
+      </a>
+      <a href="Shion Quant Request Document.html" class="ha-btn"><span class="en-inline">Request</span><span class="zh-inline">索取</span></a>
+    </div>
+  </div>
+
+  <div class="pending">
+    <div class="pending-text">
+      <span class="en-inline"><strong>Awaiting your signature.</strong> 2026 Engagement Renewal Addendum · due 5 May.</span>
+      <span class="zh-inline"><strong>待您签署。</strong>2026 年合作续约附录 · 截止 5 月 5 日。</span>
+    </div>
+    <a href="Shion Quant Sign Document.html" class="pending-action">
+      <span class="en-inline">Review &amp; sign</span><span class="zh-inline">查看并签署</span>
+    </a>
+  </div>
+
+  <div class="filter-bar">
+    <label class="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search title, broker, year…" aria-label="Search documents">
+    </label>
+    <div class="chips">
+      <button class="chip active"><span class="en-inline">All</span><span class="zh-inline">全部</span></button>
+      <button class="chip"><span class="en-inline">Recent</span><span class="zh-inline">最近</span></button>
+      <button class="chip"><span class="en-inline">Tax</span><span class="zh-inline">税务</span></button>
+    </div>
+  </div>
+
+  <!-- 1. STATEMENTS -->
+  <div class="cat">
+    <div class="cat-head">
+      <h3 class="cat-title"><span class="en-inline">Account statements</span><span class="zh-inline">账户对账单</span></h3>
+      <span class="cat-count">12</span>
+    </div>
+    <div class="doc-list">
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>IBKR</strong><span class="en-inline">March 2026 Account Statement</span><span class="zh-inline">2026 年 3 月账户对账单</span></div>
+          <div class="doc-meta">
+            <span class="src">Interactive Brokers</span>
+            <span class="bullet">·</span>
+            <span class="en-inline">18 pp · 2.4 MB</span>
+            <span class="zh-inline">18 页 · 2.4 MB</span>
+          </div>
+        </div>
+        <div class="doc-date">24 Apr</div>
+        <div class="doc-action" title="Download"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>CB-PRIME</strong><span class="en-inline">March 2026 Custody Statement</span><span class="zh-inline">2026 年 3 月托管对账单</span></div>
+          <div class="doc-meta">
+            <span class="src">Coinbase Prime</span>
+            <span class="bullet">·</span>
+            <span class="en-inline">6 pp · 0.8 MB</span>
+            <span class="zh-inline">6 页 · 0.8 MB</span>
+          </div>
+        </div>
+        <div class="doc-date">24 Apr</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <details class="cat-more">
+        <summary><span class="en-inline">10 earlier statements</span><span class="zh-inline">10 份较早对账单</span></summary>
+        <a href="Shion Quant Document Viewer.html" class="doc-row">
+          <div class="doc-icon">PDF</div>
+          <div class="doc-info">
+            <div class="doc-title"><strong>IBKR</strong><span class="en-inline">February 2026 Account Statement</span><span class="zh-inline">2026 年 2 月账户对账单</span></div>
+            <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">17 pp · 2.3 MB</span><span class="zh-inline">17 页 · 2.3 MB</span></div>
+          </div>
+          <div class="doc-date">28 Mar</div>
+          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        </a>
+        <a href="Shion Quant Document Viewer.html" class="doc-row">
+          <div class="doc-icon">PDF</div>
+          <div class="doc-info">
+            <div class="doc-title"><strong>IBKR</strong><span class="en-inline">January 2026 Account Statement</span><span class="zh-inline">2026 年 1 月账户对账单</span></div>
+            <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">16 pp · 2.2 MB</span><span class="zh-inline">16 页 · 2.2 MB</span></div>
+          </div>
+          <div class="doc-date">28 Feb</div>
+          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        </a>
+        <a href="Shion Quant Document Viewer.html" class="doc-row">
+          <div class="doc-icon">PDF</div>
+          <div class="doc-info">
+            <div class="doc-title"><strong>IBKR</strong><span class="en-inline">2025 Annual Activity Statement</span><span class="zh-inline">2025 年度活动报告</span></div>
+            <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">84 pp · 11.2 MB</span><span class="zh-inline">84 页 · 11.2 MB</span></div>
+          </div>
+          <div class="doc-date">15 Jan</div>
+          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        </a>
+      </details>
+    </div>
+  </div>
+
+  <!-- 2. TAX -->
+  <div class="cat">
+    <div class="cat-head">
+      <h3 class="cat-title"><span class="en-inline">Tax documents</span><span class="zh-inline">税务文件</span></h3>
+      <span class="cat-count">5 · TY 2025</span>
+    </div>
+    <div class="doc-list">
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon tax">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>1099</strong><span class="en-inline">2025 Composite 1099 (B + DIV + INT)</span><span class="zh-inline">2025 年综合 1099 (B + DIV + INT)</span></div>
+          <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">12 pp · filed 12 Apr</span><span class="zh-inline">12 页 · 已申报 4/12</span></div>
+        </div>
+        <div class="doc-date">28 Feb</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon tax">XLSX</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>SCH-D</strong><span class="en-inline">2025 Schedule D Worksheet</span><span class="zh-inline">2025 Schedule D 工作表</span></div>
+          <div class="doc-meta"><span class="src">Shion Quant</span><span class="bullet">·</span><span class="en-inline">8 sheets · for accountant</span><span class="zh-inline">8 个工作表 · 供会计师</span></div>
+        </div>
+        <div class="doc-date">5 Mar</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <details class="cat-more">
+        <summary><span class="en-inline">3 more · K-1, FBAR, prior years</span><span class="zh-inline">还有 3 份 · K-1、FBAR、往年</span></summary>
+        <a href="Shion Quant Document Viewer.html" class="doc-row">
+          <div class="doc-icon tax">PDF</div>
+          <div class="doc-info">
+            <div class="doc-title"><strong>K-1</strong><span class="en-inline">2024 Schedule K-1 (BX Partnership)</span><span class="zh-inline">2024 K-1（BX 合伙）</span></div>
+            <div class="doc-meta"><span class="src">BX Partners LLC</span><span class="bullet">·</span><span class="en-inline">16 pp · TY 2024</span><span class="zh-inline">16 页 · 2024 税务年度</span></div>
+          </div>
+          <div class="doc-date">22 Mar</div>
+          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        </a>
+        <a href="Shion Quant Document Viewer.html" class="doc-row">
+          <div class="doc-icon tax">PDF</div>
+          <div class="doc-info">
+            <div class="doc-title"><strong>FBAR</strong><span class="en-inline">2025 Foreign Account Reporting</span><span class="zh-inline">2025 海外账户申报</span></div>
+            <div class="doc-meta"><span class="src">Shion Quant</span><span class="bullet">·</span><span class="en-inline">4 pp · submit by 15 Oct</span><span class="zh-inline">4 页 · 10/15 前提交</span></div>
+          </div>
+          <div class="doc-date">10 Apr</div>
+          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        </a>
+      </details>
+    </div>
+  </div>
+
+  <!-- 3. ENGAGEMENT (with pending highlight) -->
+  <div class="cat">
+    <div class="cat-head">
+      <h3 class="cat-title"><span class="en-inline">Engagement &amp; service</span><span class="zh-inline">合作与服务</span></h3>
+      <span class="cat-count"><span class="en-inline">3 · 1 awaiting sig</span><span class="zh-inline">3 · 1 待签</span></span>
+    </div>
+    <div class="doc-list">
+      <a href="Shion Quant Sign Document.html" class="doc-row" style="background:rgba(200,168,75,0.04);">
+        <div class="doc-icon warn">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>2026</strong><span class="en-inline">Engagement Renewal Addendum</span><span class="zh-inline">续约附录</span><span class="pending-tag">PENDING SIG</span></div>
+          <div class="doc-meta"><span class="src">Shion Quant</span><span class="bullet">·</span><span class="en-inline">6 pp · due 5 May</span><span class="zh-inline">6 页 · 截止 5/5</span></div>
+        </div>
+        <div class="doc-date">18 Apr</div>
+      </a>
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>MSA</strong><span class="en-inline">Master Engagement Letter</span><span class="zh-inline">主合作协议</span></div>
+          <div class="doc-meta"><span class="src">Shion Quant</span><span class="bullet">·</span><span class="en-inline">14 pp · countersigned</span><span class="zh-inline">14 页 · 双方签署</span></div>
+        </div>
+        <div class="doc-date">1 Jul 24</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>SOW</strong><span class="en-inline">SPY Wheel Optimization · SOW</span><span class="zh-inline">SPY Wheel 优化研究 · SOW</span></div>
+          <div class="doc-meta"><span class="src">Shion Quant</span><span class="bullet">·</span><span class="en-inline">4 pp · closed</span><span class="zh-inline">4 页 · 已结案</span></div>
+        </div>
+        <div class="doc-date">14 Mar</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- 4. CUSTODY -->
+  <div class="cat">
+    <div class="cat-head">
+      <h3 class="cat-title"><span class="en-inline">Custody &amp; brokerage</span><span class="zh-inline">托管与券商</span></h3>
+      <span class="cat-count">4 · all executed</span>
+    </div>
+    <div class="doc-list">
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>IBKR</strong><span class="en-inline">Account Confirmation &amp; Customer Agreement</span><span class="zh-inline">账户确认与客户协议</span></div>
+          <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">42 pp · options level 4</span><span class="zh-inline">42 页 · 期权 L4</span></div>
+        </div>
+        <div class="doc-date">12 Jul 24</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>CB-PRIME</strong><span class="en-inline">Coinbase Prime Custody Agreement</span><span class="zh-inline">Coinbase Prime 托管协议</span></div>
+          <div class="doc-meta"><span class="src">Coinbase Prime</span><span class="bullet">·</span><span class="en-inline">28 pp · qualified custodian</span><span class="zh-inline">28 页 · 合格托管方</span></div>
+        </div>
+        <div class="doc-date">18 Aug 24</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <details class="cat-more">
+        <summary><span class="en-inline">2 more · SIPC, Alpaca</span><span class="zh-inline">还有 2 份 · SIPC、Alpaca</span></summary>
+        <a href="Shion Quant Document Viewer.html" class="doc-row">
+          <div class="doc-icon">PDF</div>
+          <div class="doc-info">
+            <div class="doc-title"><strong>SIPC</strong><span class="en-inline">Securities Investor Protection Coverage</span><span class="zh-inline">SIPC 投资者保护说明</span></div>
+            <div class="doc-meta"><span class="src">SIPC + Lloyd's</span><span class="bullet">·</span><span class="en-inline">excess to $30M</span><span class="zh-inline">至 $30M 额外覆盖</span></div>
+          </div>
+          <div class="doc-date">12 Jul 24</div>
+          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        </a>
+      </details>
+    </div>
+  </div>
+
+  <!-- 5+6. COMPLIANCE & BANKING — folded together since rarely accessed -->
+  <details class="cat cat-folded">
+    <summary>
+      <h3 class="cat-title"><span class="en-inline">Compliance &amp; banking</span><span class="zh-inline">合规与银行</span></h3>
+      <span class="cat-count"><span class="en-inline">8 · KYC, W-8BEN, wire instructions</span><span class="zh-inline">8 · KYC、W-8BEN、汇款指引</span></span>
+    </summary>
+    <div class="doc-list">
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon kyc">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>KYC</strong><span class="en-inline">Annual KYC Refresh Certificate</span><span class="zh-inline">年度 KYC 更新证书</span></div>
+          <div class="doc-meta"><span class="src">Shion Quant</span><span class="bullet">·</span><span class="en-inline">next: Jan 2027</span><span class="zh-inline">下次：2027/1</span></div>
+        </div>
+        <div class="doc-date">5 Jan</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon kyc">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>W-8BEN</strong><span class="en-inline">Beneficial Owner Certificate</span><span class="zh-inline">受益所有人证书</span></div>
+          <div class="doc-meta"><span class="src">IRS Form</span><span class="bullet">·</span><span class="en-inline">2 pp · renews 2027</span><span class="zh-inline">2 页 · 2027 年续</span></div>
+        </div>
+        <div class="doc-date">1 Jul 24</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>USD</strong><span class="en-inline">Wire Instructions · IBKR USD Account</span><span class="zh-inline">汇款指引 · IBKR 美元账户</span></div>
+          <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">Citibank intermediary</span><span class="zh-inline">Citibank 中转</span></div>
+        </div>
+        <div class="doc-date">12 Jul 24</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+      <a href="Shion Quant Document Viewer.html" class="doc-row">
+        <div class="doc-icon">PDF</div>
+        <div class="doc-info">
+          <div class="doc-title"><strong>HKD</strong><span class="en-inline">Wire Instructions · HKD Sub-account</span><span class="zh-inline">汇款指引 · 港币子账户</span></div>
+          <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">CHATS clearing</span><span class="zh-inline">CHATS 清算</span></div>
+        </div>
+        <div class="doc-date">12 Jul 24</div>
+        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      </a>
+    </div>
+  </details>
+
+  <div class="storage-note">
+    <span><strong>4.2 GB</strong> of 50 GB · retained 7 years per IRS / SEC</span>
+    <a href="#"><span class="en-inline">Storage settings ›</span><span class="zh-inline">存储设置 ›</span></a>
+  </div>
+
+</main>
+
+<footer class="portal-foot">
+  <span class="portal-foot-logo">
+    <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+    <span class="zh-inline">欣安<span class="hl">量化</span></span>
+  </span>
+  <span class="portal-foot-meta">
+    <span class="en-inline">Document vault · AES-256 · 7-year retention ·</span>
+    <span class="zh-inline">文件仓库 · AES-256 · 保留 7 年 ·</span>
+    <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html"><span class="en-inline">Sign out</span><span class="zh-inline">退出登录</span></a>
+  </span>
+</footer>
+
+<script>
+  function setLang(lang) {
+    const body = document.getElementById('body');
+    const btnEn = document.getElementById('btn-en');
+    const btnZh = document.getElementById('btn-zh');
+    if (lang === 'zh') { body.classList.add('lang-zh'); btnZh.classList.add('active'); btnEn.classList.remove('active'); document.documentElement.lang = 'zh-Hans'; }
+    else { body.classList.remove('lang-zh'); btnEn.classList.add('active'); btnZh.classList.remove('active'); document.documentElement.lang = 'en'; }
+  }
+  document.querySelectorAll('.chips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chips .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+</script>
+<script>
+/* SQ-DROPDOWN-V1 — Account dropdown injected globally across all portal pages */
+(function() {
+  const css = `
+    .user-wrap { position: relative; }
+    .user-wrap .user-menu { position: relative; z-index: 2; }
+    .user-wrap.open .user-menu { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 0.7rem);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      box-shadow: 0 28px 72px rgba(35,71,212,0.18), 0 4px 12px rgba(13,16,32,0.06);
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.3s cubic-bezier(0.25,1,0.5,1);
+      z-index: 200;
+      overflow: hidden;
+    }
+    .user-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 22px;
+      width: 12px; height: 12px;
+      background: #fff;
+      border-left: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
+      transform: rotate(45deg);
+      z-index: 1;
+    }
+    .user-wrap.open .user-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .ud-header {
+      padding: 1.05rem 1.2rem;
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .ud-avatar-lg {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--royal-light), var(--royal-deep));
+      color: #fff;
+      font-family: var(--serif-en);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.15rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(35,71,212,0.20);
+    }
+    .ud-info { min-width: 0; flex: 1; }
+    .ud-name {
+      font-family: var(--serif-en);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.18rem;
+      line-height: 1.15;
+    }
+    body.lang-zh .ud-name { font-family: var(--serif-zh); }
+    .ud-email {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: var(--ink-soft);
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.02em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ud-meta {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ud-pill {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      background: rgba(35,71,212,0.10);
+      color: var(--royal);
+      padding: 0.14rem 0.45rem;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+    .ud-pill-text {
+      font-family: var(--sans-en);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    body.lang-zh .ud-pill-text { font-family: var(--sans-zh); }
+
+    .ud-section {
+      padding: 0.4rem 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .ud-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem 1.2rem;
+      font-family: var(--sans-en);
+      font-size: 0.82rem;
+      color: var(--ink-mid);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s, padding-left 0.18s;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    body.lang-zh .ud-item { font-family: var(--sans-zh); }
+    .ud-item:hover {
+      background: rgba(35,71,212,0.04);
+      color: var(--royal);
+      padding-left: 1.45rem;
+    }
+    .ud-item .ud-icon {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      color: var(--silver);
+      transition: color 0.15s;
+    }
+    .ud-item:hover .ud-icon { color: var(--royal); }
+    .ud-item .ud-shortcut {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    .ud-item .ud-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      background: var(--warn-soft);
+      color: var(--warn);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+      font-weight: 500;
+    }
+    .ud-item.signout {
+      color: var(--loss);
+    }
+    .ud-item.signout .ud-icon { color: var(--loss); }
+    .ud-item.signout:hover {
+      background: rgba(196,82,82,0.06);
+      color: var(--loss);
+    }
+    .ud-item.signout:hover .ud-icon { color: var(--loss); }
+
+    @media (max-width: 1024px) {
+      .user-dropdown { width: 280px; right: -0.5rem; }
+      .user-dropdown::before { right: 30px; }
+    }
+  `;
+
+  const styleEl = document.createElement('style');
+  styleEl.setAttribute('data-sq-dropdown', '');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  const btn = document.querySelector('.user-menu');
+  if (!btn) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'user-wrap';
+  btn.parentNode.insertBefore(wrap, btn);
+  wrap.appendChild(btn);
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'user-dropdown';
+  dropdown.setAttribute('role', 'menu');
+  dropdown.setAttribute('aria-label', 'Account menu');
+  dropdown.innerHTML = `
+    <div class="ud-header">
+      <div class="ud-avatar-lg">陈</div>
+      <div class="ud-info">
+        <div class="ud-name">
+          <span class="en-inline">Chen Wei-Ming</span><span class="zh-inline">陈伟铭</span>
+        </div>
+        <div class="ud-email">w.chen@private-domain.com</div>
+        <div class="ud-meta">
+          <span class="ud-pill">CLIENT 0042</span>
+          <span class="ud-pill-text">
+            <span class="en-inline">Retainer · since Jul 2024</span>
+            <span class="zh-inline">月度顾问 · 2024/7 起</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant Profile.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="en-inline">Profile</span><span class="zh-inline">个人资料</span>
+      </a>
+      <a href="Shion Quant Security.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="en-inline">Security &amp; devices</span><span class="zh-inline">安全与设备</span>
+        <span class="ud-badge">85</span>
+      </a>
+      <a href="Shion Quant Billing.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <line x1="2" y1="10" x2="22" y2="10"/>
+        </svg>
+        <span class="en-inline">Billing &amp; invoices</span><span class="zh-inline">账单与发票</span>
+      </a>
+      <a href="Shion Quant Calendar Settings.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="en-inline">Notifications</span><span class="zh-inline">通知设置</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span class="en-inline">Help &amp; support</span><span class="zh-inline">帮助与支持</span>
+      </a>
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="13" y2="17"/>
+        </svg>
+        <span class="en-inline">What's new</span><span class="zh-inline">更新日志</span>
+        <span class="ud-shortcut">v1.1</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="ud-item signout" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span class="en-inline">Sign out</span><span class="zh-inline">退出登录</span>
+      </a>
+    </div>
+  `;
+  wrap.appendChild(dropdown);
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) wrap.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') wrap.classList.remove('open');
+  });
+})();
+</script>
+
+</body>
+</html>

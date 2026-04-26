@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NVDA Q1 Earnings · 1 May 2026 · Shion Quant Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@200;300;400;500;600&family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #fafbff;
+    --bg-soft:     #f2f4fc;
+    --royal:       #2347d4;
+    --royal-deep:  #1a35a8;
+    --royal-light: #3b5ee8;
+    --gold:        #c8a84b;
+    --ink:         #0d1020;
+    --ink-mid:     #2a2f4a;
+    --ink-soft:    #4a5070;
+    --silver:      #8896b8;
+    --rule:        rgba(35,71,212,0.10);
+    --rule-strong: rgba(35,71,212,0.18);
+    --gain:        #2d8a5d;
+    --gain-soft:   rgba(45,138,93,0.10);
+    --loss:        #c45252;
+    --loss-soft:   rgba(196,82,82,0.10);
+    --warn:        #c8a84b;
+    --warn-soft:   rgba(200,168,75,0.12);
+    --serif-en:    'Libre Baskerville', Georgia, serif;
+    --sans-en:     'Outfit', sans-serif;
+    --serif-zh:    'Noto Serif SC', 'STSong', serif;
+    --sans-zh:     'Noto Sans SC', 'PingFang SC', sans-serif;
+    --mono:        'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans-en);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .zh, .zh-inline { display: none; }
+  .en { display: block; }
+  .en-inline { display: inline; }
+  body.lang-zh .en, body.lang-zh .en-inline { display: none; }
+  body.lang-zh .zh { display: block; }
+  body.lang-zh .zh-inline { display: inline; }
+  body.lang-zh { font-family: var(--sans-zh); }
+
+  /* ── PORTAL NAV (shared) ── */
+  .portal-nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.78rem 2.4rem;
+    background: rgba(250,251,255,0.94);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav-left { display: flex; align-items: center; gap: 3rem; }
+  .nav-logo {
+    font-family: var(--serif-en); font-size: 1.18rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.01em; text-decoration: none;
+  }
+  .nav-logo .hl { color: var(--royal); }
+  body.lang-zh .nav-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-tabs { display: flex; gap: 2.2rem; list-style: none; }
+  .portal-tabs a {
+    font-family: var(--sans-en);
+    font-size: 0.72rem; font-weight: 400;
+    letter-spacing: 0.08em; color: var(--ink-soft);
+    text-decoration: none; text-transform: uppercase;
+    padding: 0.4rem 0; position: relative; transition: color 0.2s;
+  }
+  body.lang-zh .portal-tabs a { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .portal-tabs a.active { color: var(--ink); }
+  .portal-tabs a.active::after {
+    content: ''; position: absolute;
+    bottom: -0.4rem; left: 0; right: 0;
+    height: 2px; background: var(--royal);
+  }
+  .portal-tabs a:hover { color: var(--royal); }
+  .nav-right-portal { display: flex; align-items: center; gap: 1.2rem; }
+  .lang-toggle {
+    display: flex; align-items: center;
+    background: rgba(35,71,212,0.06);
+    border-radius: 18px; padding: 2px;
+  }
+  .lang-btn {
+    font-family: var(--sans-en);
+    font-size: 0.62rem; font-weight: 500; letter-spacing: 0.06em;
+    padding: 0.26rem 0.62rem;
+    border: none; background: transparent;
+    color: var(--ink-soft); cursor: pointer;
+    border-radius: 14px; transition: all 0.25s;
+  }
+  .lang-btn.active { background: var(--royal); color: #fff; box-shadow: 0 2px 6px rgba(35,71,212,0.25); }
+  .user-menu {
+    display: flex; align-items: center; gap: 0.6rem;
+    background: transparent;
+    border: 1px solid var(--rule); border-radius: 30px;
+    padding: 0.26rem 0.85rem 0.26rem 0.28rem;
+    cursor: pointer;
+    transition: border-color 0.25s, background 0.25s;
+    font-family: var(--sans-en);
+  }
+  body.lang-zh .user-menu { font-family: var(--sans-zh); }
+  .user-menu:hover { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+  .avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--royal-light), var(--royal-deep));
+    color: #fff; font-family: var(--serif-en);
+    font-size: 0.66rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .user-name { font-size: 0.74rem; font-weight: 400; color: var(--ink); }
+
+  /* ── BREADCRUMB ── */
+  .breadcrumb {
+    padding: 1.4rem 2.4rem 0;
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--silver);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  body.lang-zh .breadcrumb { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .breadcrumb a {
+    color: var(--silver);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .breadcrumb a:hover { color: var(--royal); }
+  .breadcrumb .chev { color: var(--silver); opacity: 0.5; }
+  .breadcrumb .current { color: var(--ink-mid); }
+
+  /* ── EVENT HEADER ── */
+  .event-header {
+    padding: 1.5rem 2.4rem 2rem;
+    display: grid;
+    grid-template-columns: 130px 1fr auto;
+    gap: 2.4rem;
+    align-items: end;
+    border-bottom: 1px solid var(--rule);
+  }
+  .eh-date {
+    font-family: var(--sans-en);
+    line-height: 1;
+  }
+  body.lang-zh .eh-date { font-family: var(--sans-zh); }
+  .eh-date .ed-day {
+    display: block;
+    font-family: var(--serif-en);
+    font-size: 4.2rem;
+    font-weight: 700;
+    color: var(--royal);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+  }
+  .eh-date .ed-month {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+  body.lang-zh .eh-date .ed-month { letter-spacing: 0.06em; text-transform: none; }
+  .eh-date .ed-weekday {
+    display: block;
+    font-size: 0.66rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--silver);
+    font-weight: 400;
+    margin-top: 0.3rem;
+  }
+  body.lang-zh .eh-date .ed-weekday { letter-spacing: 0.06em; text-transform: none; }
+
+  .eh-body { min-width: 0; }
+  .eh-tags {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.85rem;
+  }
+  .eh-tag {
+    font-family: var(--sans-en);
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.28rem 0.65rem;
+    border-radius: 2px;
+  }
+  body.lang-zh .eh-tag { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .eh-tag.critical { background: var(--warn-soft); color: var(--warn); }
+  .eh-tag.type { background: rgba(35,71,212,0.08); color: var(--royal); }
+  .eh-tag.time { background: rgba(136,150,184,0.15); color: var(--ink-mid); font-family: var(--mono); letter-spacing: 0.06em; }
+
+  .eh-title {
+    font-family: var(--serif-en);
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
+  }
+  .eh-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .eh-title .ticker {
+    font-family: var(--mono);
+    color: var(--royal);
+    font-weight: 500;
+    margin-right: 0.5rem;
+    font-size: 0.85em;
+  }
+  body.lang-zh .eh-title { font-family: var(--serif-zh); }
+  .eh-sub {
+    font-family: var(--sans-en);
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    font-weight: 300;
+    line-height: 1.55;
+    max-width: 64ch;
+  }
+  body.lang-zh .eh-sub { font-family: var(--sans-zh); max-width: 36em; }
+
+  .eh-actions { display: flex; gap: 0.5rem; align-items: center; flex-direction: column; }
+  .ha-btn {
+    font-family: var(--sans-en);
+    font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-soft); background: transparent;
+    border: 1px solid var(--rule);
+    padding: 0.55rem 0.95rem;
+    cursor: pointer; border-radius: 3px;
+    transition: all 0.25s;
+    display: flex; align-items: center; gap: 0.5rem;
+    text-decoration: none; white-space: nowrap;
+    width: 100%; justify-content: center;
+  }
+  body.lang-zh .ha-btn { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .ha-btn:hover { border-color: var(--royal); color: var(--royal); }
+  .ha-btn.primary { background: var(--royal); color: #fff; border-color: var(--royal); }
+  .ha-btn.primary:hover { background: var(--royal-deep); border-color: var(--royal-deep); box-shadow: 0 8px 24px rgba(35,71,212,0.28); transform: translateY(-1px); }
+
+  /* ── COUNTDOWN STRIP ── */
+  .summary-strip {
+    padding: 1.4rem 2.4rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--rule);
+  }
+  .summary-block { padding: 0 1.4rem; border-left: 1px solid var(--rule); }
+  .summary-block:first-child { padding-left: 0; border-left: none; }
+  .sb-label {
+    font-family: var(--sans-en);
+    font-size: 0.54rem; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--silver); margin-bottom: 0.45rem;
+  }
+  body.lang-zh .sb-label { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .sb-value {
+    font-family: var(--serif-en);
+    font-size: 1.45rem; font-weight: 700; line-height: 1;
+    color: var(--ink); font-variant-numeric: tabular-nums;
+    margin-bottom: 0.35rem; letter-spacing: -0.02em;
+  }
+  .sb-value em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .sb-value .unit {
+    font-family: var(--sans-en); font-style: normal;
+    font-size: 0.66rem; color: var(--silver);
+    margin-left: 0.3rem; letter-spacing: 0.04em; font-weight: 400;
+  }
+  body.lang-zh .sb-value .unit { font-family: var(--sans-zh); }
+  .sb-value .gain { color: var(--gain); }
+  .sb-value .loss { color: var(--loss); }
+  .sb-value .warn { color: var(--warn); }
+  .sb-meta {
+    font-family: var(--sans-en);
+    font-size: 0.7rem; color: var(--ink-soft);
+    font-weight: 300; line-height: 1.5;
+  }
+  body.lang-zh .sb-meta { font-family: var(--sans-zh); }
+  .sb-pill {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    background: var(--gain-soft);
+    color: var(--gain);
+    padding: 0.08rem 0.4rem;
+    border-radius: 2px;
+    margin-left: 0.4rem;
+    letter-spacing: 0.04em;
+  }
+  .sb-pill.warn { background: var(--warn-soft); color: var(--warn); }
+
+  /* ── MAIN LAYOUT ── */
+  .detail-body {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 0;
+  }
+  .detail-main { padding: 2rem 2.4rem 3rem; }
+  .detail-aside {
+    border-left: 1px solid var(--rule);
+    background: var(--bg-soft);
+    padding: 2rem 1.8rem 3rem;
+  }
+
+  /* ── SECTION ── */
+  .det-section { margin-bottom: 2.2rem; }
+  .det-section:last-child { margin-bottom: 0; }
+  .det-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    margin-bottom: 0.95rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .ds-num {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--royal);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+  .ds-title {
+    font-family: var(--serif-en);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  body.lang-zh .ds-title { font-family: var(--serif-zh); }
+  .ds-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .ds-meta {
+    font-family: var(--sans-en);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-left: auto;
+  }
+  body.lang-zh .ds-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+
+  .det-prose {
+    font-family: var(--sans-en);
+    font-size: 0.86rem;
+    color: var(--ink-mid);
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 70ch;
+  }
+  body.lang-zh .det-prose { font-family: var(--sans-zh); max-width: 36em; }
+
+  /* ── POSITION TABLE ── */
+  .pos-mini {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--sans-en);
+    font-variant-numeric: tabular-nums;
+    margin-top: 0.85rem;
+  }
+  body.lang-zh .pos-mini { font-family: var(--sans-zh); }
+  .pos-mini th {
+    text-align: right;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.54rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  body.lang-zh .pos-mini th { letter-spacing: 0.06em; text-transform: none; }
+  .pos-mini th:first-child, .pos-mini th:nth-child(2) { text-align: left; }
+  .pos-mini th:first-child { padding-left: 0; }
+  .pos-mini td {
+    padding: 0.65rem 0.65rem;
+    text-align: right;
+    font-size: 0.78rem;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule);
+  }
+  .pos-mini td:first-child, .pos-mini td:nth-child(2) { text-align: left; }
+  .pos-mini td:first-child { padding-left: 0; }
+  .pos-mini .sym { font-family: var(--mono); font-weight: 500; color: var(--royal); }
+  .pos-mini .name { color: var(--ink-soft); font-weight: 300; font-size: 0.74rem; }
+  .pos-mini .gain { color: var(--gain); }
+  .pos-mini .loss { color: var(--loss); }
+
+  /* ── KEY-VALUE PAIRS ── */
+  .kv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 0.85rem;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .kv-cell {
+    padding: 0.85rem 1rem;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .kv-cell:nth-child(3n) { border-right: none; }
+  .kv-cell:nth-last-child(-n+3) { border-bottom: none; }
+  .kv-label {
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 0.35rem;
+    display: block;
+  }
+  body.lang-zh .kv-label { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .kv-value {
+    font-family: var(--serif-en);
+    font-size: 1.05rem;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .kv-value.warn { color: var(--warn); }
+  .kv-value.gain { color: var(--gain); }
+  .kv-value.loss { color: var(--loss); }
+  .kv-sub {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--silver);
+    margin-top: 0.2rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── HISTORY TABLE ── */
+  .hist-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--sans-en);
+    font-variant-numeric: tabular-nums;
+    margin-top: 0.85rem;
+  }
+  body.lang-zh .hist-table { font-family: var(--sans-zh); }
+  .hist-table th {
+    text-align: right;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.54rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  body.lang-zh .hist-table th { letter-spacing: 0.06em; text-transform: none; }
+  .hist-table th:first-child { text-align: left; padding-left: 0; }
+  .hist-table td {
+    padding: 0.55rem 0.65rem;
+    text-align: right;
+    font-size: 0.78rem;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule);
+  }
+  .hist-table td:first-child {
+    text-align: left;
+    padding-left: 0;
+    font-family: var(--mono);
+    color: var(--ink-mid);
+    letter-spacing: 0.02em;
+    font-size: 0.74rem;
+  }
+  .hist-table .gain { color: var(--gain); }
+  .hist-table .loss { color: var(--loss); }
+  .hist-table tfoot td {
+    border-bottom: none;
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 0.84rem;
+    padding-top: 0.85rem;
+  }
+  .hist-table tfoot td:first-child {
+    font-family: var(--sans-en);
+    font-style: normal;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mid);
+    font-weight: 500;
+  }
+  body.lang-zh .hist-table tfoot td:first-child { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+
+  /* ── ACTION OPTIONS ── */
+  .options-list { margin-top: 0.85rem; }
+  .opt-item {
+    padding: 0.95rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    margin-bottom: 0.6rem;
+    transition: border-color 0.25s, background 0.2s;
+    cursor: default;
+  }
+  .opt-item:hover { border-color: var(--rule-strong); background: rgba(35,71,212,0.02); }
+  .opt-item.recommended {
+    border-color: var(--royal);
+    background: rgba(35,71,212,0.04);
+  }
+  .opt-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.4rem;
+    gap: 0.85rem;
+  }
+  .opt-letter {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    color: var(--royal);
+    background: rgba(35,71,212,0.1);
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+  .opt-title {
+    font-family: var(--sans-en);
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--ink);
+    flex: 1;
+  }
+  body.lang-zh .opt-title { font-family: var(--sans-zh); }
+  .opt-flag {
+    font-family: var(--sans-en);
+    font-size: 0.56rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--royal);
+    font-weight: 500;
+  }
+  body.lang-zh .opt-flag { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .opt-desc {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    font-weight: 300;
+    margin-bottom: 0.55rem;
+    padding-left: 2.2rem;
+  }
+  body.lang-zh .opt-desc { font-family: var(--sans-zh); }
+  .opt-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.4rem;
+    padding-left: 2.2rem;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--silver);
+    letter-spacing: 0.02em;
+  }
+  body.lang-zh .opt-meta { font-family: var(--sans-zh); }
+  .opt-meta strong { color: var(--ink-mid); font-weight: 500; margin-left: 0.3rem; }
+
+  /* ── ASIDE ── */
+  .aside-block { margin-bottom: 1.8rem; }
+  .aside-block:last-child { margin-bottom: 0; }
+  .aside-label {
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--royal);
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  body.lang-zh .aside-label { font-family: var(--sans-zh); letter-spacing: 0.08em; text-transform: none; }
+  .aside-label::before {
+    content: '';
+    width: 18px; height: 1.5px;
+    background: var(--royal);
+  }
+  .aside-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+  .aside-actions .ha-btn { width: 100%; }
+
+  .linked-list { display: flex; flex-direction: column; }
+  .linked-item {
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+    transition: padding-left 0.2s;
+    display: block;
+  }
+  .linked-item:first-child { border-top: none; }
+  .linked-item:hover { padding-left: 0.3rem; color: var(--royal); }
+  .li-meta {
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 0.25rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  body.lang-zh .li-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .li-title {
+    font-family: var(--serif-en);
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: inherit;
+  }
+  body.lang-zh .li-title { font-family: var(--serif-zh); }
+
+  .advisor-card {
+    padding: 1rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: #fff;
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+  }
+  .ad-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #a98b3a);
+    color: #fff;
+    font-family: var(--serif-en);
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ad-name {
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.1rem;
+  }
+  body.lang-zh .ad-name { font-family: var(--sans-zh); }
+  .ad-role {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+  body.lang-zh .ad-role { font-family: var(--sans-zh); }
+
+  /* Note callout */
+  .note-callout {
+    padding: 0.85rem 1rem;
+    background: var(--warn-soft);
+    border-left: 2px solid var(--gold);
+    border-radius: 0 3px 3px 0;
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-mid);
+    line-height: 1.55;
+  }
+  body.lang-zh .note-callout { font-family: var(--sans-zh); }
+  .note-callout strong { color: var(--gold); font-weight: 500; }
+
+  /* ── FOOTER ── */
+  .portal-foot {
+    background: var(--ink);
+    padding: 0.9rem 2.4rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; justify-content: space-between;
+    align-items: center; gap: 1rem;
+  }
+  .portal-foot-logo { font-family: var(--serif-en); font-size: 0.85rem; font-weight: 700; color: #fff; }
+  .portal-foot-logo .hl { color: var(--royal-light); }
+  body.lang-zh .portal-foot-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-foot-meta {
+    font-family: var(--sans-en);
+    font-size: 0.58rem; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.32); text-transform: uppercase;
+    display: flex; gap: 0.6rem; flex-wrap: wrap;
+  }
+  body.lang-zh .portal-foot-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .portal-foot-meta a { color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+  .portal-foot-meta a:hover { color: #fff; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1180px) {
+    .portal-tabs { gap: 1.6rem; }
+    .portal-tabs a { font-size: 0.7rem; }
+  }
+  @media (max-width: 1024px) {
+    .portal-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.8rem; }
+    .nav-left { gap: 1.5rem; flex: 1 1 auto; }
+    .portal-tabs { display: none; }
+    .breadcrumb { padding: 1rem 1.5rem 0; }
+    .event-header { padding: 1rem 1.5rem 1.6rem; grid-template-columns: 100px 1fr; gap: 1.4rem; }
+    .eh-actions { grid-column: 1 / -1; flex-direction: row; }
+    .eh-date .ed-day { font-size: 3.2rem; }
+    .summary-strip { padding: 1.2rem 1.5rem; grid-template-columns: 1fr 1fr; }
+    .summary-block { border-left: none; padding: 0.8rem 0; border-bottom: 1px solid var(--rule); }
+    .detail-body { grid-template-columns: 1fr; }
+    .detail-main { padding: 1.6rem 1.5rem 2rem; }
+    .detail-aside { border-left: none; border-top: 1px solid var(--rule); padding: 1.6rem 1.5rem 2rem; }
+    .kv-grid { grid-template-columns: 1fr 1fr; }
+    .kv-cell:nth-child(3n) { border-right: 1px solid var(--rule); }
+    .kv-cell:nth-child(2n) { border-right: none; }
+    .pos-mini, .hist-table { display: block; overflow-x: auto; white-space: nowrap; }
+    .portal-foot { padding: 1.4rem 1.5rem; flex-direction: column; gap: 0.6rem; text-align: center; }
+  }
+</style>
+</head>
+<body id="body">
+
+<!-- ── PORTAL NAV ── -->
+<nav class="portal-nav">
+  <div class="nav-left">
+    <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="nav-logo">
+      <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+      <span class="zh-inline">欣安<span class="hl">量化</span></span>
+    </a>
+    <ul class="portal-tabs">
+      <li><a href="Shion Quant Portal.html"><span class="en-inline">Portfolio</span><span class="zh-inline">投资组合</span></a></li>
+      <li><a href="Shion Quant Schedules.html" class="active"><span class="en-inline">Schedules</span><span class="zh-inline">日程安排</span></a></li>
+      <li><a href="Shion Quant Reports.html"><span class="en-inline">Reports</span><span class="zh-inline">分析报告</span></a></li>
+      <li><a href="Shion Quant Documents.html"><span class="en-inline">Documents</span><span class="zh-inline">文件资料</span></a></li>
+    </ul>
+  </div>
+  <div class="nav-right-portal">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+    </div>
+    <button class="user-menu">
+      <span class="avatar">CH</span>
+      <span class="user-name"><span class="en-inline">Mr. Chen</span><span class="zh-inline">陈先生</span></span>
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ── BREADCRUMB ── -->
+<div class="breadcrumb">
+  <a href="Shion Quant Schedules.html">
+    <span class="en-inline">Schedules</span><span class="zh-inline">日程安排</span>
+  </a>
+  <span class="chev">›</span>
+  <a href="Shion Quant Schedules.html">
+    <span class="en-inline">May 2026</span><span class="zh-inline">2026 年 5 月</span>
+  </a>
+  <span class="chev">›</span>
+  <span class="current">NVDA · Q1 Earnings</span>
+</div>
+
+<!-- ── EVENT HEADER ── -->
+<header class="event-header">
+  <div class="eh-date">
+    <span class="ed-day">01</span>
+    <span class="ed-month"><span class="en-inline">May 2026</span><span class="zh-inline">5 月 2026</span></span>
+    <span class="ed-weekday"><span class="en-inline">Thursday</span><span class="zh-inline">星期四</span></span>
+  </div>
+  <div class="eh-body">
+    <div class="eh-tags">
+      <span class="eh-tag critical"><span class="en-inline">Critical</span><span class="zh-inline">重点</span></span>
+      <span class="eh-tag type"><span class="en-inline">Earnings</span><span class="zh-inline">财报</span></span>
+      <span class="eh-tag time"><span class="en-inline">After close · ~16:20 ET</span><span class="zh-inline">盘后 · 约 16:20 ET</span></span>
+    </div>
+    <h1 class="eh-title">
+      <span class="en"><span class="ticker">NVDA</span>NVIDIA · Q1 <em>FY2026 Earnings</em></span>
+      <span class="zh"><span class="ticker">NVDA</span>NVIDIA · 2026 财年 Q1 <em>财报发布</em></span>
+    </h1>
+    <p class="eh-sub">
+      <span class="en-inline">Largest single-name equity exposure (18.0% portfolio weight, +31.8% unrealized). Concentration trigger active. A cash-secured put 580P expiring 16 May provides ~3.7% downside cushion below the current mark.</span>
+      <span class="zh-inline">单一股票最大敞口（占组合 18.0%，浮盈 +31.8%）。集中度预警生效中。已开仓 580P 现金担保 put（5/16 到期），提供较现价约 3.7% 的下行缓冲。</span>
+    </p>
+  </div>
+  <div class="eh-actions">
+    <a href="#" class="ha-btn primary">
+      <span class="en-inline">Hedge Review</span><span class="zh-inline">对冲复核</span>
+    </a>
+    <a href="#" class="ha-btn">
+      <span class="en-inline">Set Alert</span><span class="zh-inline">设置提醒</span>
+    </a>
+  </div>
+</header>
+
+<!-- ── COUNTDOWN STRIP ── -->
+<section class="summary-strip">
+  <div class="summary-block">
+    <p class="sb-label"><span class="en-inline">Time to Event</span><span class="zh-inline">距离开始</span></p>
+    <div class="sb-value"><em>4</em><span class="unit">d</span> <em>21</em><span class="unit">h</span></div>
+    <p class="sb-meta">
+      <span class="en-inline">~16:20 ET · 1 May 2026</span>
+      <span class="zh-inline">约 16:20 ET · 5/1</span>
+    </p>
+  </div>
+  <div class="summary-block">
+    <p class="sb-label"><span class="en-inline">Position Weight</span><span class="zh-inline">仓位权重</span></p>
+    <div class="sb-value"><em class="warn">18.04</em><span class="unit">%</span></div>
+    <p class="sb-meta">
+      <span class="en-inline">800 sh @ $642.18 = $513,744</span>
+      <span class="zh-inline">800 股 @ $642.18 = $513,744</span>
+      <span class="sb-pill warn">OVER 15%</span>
+    </p>
+  </div>
+  <div class="summary-block">
+    <p class="sb-label"><span class="en-inline">Implied Move</span><span class="zh-inline">预期波幅</span></p>
+    <div class="sb-value">±<em>8.4</em><span class="unit">%</span></div>
+    <p class="sb-meta">
+      <span class="en-inline">IV crush expected post-print · ATM straddle</span>
+      <span class="zh-inline">财报后 IV 预计回落 · 平值跨式</span>
+    </p>
+  </div>
+  <div class="summary-block">
+    <p class="sb-label"><span class="en-inline">Active Hedge</span><span class="zh-inline">现有对冲</span></p>
+    <div class="sb-value"><em>Yes</em></div>
+    <p class="sb-meta">
+      <span class="en-inline">580P × 3 contracts · 16 May exp.</span>
+      <span class="zh-inline">580P × 3 张 · 5/16 到期</span>
+      <span class="sb-pill">CSP</span>
+    </p>
+  </div>
+</section>
+
+<!-- ── MAIN LAYOUT ── -->
+<div class="detail-body">
+
+  <!-- MAIN COLUMN -->
+  <main class="detail-main">
+
+    <!-- Position Context -->
+    <section class="det-section">
+      <div class="det-section-head">
+        <span class="ds-num">01</span>
+        <span class="ds-title">
+          <span class="en">Position <em>context</em></span>
+          <span class="zh">仓位<em>背景</em></span>
+        </span>
+        <span class="ds-meta">
+          <span class="en-inline">Direct + linked exposures</span>
+          <span class="zh-inline">直接 + 关联敞口</span>
+        </span>
+      </div>
+      <p class="det-prose">
+        <span class="en-inline">Three positions on the book are directly affected by Thursday's print. The equity leg accounts for 18.0% of total portfolio value, exceeding the 15% concentration trigger that activated on 22 April. Indirect exposure runs through SPY (NVDA is ~7.4% of S&amp;P 500 weight), so the protective put hedge provides partial spillover protection.</span>
+        <span class="zh-inline">三笔仓位将直接受到本次财报影响。其中股票部分占组合总值的 18.0%，已超过 4/22 触发的 15% 集中度阈值。间接敞口通过 SPY 传导（NVDA 约占 S&amp;P 500 权重 7.4%），SPY 保护性看跌可提供部分溢出保护。</span>
+      </p>
+      <table class="pos-mini">
+        <thead>
+          <tr>
+            <th><span class="en-inline">Symbol</span><span class="zh-inline">代码</span></th>
+            <th><span class="en-inline">Position</span><span class="zh-inline">持仓</span></th>
+            <th><span class="en-inline">Mark</span><span class="zh-inline">现价</span></th>
+            <th><span class="en-inline">Notional</span><span class="zh-inline">名义</span></th>
+            <th><span class="en-inline">P/L</span><span class="zh-inline">盈亏</span></th>
+            <th><span class="en-inline">Weight</span><span class="zh-inline">权重</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="sym">NVDA</td>
+            <td class="name"><span class="en-inline">800 shares · long</span><span class="zh-inline">800 股 · 多头</span></td>
+            <td>642.18</td>
+            <td>$513,744</td>
+            <td class="gain">+$123,904</td>
+            <td>18.04%</td>
+          </tr>
+          <tr>
+            <td class="sym">NVDA 580P</td>
+            <td class="name"><span class="en-inline">3 ct · short · 16 May</span><span class="zh-inline">3 张 · 空头 · 5/16</span></td>
+            <td>4.20</td>
+            <td>$174,000 <span style="color:var(--silver); font-size:0.7rem;">collateral</span></td>
+            <td class="gain">+$2,190</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="sym">SPY 530P</td>
+            <td class="name"><span class="en-inline">8 ct · long · 20 Jun · indirect</span><span class="zh-inline">8 张 · 多头 · 6/20 · 间接</span></td>
+            <td>11.20</td>
+            <td>$424,000 <span style="color:var(--silver); font-size:0.7rem;">notional</span></td>
+            <td class="gain">+$1,440</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Consensus & Implied -->
+    <section class="det-section">
+      <div class="det-section-head">
+        <span class="ds-num">02</span>
+        <span class="ds-title">
+          <span class="en"><em>Consensus</em> &amp; implied</span>
+          <span class="zh"><em>市场预期</em>与隐含</span>
+        </span>
+        <span class="ds-meta">
+          <span class="en-inline">As of 24 Apr close</span>
+          <span class="zh-inline">截至 4/24 收盘</span>
+        </span>
+      </div>
+      <p class="det-prose">
+        <span class="en-inline">Sell-side consensus has tightened over the past two weeks, with the high-low EPS range narrowing from $0.78–$1.02 to $0.84–$0.94. Whisper number sits ~5% above consensus. Implied move of ±8.4% is roughly in line with the trailing 8-quarter average of 8.7%.</span>
+        <span class="zh-inline">过去两周卖方预期收窄，EPS 高低区间由 $0.78–$1.02 收窄至 $0.84–$0.94。市场私下预期高于共识约 5%。当前 ±8.4% 隐含波幅与近 8 个季度均值 8.7% 基本吻合。</span>
+      </p>
+      <div class="kv-grid">
+        <div class="kv-cell">
+          <span class="kv-label"><span class="en-inline">Consensus EPS</span><span class="zh-inline">EPS 预期</span></span>
+          <span class="kv-value">$0.89</span>
+          <div class="kv-sub">Range $0.84 – $0.94</div>
+        </div>
+        <div class="kv-cell">
+          <span class="kv-label"><span class="en-inline">Whisper</span><span class="zh-inline">市场私下预期</span></span>
+          <span class="kv-value">$0.93</span>
+          <div class="kv-sub">+4.5% vs consensus</div>
+        </div>
+        <div class="kv-cell">
+          <span class="kv-label"><span class="en-inline">Revenue</span><span class="zh-inline">营收</span></span>
+          <span class="kv-value">$26.8B</span>
+          <div class="kv-sub">YoY +148%</div>
+        </div>
+        <div class="kv-cell">
+          <span class="kv-label"><span class="en-inline">IV (1d before)</span><span class="zh-inline">财报前 IV</span></span>
+          <span class="kv-value warn">52%</span>
+          <div class="kv-sub">90-day baseline 38%</div>
+        </div>
+        <div class="kv-cell">
+          <span class="kv-label"><span class="en-inline">Implied Move</span><span class="zh-inline">隐含波幅</span></span>
+          <span class="kv-value">±8.4%</span>
+          <div class="kv-sub">≈ ±$54 from $642</div>
+        </div>
+        <div class="kv-cell">
+          <span class="kv-label"><span class="en-inline">IV Crush Est.</span><span class="zh-inline">IV 回落预期</span></span>
+          <span class="kv-value">−18 vols</span>
+          <div class="kv-sub">52% → ~34% post-print</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Historical Reaction -->
+    <section class="det-section">
+      <div class="det-section-head">
+        <span class="ds-num">03</span>
+        <span class="ds-title">
+          <span class="en">Historical <em>reaction</em></span>
+          <span class="zh">历史<em>反应</em></span>
+        </span>
+        <span class="ds-meta">
+          <span class="en-inline">Last 8 quarters</span>
+          <span class="zh-inline">近 8 个季度</span>
+        </span>
+      </div>
+      <p class="det-prose">
+        <span class="en-inline">Realized post-earnings moves have been larger than implied in 5 of the last 8 quarters. The asymmetry skews positive — three of those surprise-larger reactions were beats, two were misses. Within 5 trading days, the print direction has held in 6 of 8 cases.</span>
+        <span class="zh-inline">过去 8 个季度中，实际财报后波幅有 5 次大于隐含。其中 3 次为超预期上涨、2 次为不及预期下跌。在 5 个交易日内，财报后的方向在 8 次中有 6 次延续。</span>
+      </p>
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th><span class="en-inline">Quarter</span><span class="zh-inline">季度</span></th>
+            <th><span class="en-inline">EPS Est.</span><span class="zh-inline">EPS 预期</span></th>
+            <th><span class="en-inline">Reported</span><span class="zh-inline">实际</span></th>
+            <th><span class="en-inline">Surprise</span><span class="zh-inline">超预期</span></th>
+            <th><span class="en-inline">1d Move</span><span class="zh-inline">单日</span></th>
+            <th><span class="en-inline">5d Move</span><span class="zh-inline">5 日</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Q4 FY25</td><td>$0.84</td><td>$0.89</td><td class="gain">+5.9%</td><td class="gain">+9.3%</td><td class="gain">+12.1%</td></tr>
+          <tr><td>Q3 FY25</td><td>$0.74</td><td>$0.81</td><td class="gain">+9.4%</td><td class="loss">−2.5%</td><td class="loss">−4.8%</td></tr>
+          <tr><td>Q2 FY25</td><td>$0.65</td><td>$0.68</td><td class="gain">+4.6%</td><td class="gain">+0.1%</td><td class="gain">+3.6%</td></tr>
+          <tr><td>Q1 FY25</td><td>$0.60</td><td>$0.61</td><td class="gain">+1.6%</td><td class="loss">−7.7%</td><td class="loss">−10.2%</td></tr>
+          <tr><td>Q4 FY24</td><td>$0.51</td><td>$0.52</td><td class="gain">+2.0%</td><td class="gain">+16.4%</td><td class="gain">+14.0%</td></tr>
+          <tr><td>Q3 FY24</td><td>$0.40</td><td>$0.40</td><td>0.0%</td><td class="gain">+9.7%</td><td class="gain">+11.5%</td></tr>
+          <tr><td>Q2 FY24</td><td>$0.27</td><td>$0.27</td><td>0.0%</td><td class="gain">+0.1%</td><td class="loss">−6.4%</td></tr>
+          <tr><td>Q1 FY24</td><td>$0.21</td><td>$0.21</td><td>0.0%</td><td class="gain">+24.4%</td><td class="gain">+26.5%</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><span class="en-inline">Median</span><span class="zh-inline">中位数</span></td>
+            <td>—</td>
+            <td>—</td>
+            <td>+1.8%</td>
+            <td>+5.0%</td>
+            <td>+7.6%</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <!-- Recommended Actions -->
+    <section class="det-section">
+      <div class="det-section-head">
+        <span class="ds-num">04</span>
+        <span class="ds-title">
+          <span class="en">Recommended <em>options</em></span>
+          <span class="zh">建议<em>方案</em></span>
+        </span>
+        <span class="ds-meta">
+          <span class="en-inline">From 19 Apr Strategy Memo</span>
+          <span class="zh-inline">来自 4/19 策略备忘</span>
+        </span>
+      </div>
+      <p class="det-prose">
+        <span class="en-inline">Three pre-earnings actions are on the table, ranked by the 19 April strategy memo. None require execution — the memo's purpose is to ensure decisions are made deliberately rather than reactively. Final selection due by 16:00 ET on Wednesday 30 April.</span>
+        <span class="zh-inline">财报前可选三种处置方案，按 4/19 备忘排序。三者皆非必选——备忘的目的是确保决策出于深思而非应激。最终选择须于 4/30（周三）16:00 ET 前确定。</span>
+      </p>
+      <div class="options-list">
+        <div class="opt-item recommended">
+          <div class="opt-head">
+            <span class="opt-letter">A</span>
+            <span class="opt-title">
+              <span class="en-inline">Trim 200 sh pre-print</span>
+              <span class="zh-inline">财报前减持 200 股</span>
+            </span>
+            <span class="opt-flag">
+              <span class="en-inline">★ Memo's pick</span><span class="zh-inline">★ 备忘推荐</span>
+            </span>
+          </div>
+          <div class="opt-desc">
+            <span class="en-inline">Reduces NVDA weight from 18.0% → 13.5%, restoring concentration buffer. Locks in $30,976 of unrealized gains. Tax: +$24,781 short-term capital gain (HK domicile, 0% applicable).</span>
+            <span class="zh-inline">将 NVDA 权重由 18.0% 降至 13.5%，恢复集中度安全边际。锁定 $30,976 浮盈。税务：+$24,781 短期资本利得（港籍居民适用 0% 税率）。</span>
+          </div>
+          <div class="opt-meta">
+            <span><span class="en-inline">New weight</span><span class="zh-inline">新权重</span><strong>13.5%</strong></span>
+            <span><span class="en-inline">Realized gain</span><span class="zh-inline">已实现盈利</span><strong>$30,976</strong></span>
+            <span><span class="en-inline">Tax impact</span><span class="zh-inline">税务影响</span><strong>None (HK)</strong></span>
+          </div>
+        </div>
+
+        <div class="opt-item">
+          <div class="opt-head">
+            <span class="opt-letter">B</span>
+            <span class="opt-title">
+              <span class="en-inline">Layer covered calls 700C / 720C</span>
+              <span class="zh-inline">分批开备兑 700C / 720C</span>
+            </span>
+            <span class="opt-flag">
+              <span class="en-inline">Yield play</span><span class="zh-inline">收益型</span>
+            </span>
+          </div>
+          <div class="opt-desc">
+            <span class="en-inline">Hold full position; sell 4 ct 700C (5 May exp) + 4 ct 720C (16 May). Collects $11.20/ct premium = $4,480, captures IV crush. Caps upside at $700/$720 if assigned.</span>
+            <span class="zh-inline">维持全仓；卖出 4 张 700C（5/5 到期）+ 4 张 720C（5/16）。收取权利金 $11.20/张 = $4,480，捕获 IV 回落。若被行权，上行封顶 $700 / $720。</span>
+          </div>
+          <div class="opt-meta">
+            <span><span class="en-inline">Premium</span><span class="zh-inline">权利金</span><strong>+$4,480</strong></span>
+            <span><span class="en-inline">Upside cap</span><span class="zh-inline">上行封顶</span><strong>$700 / $720</strong></span>
+            <span><span class="en-inline">If pinned</span><span class="zh-inline">若被行权</span><strong>+9% / +12%</strong></span>
+          </div>
+        </div>
+
+        <div class="opt-item">
+          <div class="opt-head">
+            <span class="opt-letter">C</span>
+            <span class="opt-title">
+              <span class="en-inline">Buy protective put 600P / 16 May</span>
+              <span class="zh-inline">买入保护性看跌 600P / 5/16</span>
+            </span>
+            <span class="opt-flag">
+              <span class="en-inline">Defensive</span><span class="zh-inline">防守型</span>
+            </span>
+          </div>
+          <div class="opt-desc">
+            <span class="en-inline">Add 8 ct long puts at 600 strike. Premium ~$8.50/ct = $6,800 cost. Caps NVDA-specific drawdown at ~6.5% from current mark. Pure cost; loses on flat / up tape.</span>
+            <span class="zh-inline">买入 8 张 600 行权价看跌。权利金约 $8.50/张 = $6,800。将 NVDA 单仓回撤封顶在现价下方约 6.5%。纯成本——若价格持平或上涨则全损。</span>
+          </div>
+          <div class="opt-meta">
+            <span><span class="en-inline">Cost</span><span class="zh-inline">成本</span><strong>−$6,800</strong></span>
+            <span><span class="en-inline">DD floor</span><span class="zh-inline">回撤底线</span><strong>−6.5%</strong></span>
+            <span><span class="en-inline">Break-even</span><span class="zh-inline">盈亏平衡</span><strong>$591.50</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ASIDE -->
+  <aside class="detail-aside">
+
+    <div class="aside-block">
+      <div class="aside-label"><span class="en-inline">Take Action</span><span class="zh-inline">立即操作</span></div>
+      <div class="aside-actions">
+        <a href="#" class="ha-btn primary"><span class="en-inline">Approve Option A ›</span><span class="zh-inline">批准方案 A ›</span></a>
+        <a href="#" class="ha-btn"><span class="en-inline">View Full Position</span><span class="zh-inline">查看完整仓位</span></a>
+        <a href="Shion Quant Contact Advisor.html" class="ha-btn"><span class="en-inline">Schedule Pre-Print Call</span><span class="zh-inline">财报前电话</span></a>
+        <a href="#" class="ha-btn"><span class="en-inline">Add to Calendar</span><span class="zh-inline">加入日历</span></a>
+      </div>
+    </div>
+
+    <div class="aside-block">
+      <div class="aside-label"><span class="en-inline">Lead Advisor</span><span class="zh-inline">主责顾问</span></div>
+      <div class="advisor-card">
+        <div class="ad-avatar">KT</div>
+        <div>
+          <div class="ad-name">K. Tanaka</div>
+          <div class="ad-role">
+            <span class="en-inline">Senior Quant · San Diego</span>
+            <span class="zh-inline">高级量化 · 圣地亚哥</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="aside-block">
+      <div class="aside-label"><span class="en-inline">Linked Materials</span><span class="zh-inline">关联资料</span></div>
+      <div class="linked-list">
+        <a href="Shion Quant Report Detail.html" class="linked-item">
+          <div class="li-meta">
+            <span><span class="en-inline">Strategy Memo</span><span class="zh-inline">策略备忘</span></span>
+            <span>·</span>
+            <span>19 Apr</span>
+          </div>
+          <div class="li-title">
+            <span class="en">NVDA position sizing after Q1 earnings</span>
+            <span class="zh">NVDA Q1 财报后仓位调整</span>
+          </div>
+        </a>
+        <a href="Shion Quant Report Detail.html" class="linked-item">
+          <div class="li-meta">
+            <span><span class="en-inline">Risk Report</span><span class="zh-inline">风险报告</span></span>
+            <span>·</span>
+            <span>22 Apr</span>
+          </div>
+          <div class="li-title">
+            <span class="en">April Risk Attribution (concentration trigger)</span>
+            <span class="zh">4 月风险归因（含集中度预警）</span>
+          </div>
+        </a>
+        <a href="#" class="linked-item">
+          <div class="li-meta">
+            <span><span class="en-inline">Macro</span><span class="zh-inline">宏观</span></span>
+            <span>·</span>
+            <span>15 Apr</span>
+          </div>
+          <div class="li-title">
+            <span class="en">Fed pivot watch &amp; AI capex implications</span>
+            <span class="zh">Fed 转向观察与 AI 资本开支影响</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="aside-block">
+      <div class="aside-label"><span class="en-inline">Advisor Note</span><span class="zh-inline">顾问备注</span></div>
+      <div class="note-callout">
+        <span class="en-inline"><strong>22 Apr · KT —</strong> The 19 Apr memo's pick (Option A) remains my preference. Concentration risk is the main driver, not earnings risk. Even a strong beat doesn't fix the structural issue.</span>
+        <span class="zh-inline"><strong>4/22 · KT —</strong> 4/19 备忘中的推荐方案（A）仍是我的首选。主要驱动因素是集中度风险，而非财报本身。即使大幅超预期也无法解决结构性问题。</span>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer class="portal-foot">
+  <span class="portal-foot-logo">
+    <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+    <span class="zh-inline">欣安<span class="hl">量化</span></span>
+  </span>
+  <span class="portal-foot-meta">
+    <span class="en-inline">Event detail · synced 22 Apr 16:14 ET ·</span>
+    <span class="zh-inline">事件详情 · 同步于 4/22 16:14 ET ·</span>
+    <a href="Shion Quant Schedules.html"><span class="en-inline">Back to schedules</span><span class="zh-inline">返回日程</span></a>
+  </span>
+</footer>
+
+<script>
+  function setLang(lang) {
+    const body = document.getElementById('body');
+    const btnEn = document.getElementById('btn-en');
+    const btnZh = document.getElementById('btn-zh');
+    if (lang === 'zh') {
+      body.classList.add('lang-zh');
+      btnZh.classList.add('active'); btnEn.classList.remove('active');
+      document.documentElement.lang = 'zh-Hans';
+    } else {
+      body.classList.remove('lang-zh');
+      btnEn.classList.add('active'); btnZh.classList.remove('active');
+      document.documentElement.lang = 'en';
+    }
+  }
+</script>
+<script>
+/* SQ-DROPDOWN-V1 — Account dropdown injected globally across all portal pages */
+(function() {
+  const css = `
+    .user-wrap { position: relative; }
+    .user-wrap .user-menu { position: relative; z-index: 2; }
+    .user-wrap.open .user-menu { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 0.7rem);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      box-shadow: 0 28px 72px rgba(35,71,212,0.18), 0 4px 12px rgba(13,16,32,0.06);
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.3s cubic-bezier(0.25,1,0.5,1);
+      z-index: 200;
+      overflow: hidden;
+    }
+    .user-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 22px;
+      width: 12px; height: 12px;
+      background: #fff;
+      border-left: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
+      transform: rotate(45deg);
+      z-index: 1;
+    }
+    .user-wrap.open .user-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .ud-header {
+      padding: 1.05rem 1.2rem;
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .ud-avatar-lg {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--royal-light), var(--royal-deep));
+      color: #fff;
+      font-family: var(--serif-en);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.15rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(35,71,212,0.20);
+    }
+    .ud-info { min-width: 0; flex: 1; }
+    .ud-name {
+      font-family: var(--serif-en);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.18rem;
+      line-height: 1.15;
+    }
+    body.lang-zh .ud-name { font-family: var(--serif-zh); }
+    .ud-email {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: var(--ink-soft);
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.02em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ud-meta {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ud-pill {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      background: rgba(35,71,212,0.10);
+      color: var(--royal);
+      padding: 0.14rem 0.45rem;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+    .ud-pill-text {
+      font-family: var(--sans-en);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    body.lang-zh .ud-pill-text { font-family: var(--sans-zh); }
+
+    .ud-section {
+      padding: 0.4rem 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .ud-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem 1.2rem;
+      font-family: var(--sans-en);
+      font-size: 0.82rem;
+      color: var(--ink-mid);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s, padding-left 0.18s;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    body.lang-zh .ud-item { font-family: var(--sans-zh); }
+    .ud-item:hover {
+      background: rgba(35,71,212,0.04);
+      color: var(--royal);
+      padding-left: 1.45rem;
+    }
+    .ud-item .ud-icon {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      color: var(--silver);
+      transition: color 0.15s;
+    }
+    .ud-item:hover .ud-icon { color: var(--royal); }
+    .ud-item .ud-shortcut {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    .ud-item .ud-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      background: var(--warn-soft);
+      color: var(--warn);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+      font-weight: 500;
+    }
+    .ud-item.signout {
+      color: var(--loss);
+    }
+    .ud-item.signout .ud-icon { color: var(--loss); }
+    .ud-item.signout:hover {
+      background: rgba(196,82,82,0.06);
+      color: var(--loss);
+    }
+    .ud-item.signout:hover .ud-icon { color: var(--loss); }
+
+    @media (max-width: 1024px) {
+      .user-dropdown { width: 280px; right: -0.5rem; }
+      .user-dropdown::before { right: 30px; }
+    }
+  `;
+
+  const styleEl = document.createElement('style');
+  styleEl.setAttribute('data-sq-dropdown', '');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  const btn = document.querySelector('.user-menu');
+  if (!btn) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'user-wrap';
+  btn.parentNode.insertBefore(wrap, btn);
+  wrap.appendChild(btn);
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'user-dropdown';
+  dropdown.setAttribute('role', 'menu');
+  dropdown.setAttribute('aria-label', 'Account menu');
+  dropdown.innerHTML = `
+    <div class="ud-header">
+      <div class="ud-avatar-lg">陈</div>
+      <div class="ud-info">
+        <div class="ud-name">
+          <span class="en-inline">Chen Wei-Ming</span><span class="zh-inline">陈伟铭</span>
+        </div>
+        <div class="ud-email">w.chen@private-domain.com</div>
+        <div class="ud-meta">
+          <span class="ud-pill">CLIENT 0042</span>
+          <span class="ud-pill-text">
+            <span class="en-inline">Retainer · since Jul 2024</span>
+            <span class="zh-inline">月度顾问 · 2024/7 起</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant Profile.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="en-inline">Profile</span><span class="zh-inline">个人资料</span>
+      </a>
+      <a href="Shion Quant Security.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="en-inline">Security &amp; devices</span><span class="zh-inline">安全与设备</span>
+        <span class="ud-badge">85</span>
+      </a>
+      <a href="Shion Quant Billing.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <line x1="2" y1="10" x2="22" y2="10"/>
+        </svg>
+        <span class="en-inline">Billing &amp; invoices</span><span class="zh-inline">账单与发票</span>
+      </a>
+      <a href="Shion Quant Calendar Settings.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="en-inline">Notifications</span><span class="zh-inline">通知设置</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span class="en-inline">Help &amp; support</span><span class="zh-inline">帮助与支持</span>
+      </a>
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="13" y2="17"/>
+        </svg>
+        <span class="en-inline">What's new</span><span class="zh-inline">更新日志</span>
+        <span class="ud-shortcut">v1.1</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="ud-item signout" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span class="en-inline">Sign out</span><span class="zh-inline">退出登录</span>
+      </a>
+    </div>
+  `;
+  wrap.appendChild(dropdown);
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) wrap.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') wrap.classList.remove('open');
+  });
+})();
+</script>
+
+</body>
+</html>

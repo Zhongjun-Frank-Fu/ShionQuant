@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Advisor · Shion Quant Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@200;300;400;500;600&family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafbff; --bg-soft: #f2f4fc;
+    --royal: #2347d4; --royal-deep: #1a35a8; --royal-light: #3b5ee8;
+    --gold: #c8a84b;
+    --ink: #0d1020; --ink-mid: #2a2f4a; --ink-soft: #4a5070; --silver: #8896b8;
+    --rule: rgba(35,71,212,0.10); --rule-strong: rgba(35,71,212,0.18);
+    --gain: #2d8a5d; --gain-soft: rgba(45,138,93,0.10);
+    --loss: #c45252; --warn: #c8a84b; --warn-soft: rgba(200,168,75,0.12);
+    --serif-en: 'Libre Baskerville', Georgia, serif;
+    --sans-en: 'Outfit', sans-serif;
+    --serif-zh: 'Noto Serif SC', 'STSong', serif;
+    --sans-zh: 'Noto Sans SC', 'PingFang SC', sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans-en); font-weight: 300; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .zh, .zh-inline { display: none; } .en { display: block; } .en-inline { display: inline; }
+  body.lang-zh .en, body.lang-zh .en-inline { display: none; }
+  body.lang-zh .zh { display: block; } body.lang-zh .zh-inline { display: inline; }
+  body.lang-zh { font-family: var(--sans-zh); }
+
+  .portal-nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0.78rem 2.4rem; background: rgba(250,251,255,0.94); backdrop-filter: blur(20px); border-bottom: 1px solid var(--rule); }
+  .nav-left { display: flex; align-items: center; gap: 3rem; }
+  .nav-logo { font-family: var(--serif-en); font-size: 1.18rem; font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+  .nav-logo .hl { color: var(--royal); }
+  body.lang-zh .nav-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-tabs { display: flex; gap: 2.2rem; list-style: none; }
+  .portal-tabs a { font-family: var(--sans-en); font-size: 0.72rem; font-weight: 400; letter-spacing: 0.08em; color: var(--ink-soft); text-decoration: none; text-transform: uppercase; padding: 0.4rem 0; position: relative; transition: color 0.2s; }
+  body.lang-zh .portal-tabs a { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .portal-tabs a.active { color: var(--ink); }
+  .portal-tabs a.active::after { content: ''; position: absolute; bottom: -0.4rem; left: 0; right: 0; height: 2px; background: var(--royal); }
+  .portal-tabs a:hover { color: var(--royal); }
+  .nav-right-portal { display: flex; align-items: center; gap: 1.2rem; }
+  .lang-toggle { display: flex; background: rgba(35,71,212,0.06); border-radius: 18px; padding: 2px; }
+  .lang-btn { font-family: var(--sans-en); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.06em; padding: 0.26rem 0.62rem; border: none; background: transparent; color: var(--ink-soft); cursor: pointer; border-radius: 14px; transition: all 0.25s; }
+  .lang-btn.active { background: var(--royal); color: #fff; box-shadow: 0 2px 6px rgba(35,71,212,0.25); }
+  .user-menu { display: flex; align-items: center; gap: 0.6rem; background: transparent; border: 1px solid var(--rule); border-radius: 30px; padding: 0.26rem 0.85rem 0.26rem 0.28rem; cursor: pointer; transition: all 0.25s; font-family: var(--sans-en); }
+  body.lang-zh .user-menu { font-family: var(--sans-zh); }
+  .user-menu:hover { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+  .avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--royal-light), var(--royal-deep)); color: #fff; font-family: var(--serif-en); font-size: 0.66rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .user-name { font-size: 0.74rem; font-weight: 400; color: var(--ink); }
+
+  .breadcrumb { padding: 1.4rem 2.4rem 0; font-family: var(--sans-en); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--silver); display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  body.lang-zh .breadcrumb { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .breadcrumb a { color: var(--silver); text-decoration: none; transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--royal); }
+  .breadcrumb .chev { opacity: 0.5; }
+  .breadcrumb .current { color: var(--ink-mid); }
+
+  .page { max-width: 720px; margin: 0 auto; padding: 2.2rem 2rem 4rem; }
+
+  .pg-head { margin-bottom: 1.8rem; }
+  .pg-title {
+    font-family: var(--serif-en); font-size: 1.5rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.02em; line-height: 1.15;
+    margin-bottom: 0.35rem;
+  }
+  body.lang-zh .pg-title { font-family: var(--serif-zh); }
+  .pg-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .pg-sub {
+    font-family: var(--sans-en); font-size: 0.82rem; color: var(--ink-soft);
+    font-weight: 300; line-height: 1.55; max-width: 60ch;
+  }
+  body.lang-zh .pg-sub { font-family: var(--sans-zh); max-width: 32em; }
+
+  .sec { margin-bottom: 2rem; }
+  .sec-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 0.85rem; gap: 1rem;
+  }
+  .sec-title {
+    font-family: var(--serif-en); font-size: 0.88rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.005em;
+  }
+  body.lang-zh .sec-title { font-family: var(--serif-zh); }
+  .sec-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+
+  .card { background: #fff; border: 1px solid var(--rule); border-radius: 4px; }
+
+  /* ADVISOR CARD */
+  .advisor {
+    padding: 1.4rem 1.6rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.2rem;
+    align-items: center;
+  }
+  .ad-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #a98b3a);
+    color: #fff;
+    font-family: var(--serif-en);
+    font-size: 1.5rem;
+    font-style: italic;
+    font-weight: 400;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(200,168,75,0.25);
+  }
+  .ad-avatar::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; right: 2px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--gain);
+    border: 2px solid #fff;
+  }
+  .ad-info { min-width: 0; }
+  .ad-name {
+    font-family: var(--serif-en);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+    letter-spacing: -0.01em;
+  }
+  body.lang-zh .ad-name { font-family: var(--serif-zh); }
+  .ad-role {
+    font-family: var(--sans-en);
+    font-size: 0.76rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.35rem;
+    font-weight: 400;
+  }
+  body.lang-zh .ad-role { font-family: var(--sans-zh); }
+  .ad-status {
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: var(--gain);
+    display: flex; align-items: center; gap: 0.45rem;
+  }
+  body.lang-zh .ad-status { font-family: var(--sans-zh); }
+  .ad-status::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gain);
+  }
+  .ad-meta {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--silver);
+    text-align: right;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+  .ad-meta strong { color: var(--ink-mid); font-weight: 500; }
+
+  /* ACTION TILES — three options */
+  .actions-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-bottom: 1.4rem;
+  }
+  .action-tile {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    display: block;
+  }
+  .action-tile:hover {
+    border-color: var(--rule-strong);
+    background: rgba(35,71,212,0.02);
+  }
+  .action-tile.selected {
+    border-color: var(--royal);
+    background: rgba(35,71,212,0.04);
+  }
+  .action-tile.selected::before {
+    content: '';
+    position: absolute;
+    top: 0.6rem; right: 0.6rem;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--royal);
+  }
+  .action-tile.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 0.5rem; right: 0.65rem;
+    width: 14px; height: 14px;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+  }
+  .at-icon {
+    width: 26px; height: 26px;
+    color: var(--royal);
+    margin-bottom: 0.7rem;
+  }
+  .at-name {
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.18rem;
+  }
+  body.lang-zh .at-name { font-family: var(--sans-zh); }
+  .at-hint {
+    font-family: var(--sans-en);
+    font-size: 0.66rem;
+    color: var(--ink-soft);
+    line-height: 1.4;
+    font-weight: 300;
+  }
+  body.lang-zh .at-hint { font-family: var(--sans-zh); }
+
+  /* FORM */
+  .field { padding: 0.95rem 1.1rem; border-top: 1px solid var(--rule); }
+  .field:first-child { border-top: none; }
+  .field label.field-k {
+    display: block;
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.45rem;
+  }
+  body.lang-zh .field label.field-k { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .field input[type="text"], .field input[type="email"], .field textarea, .field select {
+    width: 100%;
+    font-family: var(--sans-en);
+    font-size: 0.86rem;
+    color: var(--ink);
+    background: var(--bg-soft);
+    border: 1px solid transparent;
+    padding: 0.55rem 0.75rem;
+    border-radius: 3px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  body.lang-zh .field input, body.lang-zh .field textarea, body.lang-zh .field select { font-family: var(--sans-zh); }
+  .field textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+  .field select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='none' stroke='%238896b8' stroke-width='1.5' d='M1 1l4 4 4-4'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    padding-right: 2rem;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--royal);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(35,71,212,0.08);
+  }
+  .field input::placeholder, .field textarea::placeholder { color: var(--silver); font-weight: 300; }
+
+  /* URGENCY radio chips */
+  .urgency-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .urgency-chip {
+    font-family: var(--sans-en);
+    font-size: 0.7rem; font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--rule);
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  body.lang-zh .urgency-chip { font-family: var(--sans-zh); letter-spacing: 0.02em; }
+  .urgency-chip input { position: absolute; opacity: 0; }
+  .urgency-chip:hover { border-color: var(--rule-strong); background: #fff; color: var(--ink); }
+  .urgency-chip.selected { background: var(--royal); color: #fff; border-color: var(--royal); }
+  .urgency-chip .meta {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    opacity: 0.7;
+    margin-left: 0.35rem;
+    letter-spacing: 0;
+  }
+
+  /* TEMPLATE PILLS — quick message starters */
+  .template-row {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+  .tpl-pill {
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: var(--royal);
+    background: rgba(35,71,212,0.08);
+    border: 1px solid transparent;
+    padding: 0.3rem 0.65rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  body.lang-zh .tpl-pill { font-family: var(--sans-zh); }
+  .tpl-pill:hover { background: var(--royal); color: #fff; }
+
+  /* CALENDAR SLOTS */
+  .slots-day {
+    padding: 0.85rem 1.1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .slots-day:first-child { border-top: none; }
+  .slots-date {
+    font-family: var(--sans-en);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 0.55rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  body.lang-zh .slots-date { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .slots-date .day {
+    font-family: var(--serif-en);
+    font-size: 1rem;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    text-transform: none;
+    font-weight: 700;
+  }
+  body.lang-zh .slots-date .day { font-family: var(--serif-zh); }
+  .slots-list {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .slot {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--ink);
+    background: var(--bg-soft);
+    border: 1px solid transparent;
+    padding: 0.45rem 0.8rem;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .slot:hover { border-color: var(--royal); color: var(--royal); background: #fff; }
+  .slot.taken { color: var(--silver); cursor: not-allowed; text-decoration: line-through; opacity: 0.5; }
+  .slot.taken:hover { border-color: transparent; background: var(--bg-soft); }
+  .slot.selected { background: var(--royal); color: #fff; }
+  .slot .tz {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    color: var(--silver);
+    margin-left: 0.3rem;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .slot .tz { font-family: var(--sans-zh); }
+
+  /* RECENT THREADS */
+  .thread {
+    padding: 0.85rem 1.1rem;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    transition: padding-left 0.2s, background 0.15s;
+  }
+  .thread:first-child { border-top: none; }
+  .thread:hover { padding-left: 1.3rem; background: rgba(35,71,212,0.025); }
+  .thread-info { min-width: 0; }
+  .thread-subject {
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink);
+    font-weight: 400;
+    margin-bottom: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+  body.lang-zh .thread-subject { font-family: var(--sans-zh); }
+  .thread-subject .unread {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    background: var(--royal);
+    color: #fff;
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .thread-preview {
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    font-weight: 300;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  body.lang-zh .thread-preview { font-family: var(--sans-zh); }
+  .thread-time {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--silver);
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+
+  /* AFTER-HOURS NOTE */
+  .ah-note {
+    padding: 0.85rem 1.1rem;
+    background: var(--warn-soft);
+    border-left: 2px solid var(--gold);
+    border-radius: 0 3px 3px 0;
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-mid);
+    line-height: 1.55;
+    margin-bottom: 1.4rem;
+    font-weight: 400;
+  }
+  body.lang-zh .ah-note { font-family: var(--sans-zh); }
+  .ah-note strong { color: var(--gold); font-weight: 500; }
+  .ah-note a { color: var(--royal); text-decoration: none; }
+  .ah-note a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  /* SUBMIT BAR */
+  .submit-bar {
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .submit-meta {
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+  body.lang-zh .submit-meta { font-family: var(--sans-zh); }
+  .submit-meta strong { color: var(--ink-mid); font-weight: 500; }
+  .submit-actions { display: flex; gap: 0.5rem; }
+  .ha-btn {
+    font-family: var(--sans-en); font-size: 0.66rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-soft); background: transparent;
+    border: 1px solid var(--rule); padding: 0.6rem 1rem;
+    cursor: pointer; border-radius: 3px; transition: all 0.25s;
+    text-decoration: none; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  body.lang-zh .ha-btn { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .ha-btn:hover { border-color: var(--royal); color: var(--royal); }
+  .ha-btn.primary { background: var(--royal); color: #fff; border-color: var(--royal); }
+  .ha-btn.primary:hover { background: var(--royal-deep); border-color: var(--royal-deep); transform: translateY(-1px); }
+
+  /* PANE — show/hide based on selected mode */
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .portal-foot { background: var(--ink); padding: 0.9rem 2.4rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .portal-foot-logo { font-family: var(--serif-en); font-size: 0.85rem; font-weight: 700; color: #fff; }
+  .portal-foot-logo .hl { color: var(--royal-light); }
+  body.lang-zh .portal-foot-logo .zh-inline { font-family: var(--serif-zh); }
+  .portal-foot-meta { font-family: var(--sans-en); font-size: 0.58rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.32); text-transform: uppercase; display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  body.lang-zh .portal-foot-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .portal-foot-meta a { color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+  .portal-foot-meta a:hover { color: #fff; }
+
+  @media (max-width: 1180px) { .portal-tabs { gap: 1.6rem; } .portal-tabs a { font-size: 0.7rem; } }
+  @media (max-width: 1024px) {
+    .portal-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.8rem; }
+    .nav-left { gap: 1.5rem; flex: 1 1 auto; }
+    .portal-tabs { display: none; }
+    .breadcrumb { padding: 1rem 1.5rem 0; }
+    .page { padding: 1.6rem 1.2rem 3rem; }
+    .advisor { grid-template-columns: auto 1fr; }
+    .ad-meta { grid-column: 1 / -1; text-align: left; }
+    .actions-3 { grid-template-columns: 1fr; }
+    .portal-foot { padding: 1.4rem 1.5rem; flex-direction: column; gap: 0.6rem; text-align: center; }
+  }
+</style>
+</head>
+<body id="body">
+
+<nav class="portal-nav">
+  <div class="nav-left">
+    <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="nav-logo">
+      <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+      <span class="zh-inline">欣安<span class="hl">量化</span></span>
+    </a>
+    <ul class="portal-tabs">
+      <li><a href="Shion Quant Portal.html"><span class="en-inline">Portfolio</span><span class="zh-inline">投资组合</span></a></li>
+      <li><a href="Shion Quant Schedules.html"><span class="en-inline">Schedules</span><span class="zh-inline">日程安排</span></a></li>
+      <li><a href="Shion Quant Reports.html"><span class="en-inline">Reports</span><span class="zh-inline">分析报告</span></a></li>
+      <li><a href="Shion Quant Documents.html"><span class="en-inline">Documents</span><span class="zh-inline">文件资料</span></a></li>
+    </ul>
+  </div>
+  <div class="nav-right-portal">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+    </div>
+    <button class="user-menu">
+      <span class="avatar">CH</span>
+      <span class="user-name"><span class="en-inline">Mr. Chen</span><span class="zh-inline">陈先生</span></span>
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="Shion Quant Portal.html"><span class="en-inline">Portfolio</span><span class="zh-inline">投资组合</span></a>
+  <span class="chev">›</span>
+  <span class="current"><span class="en-inline">Contact advisor</span><span class="zh-inline">联系顾问</span></span>
+</div>
+
+<main class="page">
+
+  <div class="pg-head">
+    <h1 class="pg-title">
+      <span class="en">Contact your <em>advisor</em></span>
+      <span class="zh">联系您的<em>顾问</em></span>
+    </h1>
+    <p class="pg-sub">
+      <span class="en-inline">Schedule a call, send a secure message, or book an in-person meeting in San Diego.</span>
+      <span class="zh-inline">预约电话、发送加密消息，或在圣地亚哥办公室预约当面会议。</span>
+    </p>
+  </div>
+
+  <!-- ADVISOR CARD -->
+  <section class="sec">
+    <div class="card">
+      <div class="advisor">
+        <div class="ad-avatar">KT</div>
+        <div class="ad-info">
+          <div class="ad-name">K. Tanaka</div>
+          <div class="ad-role">
+            <span class="en-inline">Senior Quant · your lead advisor since Jul 2024</span>
+            <span class="zh-inline">高级量化 · 自 2024/7 起为您主要顾问</span>
+          </div>
+          <div class="ad-status">
+            <span class="en-inline">Available now · typical reply within 2h</span>
+            <span class="zh-inline">在线 · 通常 2 小时内回复</span>
+          </div>
+        </div>
+        <div class="ad-meta">
+          <span class="en-inline">San Diego · PT</span>
+          <span class="zh-inline">圣地亚哥 · 太平洋时间</span><br>
+          <strong>09:14 local</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTION CHOICE -->
+  <div class="actions-3">
+    <button class="action-tile selected" data-pane="message">
+      <svg class="at-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg>
+      <div class="at-name"><span class="en-inline">Send message</span><span class="zh-inline">发送消息</span></div>
+      <div class="at-hint"><span class="en-inline">Asynchronous · ~2h reply</span><span class="zh-inline">异步 · 约 2 小时回复</span></div>
+    </button>
+    <button class="action-tile" data-pane="call">
+      <svg class="at-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+      <div class="at-name"><span class="en-inline">Schedule call</span><span class="zh-inline">预约电话</span></div>
+      <div class="at-hint"><span class="en-inline">Live video · 30 / 60 min</span><span class="zh-inline">视频 · 30 / 60 分钟</span></div>
+    </button>
+    <button class="action-tile" data-pane="inperson">
+      <svg class="at-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+      <div class="at-name"><span class="en-inline">In-person</span><span class="zh-inline">当面会面</span></div>
+      <div class="at-hint"><span class="en-inline">San Diego office · 1–2 weeks</span><span class="zh-inline">圣地亚哥办公室 · 1–2 周</span></div>
+    </button>
+  </div>
+
+  <!-- ───── MESSAGE PANE (default) ───── -->
+  <div class="pane active" id="pane-message">
+
+    <section class="sec">
+      <div class="sec-head">
+        <h2 class="sec-title"><span class="en">Send a <em>secure message</em></span><span class="zh">发送<em>加密消息</em></span></h2>
+      </div>
+      <div class="card">
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Subject</span><span class="zh-inline">主题</span></label>
+          <input type="text" placeholder="e.g. NVDA position sizing question">
+        </div>
+
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Urgency</span><span class="zh-inline">紧急程度</span></label>
+          <div class="urgency-row">
+            <label class="urgency-chip selected">
+              <input type="radio" name="urgency" checked>
+              <span class="en-inline">Routine</span><span class="zh-inline">日常</span>
+              <span class="meta">~2h</span>
+            </label>
+            <label class="urgency-chip">
+              <input type="radio" name="urgency">
+              <span class="en-inline">Soon</span><span class="zh-inline">尽快</span>
+              <span class="meta">~30m</span>
+            </label>
+            <label class="urgency-chip">
+              <input type="radio" name="urgency">
+              <span class="en-inline">Urgent</span><span class="zh-inline">紧急</span>
+              <span class="meta">SMS + push</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Message</span><span class="zh-inline">消息内容</span></label>
+          <textarea id="msg-body" placeholder="What's on your mind? Reference positions, attach docs, ask anything…"></textarea>
+          <div class="template-row">
+            <button class="tpl-pill" data-tpl="position"><span class="en-inline">+ Position question</span><span class="zh-inline">+ 仓位疑问</span></button>
+            <button class="tpl-pill" data-tpl="hedge"><span class="en-inline">+ Hedge review</span><span class="zh-inline">+ 对冲复核</span></button>
+            <button class="tpl-pill" data-tpl="report"><span class="en-inline">+ Report follow-up</span><span class="zh-inline">+ 报告跟进</span></button>
+            <button class="tpl-pill" data-tpl="general"><span class="en-inline">+ General check-in</span><span class="zh-inline">+ 一般沟通</span></button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Attach (optional)</span><span class="zh-inline">附件（可选）</span></label>
+          <button class="ha-btn" style="font-size:0.7rem; padding:0.5rem 0.85rem;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            <span class="en-inline">Attach from vault…</span><span class="zh-inline">从仓库附加…</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="submit-bar">
+        <span class="submit-meta">
+          <span class="en-inline">Encrypted in transit · KT will see this within <strong>2 hours</strong></span>
+          <span class="zh-inline">传输加密 · KT 将在 <strong>2 小时内</strong>看到</span>
+        </span>
+        <div class="submit-actions">
+          <a href="Shion Quant Portal.html" class="ha-btn"><span class="en-inline">Cancel</span><span class="zh-inline">取消</span></a>
+          <button class="ha-btn primary"><span class="en-inline">Send message</span><span class="zh-inline">发送消息</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECENT THREADS -->
+    <section class="sec">
+      <div class="sec-head">
+        <h2 class="sec-title"><span class="en">Recent <em>conversations</em></span><span class="zh">最近<em>对话</em></span></h2>
+      </div>
+      <div class="card">
+        <a href="#" class="thread">
+          <div class="thread-info">
+            <div class="thread-subject">
+              <span class="en-inline">RE: Q1 attribution detail · NVDA contribution</span>
+              <span class="zh-inline">回复：Q1 归因细节 · NVDA 贡献</span>
+              <span class="unread">NEW</span>
+            </div>
+            <div class="thread-preview">
+              <span class="en-inline">— Of the 58 bps, ~42 bps came from price appreciation, ~16 bps from option premium…</span>
+              <span class="zh-inline">— 58 bps 中约 42 bps 来自价格上涨，约 16 bps 来自期权权利金…</span>
+            </div>
+          </div>
+          <div class="thread-time">3h ago</div>
+        </a>
+        <a href="#" class="thread">
+          <div class="thread-info">
+            <div class="thread-subject">
+              <span class="en-inline">Treasury duration shift timing</span>
+              <span class="zh-inline">国债久期调整时点</span>
+            </div>
+            <div class="thread-preview">
+              <span class="en-inline">— Recommend after the May coupon settles, around 16 May. Detailed in the macro update.</span>
+              <span class="zh-inline">— 建议在 5 月付息结算后，约 5/16。宏观更新中有详述。</span>
+            </div>
+          </div>
+          <div class="thread-time">2 days ago</div>
+        </a>
+        <a href="#" class="thread">
+          <div class="thread-info">
+            <div class="thread-subject">
+              <span class="en-inline">SPY hedge cost question · pre-FOMC</span>
+              <span class="zh-inline">SPY 对冲成本咨询 · FOMC 前</span>
+            </div>
+            <div class="thread-preview">
+              <span class="en-inline">— Holding the 530P through Fed Day, even if cost rises ~$1.50/ct. The asymmetric…</span>
+              <span class="zh-inline">— 即使权利金上升约 $1.50/张，仍持有 530P 通过 Fed Day。非对称…</span>
+            </div>
+          </div>
+          <div class="thread-time">1 week ago</div>
+        </a>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ───── CALL PANE ───── -->
+  <div class="pane" id="pane-call">
+
+    <section class="sec">
+      <div class="sec-head">
+        <h2 class="sec-title"><span class="en">Pick a <em>time</em></span><span class="zh">选择<em>时间</em></span></h2>
+        <span style="font-family: var(--mono); font-size: 0.66rem; color: var(--silver); letter-spacing: 0.04em;"><span class="en-inline">Times shown in HKT · KT works in PT</span><span class="zh-inline">显示为港时 · KT 在太平洋时区</span></span>
+      </div>
+      <div class="card">
+        <div class="slots-day">
+          <div class="slots-date">
+            <span class="day"><span class="en-inline">Mon · 27 Apr</span><span class="zh-inline">周一 · 4/27</span></span>
+            <span><span class="en-inline">Tomorrow</span><span class="zh-inline">明日</span></span>
+          </div>
+          <div class="slots-list">
+            <div class="slot taken">22:00</div>
+            <div class="slot">23:00<span class="tz">HKT</span></div>
+            <div class="slot">00:00<span class="tz">+1 HKT</span></div>
+            <div class="slot taken">01:00</div>
+          </div>
+        </div>
+        <div class="slots-day">
+          <div class="slots-date">
+            <span class="day"><span class="en-inline">Tue · 28 Apr</span><span class="zh-inline">周二 · 4/28</span></span>
+            <span style="color: var(--gold); font-family: var(--mono); font-size: 0.6rem;"><span class="en-inline">Quarterly Review · 22:30</span><span class="zh-inline">季度复盘 · 22:30</span></span>
+          </div>
+          <div class="slots-list">
+            <div class="slot">21:30<span class="tz">HKT</span></div>
+            <div class="slot taken">22:30</div>
+            <div class="slot">23:30<span class="tz">HKT</span></div>
+            <div class="slot">00:30<span class="tz">+1 HKT</span></div>
+          </div>
+        </div>
+        <div class="slots-day">
+          <div class="slots-date">
+            <span class="day"><span class="en-inline">Wed · 29 Apr</span><span class="zh-inline">周三 · 4/29</span></span>
+          </div>
+          <div class="slots-list">
+            <div class="slot">22:00<span class="tz">HKT</span></div>
+            <div class="slot">23:00<span class="tz">HKT</span></div>
+            <div class="slot selected">00:00<span class="tz">+1 HKT</span></div>
+            <div class="slot">01:00<span class="tz">+1 HKT</span></div>
+          </div>
+        </div>
+        <div class="slots-day">
+          <div class="slots-date">
+            <span class="day"><span class="en-inline">Thu · 30 Apr</span><span class="zh-inline">周四 · 4/30</span></span>
+            <span style="color: var(--warn); font-family: var(--mono); font-size: 0.6rem;"><span class="en-inline">FOMC Day</span><span class="zh-inline">FOMC 决议日</span></span>
+          </div>
+          <div class="slots-list">
+            <div class="slot taken">22:00</div>
+            <div class="slot taken">23:00</div>
+            <div class="slot taken">00:00</div>
+            <div class="slot">01:00<span class="tz">+1 HKT</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-head">
+        <h2 class="sec-title"><span class="en">Meeting <em>details</em></span><span class="zh">会议<em>详情</em></span></h2>
+      </div>
+      <div class="card">
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Duration</span><span class="zh-inline">时长</span></label>
+          <select>
+            <option>30 minutes · check-in</option>
+            <option selected>60 minutes · standard</option>
+            <option>90 minutes · deep dive</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Topic / agenda</span><span class="zh-inline">议题</span></label>
+          <textarea placeholder="What would you like to discuss? Helps KT prep ahead of the call.">Pre-FOMC NVDA gamma exposure check, post-print decision tree if implied move plays out larger than 8.4%.</textarea>
+        </div>
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Video link</span><span class="zh-inline">视频会议</span></label>
+          <select>
+            <option selected>Zoom · auto-generated link</option>
+            <option>Google Meet</option>
+            <option>Phone only · KT calls you</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="submit-bar">
+        <span class="submit-meta">
+          <span class="en-inline"><strong>Wed 29 Apr · 00:00 HKT</strong> · 60 min · Zoom</span>
+          <span class="zh-inline"><strong>周三 4/29 · 00:00 HKT</strong> · 60 分钟 · Zoom</span>
+        </span>
+        <div class="submit-actions">
+          <a href="Shion Quant Portal.html" class="ha-btn"><span class="en-inline">Cancel</span><span class="zh-inline">取消</span></a>
+          <button class="ha-btn primary"><span class="en-inline">Confirm booking</span><span class="zh-inline">确认预约</span></button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ───── IN-PERSON PANE ───── -->
+  <div class="pane" id="pane-inperson">
+
+    <section class="sec">
+      <div class="ah-note" style="background: rgba(35,71,212,0.04); border-left-color: var(--royal);">
+        <strong><span class="en-inline">Note · </span><span class="zh-inline">说明 · </span></strong>
+        <span class="en-inline">In-person meetings are typically scheduled <strong>1–2 weeks ahead</strong> at our San Diego office. We can also arrange a meeting in Hong Kong during KT's quarterly visits (next: <a href="#">22 Sep – 4 Oct</a>).</span>
+        <span class="zh-inline">当面会议通常需<strong>提前 1–2 周</strong>预约（圣地亚哥办公室）。也可在 KT 每季度访港期间安排（下次：<a href="#">9/22 – 10/4</a>）。</span>
+      </div>
+
+      <div class="sec-head">
+        <h2 class="sec-title"><span class="en">Request <em>in-person</em> meeting</span><span class="zh">申请<em>当面</em>会议</span></h2>
+      </div>
+      <div class="card">
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Location</span><span class="zh-inline">地点</span></label>
+          <select>
+            <option selected>San Diego · Shion Quant office</option>
+            <option>Hong Kong · KT's quarterly visit (next 22 Sep – 4 Oct)</option>
+            <option>Other · specify in notes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Preferred date range</span><span class="zh-inline">期望日期范围</span></label>
+          <input type="text" value="Mid-May 2026 (any week)">
+        </div>
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Duration</span><span class="zh-inline">时长</span></label>
+          <select>
+            <option>Half day · 3 hours</option>
+            <option selected>Full day · 6 hours + lunch</option>
+            <option>Two days · deep review</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-k"><span class="en-inline">Reason / agenda</span><span class="zh-inline">事由 / 议题</span></label>
+          <textarea placeholder="Annual review, strategy reset, account restructuring discussion, etc.">Annual strategy reset for 2026–2027 cycle, review tail-hedge framework with practical case studies, discuss adding bond ladder.</textarea>
+        </div>
+      </div>
+
+      <div class="submit-bar">
+        <span class="submit-meta">
+          <span class="en-inline">KT will reply with proposed dates within <strong>1 business day</strong></span>
+          <span class="zh-inline">KT 将在 <strong>1 个工作日内</strong>回复建议日期</span>
+        </span>
+        <div class="submit-actions">
+          <a href="Shion Quant Portal.html" class="ha-btn"><span class="en-inline">Cancel</span><span class="zh-inline">取消</span></a>
+          <button class="ha-btn primary"><span class="en-inline">Submit request</span><span class="zh-inline">提交请求</span></button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- AFTER-HOURS NOTE — common across all panes -->
+  <div class="ah-note" style="margin-top: 2rem;">
+    <strong><span class="en-inline">After-hours · </span><span class="zh-inline">非工作时间 · </span></strong>
+    <span class="en-inline">For market emergencies outside KT's hours (16:30 PT / 07:30 HKT), reach the firm hotline at <a href="tel:+18585551042">+1 (858) 555-1042</a>. Average response under 15 minutes.</span>
+    <span class="zh-inline">如遇市场紧急情况且非 KT 工作时段（16:30 PT / 07:30 HKT），可拨公司热线 <a href="tel:+18585551042">+1 (858) 555-1042</a>。平均 15 分钟内回复。</span>
+  </div>
+
+</main>
+
+<footer class="portal-foot">
+  <span class="portal-foot-logo">
+    <span class="en-inline">Shion<span class="hl"> Quant</span></span>
+    <span class="zh-inline">欣安<span class="hl">量化</span></span>
+  </span>
+  <span class="portal-foot-meta">
+    <span class="en-inline">Contact · encrypted in transit · audit-logged ·</span>
+    <span class="zh-inline">联系 · 传输加密 · 操作留痕 ·</span>
+    <a href="Shion Quant Portal.html"><span class="en-inline">Back to portfolio</span><span class="zh-inline">返回投资组合</span></a>
+  </span>
+</footer>
+
+<script>
+  function setLang(lang) {
+    const body = document.getElementById('body');
+    const btnEn = document.getElementById('btn-en');
+    const btnZh = document.getElementById('btn-zh');
+    if (lang === 'zh') { body.classList.add('lang-zh'); btnZh.classList.add('active'); btnEn.classList.remove('active'); document.documentElement.lang = 'zh-Hans'; }
+    else { body.classList.remove('lang-zh'); btnEn.classList.add('active'); btnZh.classList.remove('active'); document.documentElement.lang = 'en'; }
+  }
+
+  // Action tile switching
+  document.querySelectorAll('.action-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      document.querySelectorAll('.action-tile').forEach(t => t.classList.remove('selected'));
+      tile.classList.add('selected');
+      const target = tile.dataset.pane;
+      document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+      document.getElementById('pane-' + target).classList.add('active');
+    });
+  });
+
+  // Urgency selection
+  document.querySelectorAll('.urgency-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'INPUT') {
+        const input = chip.querySelector('input');
+        if (input) input.checked = true;
+      }
+      document.querySelectorAll('.urgency-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    });
+  });
+
+  // Template insertion
+  const templates = {
+    position: { en: "I'd like to discuss my [TICKER] position. Specifically:\n\n— [Concern]\n— [Question]\n\nReference: portfolio weight, current P/L, hedge status.", zh: "想讨论我的 [代码] 仓位，具体：\n\n— [关注点]\n— [疑问]\n\n参考：组合权重、当前盈亏、对冲状态。" },
+    hedge: { en: "Quick check on my hedge stack ahead of [EVENT]:\n\n— Current SPY 530P sizing\n— Whether to roll forward / strike up\n— Cost-to-protection ratio at current vol\n\nAppreciate your read.", zh: "[事件]前简单核对一下对冲：\n\n— 当前 SPY 530P 仓位\n— 是否展期 / 上移行权\n— 当前波动率下保护成本比\n\n请帮看看。" },
+    report: { en: "Following up on the [DATE] [REPORT NAME] report:\n\n— On page [X], you mentioned [POINT]\n— Could you elaborate on [ASPECT]?\n— How does this apply to [SITUATION]?", zh: "跟进一下 [日期] [报告名称]：\n\n— [X] 页提到 [要点]\n— 能否就 [方面] 进一步说明？\n— 这个观点如何适用于 [情境]？" },
+    general: { en: "Just a general check-in. A few things on my mind:\n\n— [Item 1]\n— [Item 2]\n— [Item 3]\n\nNo rush — happy to discuss on next call.", zh: "想随机沟通一下，最近在想几件事：\n\n— [项 1]\n— [项 2]\n— [项 3]\n\n不急 — 下次电话再聊也行。" }
+  };
+  document.querySelectorAll('.tpl-pill').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      e.preventDefault();
+      const tpl = templates[pill.dataset.tpl];
+      if (!tpl) return;
+      const isZh = document.body.classList.contains('lang-zh');
+      const ta = document.getElementById('msg-body');
+      ta.value = (ta.value ? ta.value + '\n\n' : '') + (isZh ? tpl.zh : tpl.en);
+      ta.focus();
+    });
+  });
+
+  // Slot selection
+  document.querySelectorAll('.slot:not(.taken)').forEach(slot => {
+    slot.addEventListener('click', () => {
+      document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+      slot.classList.add('selected');
+    });
+  });
+</script>
+<script>
+/* SQ-DROPDOWN-V1 — Account dropdown injected globally across all portal pages */
+(function() {
+  const css = `
+    .user-wrap { position: relative; }
+    .user-wrap .user-menu { position: relative; z-index: 2; }
+    .user-wrap.open .user-menu { border-color: var(--royal); background: rgba(35,71,212,0.04); }
+
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 0.7rem);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      box-shadow: 0 28px 72px rgba(35,71,212,0.18), 0 4px 12px rgba(13,16,32,0.06);
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.3s cubic-bezier(0.25,1,0.5,1);
+      z-index: 200;
+      overflow: hidden;
+    }
+    .user-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 22px;
+      width: 12px; height: 12px;
+      background: #fff;
+      border-left: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
+      transform: rotate(45deg);
+      z-index: 1;
+    }
+    .user-wrap.open .user-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .ud-header {
+      padding: 1.05rem 1.2rem;
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .ud-avatar-lg {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--royal-light), var(--royal-deep));
+      color: #fff;
+      font-family: var(--serif-en);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.15rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(35,71,212,0.20);
+    }
+    .ud-info { min-width: 0; flex: 1; }
+    .ud-name {
+      font-family: var(--serif-en);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.18rem;
+      line-height: 1.15;
+    }
+    body.lang-zh .ud-name { font-family: var(--serif-zh); }
+    .ud-email {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: var(--ink-soft);
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.02em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ud-meta {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ud-pill {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      background: rgba(35,71,212,0.10);
+      color: var(--royal);
+      padding: 0.14rem 0.45rem;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+    .ud-pill-text {
+      font-family: var(--sans-en);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    body.lang-zh .ud-pill-text { font-family: var(--sans-zh); }
+
+    .ud-section {
+      padding: 0.4rem 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .ud-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem 1.2rem;
+      font-family: var(--sans-en);
+      font-size: 0.82rem;
+      color: var(--ink-mid);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s, padding-left 0.18s;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    body.lang-zh .ud-item { font-family: var(--sans-zh); }
+    .ud-item:hover {
+      background: rgba(35,71,212,0.04);
+      color: var(--royal);
+      padding-left: 1.45rem;
+    }
+    .ud-item .ud-icon {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      color: var(--silver);
+      transition: color 0.15s;
+    }
+    .ud-item:hover .ud-icon { color: var(--royal); }
+    .ud-item .ud-shortcut {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.04em;
+    }
+    .ud-item .ud-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      background: var(--warn-soft);
+      color: var(--warn);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+      font-weight: 500;
+    }
+    .ud-item.signout {
+      color: var(--loss);
+    }
+    .ud-item.signout .ud-icon { color: var(--loss); }
+    .ud-item.signout:hover {
+      background: rgba(196,82,82,0.06);
+      color: var(--loss);
+    }
+    .ud-item.signout:hover .ud-icon { color: var(--loss); }
+
+    @media (max-width: 1024px) {
+      .user-dropdown { width: 280px; right: -0.5rem; }
+      .user-dropdown::before { right: 30px; }
+    }
+  `;
+
+  const styleEl = document.createElement('style');
+  styleEl.setAttribute('data-sq-dropdown', '');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  const btn = document.querySelector('.user-menu');
+  if (!btn) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'user-wrap';
+  btn.parentNode.insertBefore(wrap, btn);
+  wrap.appendChild(btn);
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'user-dropdown';
+  dropdown.setAttribute('role', 'menu');
+  dropdown.setAttribute('aria-label', 'Account menu');
+  dropdown.innerHTML = `
+    <div class="ud-header">
+      <div class="ud-avatar-lg">陈</div>
+      <div class="ud-info">
+        <div class="ud-name">
+          <span class="en-inline">Chen Wei-Ming</span><span class="zh-inline">陈伟铭</span>
+        </div>
+        <div class="ud-email">w.chen@private-domain.com</div>
+        <div class="ud-meta">
+          <span class="ud-pill">CLIENT 0042</span>
+          <span class="ud-pill-text">
+            <span class="en-inline">Retainer · since Jul 2024</span>
+            <span class="zh-inline">月度顾问 · 2024/7 起</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant Profile.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="en-inline">Profile</span><span class="zh-inline">个人资料</span>
+      </a>
+      <a href="Shion Quant Security.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="en-inline">Security &amp; devices</span><span class="zh-inline">安全与设备</span>
+        <span class="ud-badge">85</span>
+      </a>
+      <a href="Shion Quant Billing.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <line x1="2" y1="10" x2="22" y2="10"/>
+        </svg>
+        <span class="en-inline">Billing &amp; invoices</span><span class="zh-inline">账单与发票</span>
+      </a>
+      <a href="Shion Quant Calendar Settings.html" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="en-inline">Notifications</span><span class="zh-inline">通知设置</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span class="en-inline">Help &amp; support</span><span class="zh-inline">帮助与支持</span>
+      </a>
+      <a href="#" class="ud-item" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="13" y2="17"/>
+        </svg>
+        <span class="en-inline">What's new</span><span class="zh-inline">更新日志</span>
+        <span class="ud-shortcut">v1.1</span>
+      </a>
+    </div>
+    <div class="ud-section">
+      <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="ud-item signout" role="menuitem">
+        <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span class="en-inline">Sign out</span><span class="zh-inline">退出登录</span>
+      </a>
+    </div>
+  `;
+  wrap.appendChild(dropdown);
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) wrap.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') wrap.classList.remove('open');
+  });
+})();
+</script>
+
+</body>
+</html>

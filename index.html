@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shion Quant 欣安量化 | Quantitative & Risk Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@200;300;400;500&family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #fafbff;
+    --bg-soft:     #f2f4fc;
+    --royal:       #2347d4;
+    --royal-deep:  #1a35a8;
+    --royal-light: #3b5ee8;
+    --gold:        #c8a84b;
+    --ink:         #0d1020;
+    --ink-mid:     #2a2f4a;
+    --ink-soft:    #4a5070;
+    --silver:      #8896b8;
+    --rule:        rgba(35,71,212,0.1);
+    --serif-en:    'Libre Baskerville', Georgia, serif;
+    --sans-en:     'Outfit', sans-serif;
+    --serif-zh:    'Noto Serif SC', 'STSong', serif;
+    --sans-zh:     'Noto Sans SC', 'PingFang SC', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans-en);
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── LANGUAGE CLASSES ── */
+  .zh { display: none; }
+  .en { display: block; }
+  .en-inline { display: inline; }
+  .zh-inline { display: none; }
+
+  body.lang-zh .en       { display: none; }
+  body.lang-zh .zh       { display: block; }
+  body.lang-zh .en-inline { display: none; }
+  body.lang-zh .zh-inline { display: inline; }
+  .zh-flex { display: none !important; }
+  body.lang-zh .en-flex  { display: none !important; }
+  body.lang-zh .zh-flex  { display: flex !important; }
+
+  /* ZH font overrides */
+  body.lang-zh {
+    font-family: var(--sans-zh);
+    word-break: break-all;
+  }
+  body.lang-zh .section-title,
+  body.lang-zh .hero-title,
+  body.lang-zh .service-title,
+  body.lang-zh .step-title,
+  body.lang-zh .client-title,
+  body.lang-zh .deliverable-title {
+    font-family: var(--serif-zh);
+  }
+  body.lang-zh .hero-title { letter-spacing: 0.04em; }
+
+  /* ── LANG TOGGLE ── */
+  .lang-toggle {
+    display: flex;
+    align-items: center;
+    background: rgba(35,71,212,0.08);
+    border-radius: 20px;
+    padding: 3px;
+  }
+  .lang-btn {
+    font-family: var(--sans-en);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 0.35rem 0.9rem;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 16px;
+    transition: all 0.25s;
+  }
+  .lang-btn.active {
+    background: var(--royal);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(35,71,212,0.3);
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.4rem 4.5rem;
+    background: rgba(250,251,255,0.9);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav-logo {
+    font-family: var(--serif-en);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    flex-shrink: 0;
+  }
+  .nav-logo span { color: var(--royal); }
+
+  .nav-center {
+    display: flex;
+    gap: 3rem;
+    list-style: none;
+  }
+  .nav-center a {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  body.lang-zh .nav-center a { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .nav-center a:hover { color: var(--royal); }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-shrink: 0;
+  }
+  .nav-cta {
+    font-family: var(--sans-en);
+    font-size: 0.76rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--royal);
+    border: none;
+    padding: 0.7rem 1.8rem;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 3px;
+    white-space: nowrap;
+    transition: background 0.25s, transform 0.2s, box-shadow 0.25s;
+  }
+  body.lang-zh .nav-cta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .nav-cta:hover { background: var(--royal-deep); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(35,71,212,0.3); }
+
+  /* ── LOGIN DROPDOWN ── */
+  .login-wrap { position: relative; }
+  .login-trigger {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  body.lang-zh .login-trigger { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .login-trigger:hover { color: var(--royal); }
+  .login-trigger .chev {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.25s cubic-bezier(0.25,1,0.5,1);
+  }
+  .login-wrap.open .login-trigger { color: var(--royal); }
+  .login-wrap.open .login-trigger .chev { transform: translateY(2px) rotate(225deg); }
+
+  .login-panel {
+    position: absolute;
+    top: calc(100% + 1.1rem);
+    right: 0;
+    width: 340px;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    box-shadow: 0 28px 72px rgba(35,71,212,0.18), 0 4px 12px rgba(13,16,32,0.06);
+    padding: 1.9rem 1.7rem 1.5rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: opacity 0.28s, transform 0.32s cubic-bezier(0.25,1,0.5,1);
+    z-index: 200;
+  }
+  .login-wrap.open .login-panel {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .login-panel::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 28px;
+    width: 12px; height: 12px;
+    background: #fff;
+    border-left: 1px solid var(--rule);
+    border-top: 1px solid var(--rule);
+    transform: rotate(45deg);
+  }
+
+  .login-eyebrow {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    color: var(--royal);
+    text-transform: uppercase;
+    margin-bottom: 0.55rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  body.lang-zh .login-eyebrow { font-family: var(--sans-zh); letter-spacing: 0.08em; text-transform: none; }
+  .login-eyebrow::before {
+    content: '';
+    width: 18px; height: 1.5px;
+    background: var(--royal);
+    flex-shrink: 0;
+  }
+
+  .login-title {
+    font-family: var(--serif-en);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 1.4rem;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+  .login-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  body.lang-zh .login-title { font-family: var(--serif-zh); }
+
+  .login-field { margin-bottom: 0.9rem; }
+  .login-field label {
+    display: block;
+    font-family: var(--sans-en);
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    margin-bottom: 0.45rem;
+  }
+  body.lang-zh .login-field label { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .login-field input {
+    width: 100%;
+    font-family: var(--sans-en);
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--ink);
+    background: var(--bg-soft);
+    border: 1px solid transparent;
+    padding: 0.7rem 0.85rem;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .login-field input::placeholder { color: var(--silver); font-weight: 300; }
+  .login-field input:focus {
+    border-color: var(--royal);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(35,71,212,0.08);
+  }
+
+  .login-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.4rem 0 1.2rem;
+  }
+  .login-remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--sans-en);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+  }
+  body.lang-zh .login-remember { font-family: var(--sans-zh); }
+  .login-remember input {
+    width: 13px; height: 13px;
+    accent-color: var(--royal);
+    margin: 0;
+  }
+  .login-forgot {
+    font-family: var(--sans-en);
+    font-size: 0.72rem;
+    color: var(--royal);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  body.lang-zh .login-forgot { font-family: var(--sans-zh); }
+  .login-forgot:hover { color: var(--royal-deep); }
+
+  .login-submit {
+    width: 100%;
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--royal);
+    color: #fff;
+    border: none;
+    padding: 0.9rem;
+    cursor: pointer;
+    border-radius: 3px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    transition: background 0.25s, box-shadow 0.25s, transform 0.2s;
+  }
+  body.lang-zh .login-submit { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .login-submit:hover {
+    background: var(--royal-deep);
+    box-shadow: 0 10px 28px rgba(35,71,212,0.32);
+    transform: translateY(-1px);
+  }
+
+  .login-note {
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    font-weight: 300;
+    color: var(--silver);
+    line-height: 1.55;
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+  }
+  body.lang-zh .login-note { font-family: var(--sans-zh); }
+  .login-note a { color: var(--royal); text-decoration: none; }
+  .login-note a:hover { text-decoration: underline; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 9rem 4.5rem 5rem;
+    overflow: hidden;
+    gap: 4rem;
+  }
+  .hero-shape-inner {
+    position: absolute;
+    top: 0; right: 0;
+    width: 52%; height: 100%;
+    background: linear-gradient(135deg, var(--royal-light) 0%, var(--royal-deep) 100%);
+    clip-path: polygon(12% 0, 100% 0, 100% 100%, 0% 100%);
+    z-index: 0;
+  }
+  .hero-lines {
+    position: absolute;
+    top: 0; right: 0;
+    width: 52%; height: 100%;
+    z-index: 1;
+    overflow: hidden;
+    clip-path: polygon(12% 0, 100% 0, 100% 100%, 0% 100%);
+  }
+  .hero-lines svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.1; }
+
+  .hero-left {
+    position: relative;
+    z-index: 2;
+    animation: fadeUp 0.9s ease both;
+  }
+  .hero-eyebrow {
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    color: var(--royal);
+    text-transform: uppercase;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  body.lang-zh .hero-eyebrow { font-family: var(--sans-zh); letter-spacing: 0.1em; text-transform: none; }
+  .hero-eyebrow::before { content: ''; display: inline-block; width: 28px; height: 2px; background: var(--royal); flex-shrink: 0; }
+
+  .hero-title {
+    font-family: var(--serif-en);
+    font-size: clamp(2.8rem, 5vw, 5.2rem);
+    font-weight: 700;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 2rem;
+    animation: fadeUp 0.9s 0.1s ease both;
+  }
+  .hero-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    line-height: 1.78;
+    color: var(--ink-soft);
+    max-width: 44ch;
+    font-weight: 300;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.9s 0.2s ease both;
+  }
+  body.lang-zh .hero-sub { max-width: 28em; font-family: var(--sans-zh); }
+
+  .hero-actions {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    animation: fadeUp 0.9s 0.3s ease both;
+  }
+
+  .btn-primary {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--royal);
+    color: #fff;
+    padding: 1rem 2.4rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 3px;
+    white-space: nowrap;
+    transition: background 0.25s, box-shadow 0.25s, transform 0.2s;
+  }
+  body.lang-zh .btn-primary { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .btn-primary:hover { background: var(--royal-deep); box-shadow: 0 10px 36px rgba(35,71,212,0.35); transform: translateY(-1px); }
+
+  .btn-ghost {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--ink-mid);
+    padding: 1rem 2.4rem;
+    border: 1.5px solid rgba(35,71,212,0.2);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 3px;
+    white-space: nowrap;
+    transition: border-color 0.25s, color 0.25s;
+  }
+  body.lang-zh .btn-ghost { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .btn-ghost:hover { border-color: var(--royal); color: var(--royal); }
+
+  .hero-right {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    animation: fadeUp 0.9s 0.25s ease both;
+  }
+  .hero-stat-card {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 4px;
+    padding: 1.4rem 1.8rem;
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .hero-stat-card:hover { background: rgba(255,255,255,0.15); transform: translateX(-4px); }
+  .hsc-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .hsc-label { font-family: var(--sans-en); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 0.2rem; }
+  body.lang-zh .hsc-label { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .hsc-value { font-family: var(--serif-en); font-size: 1.05rem; font-style: italic; color: #fff; }
+  body.lang-zh .hsc-value { font-family: var(--serif-zh); font-style: normal; }
+
+
+  /* ── SECTION BASE ── */
+  section { position: relative; z-index: 1; padding: 7rem 4.5rem; }
+
+  .section-label {
+    font-family: var(--sans-en);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    color: var(--royal);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  body.lang-zh .section-label { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.1em; }
+  .section-label::before { content: ''; display: inline-block; width: 20px; height: 2px; background: var(--royal); flex-shrink: 0; }
+
+  .section-title {
+    font-family: var(--serif-en);
+    font-size: clamp(2rem, 3.5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+  }
+  .section-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+
+  /* ── SERVICES ── */
+  .services-section { background: var(--bg-soft); }
+  .services-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: end;
+    margin-bottom: 4rem;
+  }
+  .services-lead { font-size: 1.05rem; line-height: 1.75; color: var(--ink-soft); font-weight: 300; }
+  body.lang-zh .services-lead { font-family: var(--sans-zh); }
+
+  .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+  .service-card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 2.4rem 2rem;
+    position: relative;
+    transition: box-shadow 0.3s, transform 0.3s, border-color 0.3s;
+    cursor: default;
+  }
+  .service-card:hover { box-shadow: 0 16px 48px rgba(35,71,212,0.1); transform: translateY(-3px); border-color: rgba(35,71,212,0.25); }
+  .service-card::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--royal);
+    border-radius: 4px 0 0 4px;
+    transform: scaleY(0); transform-origin: bottom;
+    transition: transform 0.35s cubic-bezier(0.25,1,0.5,1);
+  }
+  .service-card:hover::before { transform: scaleY(1); }
+
+  .service-num { font-family: var(--sans-en); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.2em; color: var(--royal); opacity: 0.5; margin-bottom: 1.2rem; }
+  .service-icon { font-size: 1.5rem; margin-bottom: 1rem; display: block; }
+  .service-title { font-family: var(--serif-en); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.8rem; color: var(--ink); line-height: 1.3; }
+  .service-desc { font-size: 0.87rem; line-height: 1.72; color: var(--ink-soft); font-weight: 300; }
+  body.lang-zh .service-desc { font-family: var(--sans-zh); }
+
+  /* ── METHODOLOGY ── */
+  .methodology { background: var(--royal); }
+  .methodology .section-label { color: rgba(255,255,255,0.6); }
+  .methodology .section-label::before { background: rgba(255,255,255,0.4); }
+  .methodology .section-title { color: #fff; }
+  .methodology .section-title em { color: var(--gold); }
+
+  .method-layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 6rem; align-items: start; margin-top: 4rem; }
+
+  .method-step {
+    display: flex; gap: 1.5rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    transition: padding-left 0.3s;
+  }
+  .method-step:first-child { border-top: 1px solid rgba(255,255,255,0.12); }
+  .method-step:hover { padding-left: 0.6rem; }
+  .step-num { font-family: var(--sans-en); font-size: 0.62rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.35); flex-shrink: 0; padding-top: 0.2rem; }
+  .step-title { font-family: var(--serif-en); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.45rem; color: #fff; }
+  .step-desc { font-size: 0.87rem; color: rgba(255,255,255,0.6); line-height: 1.7; font-weight: 300; }
+  body.lang-zh .step-desc { font-family: var(--sans-zh); }
+
+  .code-panel {
+    background: rgba(13,16,32,0.65);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 2rem 2.2rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem; line-height: 1.9;
+    overflow-x: auto;
+    position: sticky; top: 8rem;
+    backdrop-filter: blur(12px);
+  }
+  .code-header { display: flex; gap: 6px; margin-bottom: 1.2rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .code-dot.r { background: #e06c6c; } .code-dot.y { background: #f7c66b; } .code-dot.g { background: #6abf8a; }
+  .c-comment { color: rgba(255,255,255,0.25); } .c-key { color: #7baaf7; } .c-string { color: #79d4a0; }
+  .c-num { color: #f7a76b; } .c-fn { color: #c4a8f7; } .c-var { color: rgba(255,255,255,0.85); }
+
+  /* ── DELIVERABLES ── */
+  .deliverables-section { background: #fff; }
+  .deliverables-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 4rem; }
+  .deliverable {
+    border: 1px solid var(--rule); border-radius: 4px;
+    padding: 2rem 1.8rem;
+    display: flex; gap: 1.1rem; align-items: flex-start;
+    transition: box-shadow 0.3s, border-color 0.3s;
+  }
+  .deliverable:hover { box-shadow: 0 8px 32px rgba(35,71,212,0.08); border-color: rgba(35,71,212,0.25); }
+  .deliverable-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .deliverable-title { font-family: var(--serif-en); font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--ink); }
+  .deliverable-desc { font-size: 0.83rem; color: var(--ink-soft); line-height: 1.65; font-weight: 300; }
+  body.lang-zh .deliverable-desc { font-family: var(--sans-zh); }
+
+  /* ── CLIENTS ── */
+  .clients-section { background: var(--bg-soft); }
+  .clients-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 4rem; }
+  .client-card {
+    background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 2.5rem;
+    transition: box-shadow 0.3s, transform 0.3s;
+  }
+  .client-card:hover { box-shadow: 0 16px 48px rgba(35,71,212,0.1); transform: translateY(-3px); }
+  .client-type { font-family: var(--sans-en); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.2em; color: var(--royal); text-transform: uppercase; margin-bottom: 0.7rem; }
+  body.lang-zh .client-type { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.06em; }
+  .client-title { font-family: var(--serif-en); font-size: 1.25rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--ink); padding-bottom: 1rem; border-bottom: 2px solid var(--royal); }
+  .client-needs { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .client-needs li { font-size: 0.86rem; color: var(--ink-soft); padding-left: 1.2rem; position: relative; font-weight: 300; }
+  body.lang-zh .client-needs li { font-family: var(--sans-zh); }
+  .client-needs li::before { content: '›'; position: absolute; left: 0; color: var(--royal); font-weight: 700; }
+
+  /* ── ABOUT ── */
+  .about-section { background: var(--ink); }
+  .about-section .section-label { color: rgba(35,71,212,0.7); }
+  .about-section .section-label::before { background: rgba(35,71,212,0.5); }
+  .about-section .section-title { color: #fff; }
+  .about-section .section-title em { color: var(--gold); }
+  .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; margin-top: 4rem; }
+  .about-copy { font-size: 1.05rem; line-height: 1.85; color: rgba(255,255,255,0.55); font-weight: 300; }
+  body.lang-zh .about-copy { font-family: var(--sans-zh); }
+  .about-copy strong { color: #fff; font-weight: 400; }
+  .cred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255,255,255,0.06); margin-top: 2.5rem; border-radius: 4px; overflow: hidden; }
+  .cred { background: rgba(255,255,255,0.03); padding: 1.4rem 1.6rem; transition: background 0.2s; }
+  .cred:hover { background: rgba(35,71,212,0.12); }
+  .cred-label { font-family: var(--sans-en); font-size: 0.6rem; letter-spacing: 0.2em; color: #7ba0f7; text-transform: uppercase; margin-bottom: 0.4rem; }
+  body.lang-zh .cred-label { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.06em; }
+  .cred-value { font-size: 0.88rem; color: rgba(255,255,255,0.65); font-weight: 300; }
+  body.lang-zh .cred-value { font-family: var(--sans-zh); }
+  .expertise-bars { display: flex; flex-direction: column; gap: 1.5rem; }
+  .exp-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-family: var(--sans-en); font-size: 0.68rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+  body.lang-zh .exp-header { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .exp-header span:last-child { color: var(--royal-light); font-weight: 500; }
+  .exp-track { height: 2px; background: rgba(255,255,255,0.08); border-radius: 2px; position: relative; }
+  .exp-fill { position: absolute; top: 0; left: 0; height: 100%; background: linear-gradient(90deg, var(--royal), var(--royal-light)); border-radius: 2px; animation: expandW 1.5s cubic-bezier(0.25,1,0.5,1) both; }
+
+  /* ── PRICING ── */
+  .pricing-section { background: var(--bg-soft); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 4rem; }
+  .pricing-card {
+    background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 3rem 2.5rem;
+    position: relative; transition: box-shadow 0.3s, transform 0.3s;
+  }
+  .pricing-card:hover { box-shadow: 0 16px 48px rgba(35,71,212,0.1); transform: translateY(-3px); }
+  .pricing-card.featured {
+    background: var(--royal); border-color: var(--royal);
+    box-shadow: 0 20px 60px rgba(35,71,212,0.28);
+    transform: translateY(-6px) scale(1.02);
+  }
+  .pricing-card.featured:hover { transform: translateY(-9px) scale(1.02); box-shadow: 0 28px 70px rgba(35,71,212,0.35); }
+  .pricing-badge { font-family: var(--sans-en); font-size: 0.6rem; font-weight: 500; letter-spacing: 0.18em; color: var(--royal); background: rgba(255,255,255,0.18); padding: 0.28rem 0.8rem; text-transform: uppercase; display: inline-block; border-radius: 20px; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.3); }
+  .featured .pricing-badge { color: var(--royal); background: #fff; border-color: #fff; }
+  body.lang-zh .pricing-badge { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .pricing-tier { font-family: var(--sans-en); font-size: 0.7rem; letter-spacing: 0.18em; color: var(--silver); text-transform: uppercase; margin-bottom: 0.7rem; }
+  .featured .pricing-tier { color: rgba(255,255,255,0.6); }
+  body.lang-zh .pricing-tier { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.06em; }
+  .pricing-price { font-family: var(--serif-en); font-size: 3rem; font-weight: 700; color: var(--ink); margin-bottom: 0.2rem; letter-spacing: -0.03em; }
+  .featured .pricing-price { color: #fff; }
+  .pricing-freq { font-family: var(--sans-en); font-size: 0.68rem; letter-spacing: 0.1em; color: var(--silver); margin-bottom: 2rem; }
+  .featured .pricing-freq { color: rgba(255,255,255,0.55); }
+  body.lang-zh .pricing-freq { font-family: var(--sans-zh); letter-spacing: 0.04em; }
+  .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
+  .featured .pricing-features { border-top-color: rgba(255,255,255,0.15); }
+  .pricing-features li { font-size: 0.88rem; color: var(--ink-soft); padding-left: 1.3rem; position: relative; font-weight: 300; }
+  .featured .pricing-features li { color: rgba(255,255,255,0.75); }
+  body.lang-zh .pricing-features li { font-family: var(--sans-zh); }
+  .pricing-features li::before { content: '✓'; position: absolute; left: 0; color: var(--royal); font-size: 0.75rem; font-weight: 700; }
+  .featured .pricing-features li::before { color: var(--gold); }
+  .btn-primary-inv { font-family: var(--sans-en); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; background: #fff; color: var(--royal); padding: 1rem 2.4rem; border: none; cursor: pointer; text-decoration: none; display: inline-block; border-radius: 3px; transition: background 0.25s, box-shadow 0.25s; white-space: nowrap; }
+  body.lang-zh .btn-primary-inv { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .btn-primary-inv:hover { background: #f0f4ff; box-shadow: 0 6px 24px rgba(0,0,0,0.15); }
+
+  /* ── CONTACT ── */
+  .contact-section { background: var(--royal); padding: 9rem 4.5rem; position: relative; overflow: hidden; }
+  .contact-section::before { content: ''; position: absolute; top: -150px; right: -150px; width: 500px; height: 500px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); pointer-events: none; }
+  .contact-section::after  { content: ''; position: absolute; top: -80px;  right: -80px;  width: 300px; height: 300px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); pointer-events: none; }
+  .contact-section .section-label { color: rgba(255,255,255,0.55); }
+  .contact-section .section-label::before { background: rgba(255,255,255,0.35); }
+  .contact-section .section-title { color: #fff; }
+  .contact-section .section-title em { color: var(--gold); }
+  .contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; margin-top: 4rem; }
+  .contact-lead { font-size: 1.1rem; line-height: 1.78; color: rgba(255,255,255,0.65); font-weight: 300; margin-bottom: 3rem; }
+  body.lang-zh .contact-lead { font-family: var(--sans-zh); }
+  .contact-items { display: flex; flex-direction: column; gap: 1.5rem; }
+  .contact-item { display: flex; gap: 1rem; align-items: flex-start; }
+  .contact-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; margin-top: 0.5rem; }
+  .contact-label { font-family: var(--sans-en); font-size: 0.62rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 0.2rem; }
+  body.lang-zh .contact-label { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.06em; }
+  .contact-value { font-size: 0.95rem; color: rgba(255,255,255,0.85); font-weight: 300; }
+  .contact-cta { display: flex; flex-direction: column; justify-content: center; gap: 1.2rem; }
+  .contact-cta p { font-size: 0.88rem; color: rgba(255,255,255,0.45); font-weight: 300; line-height: 1.6; margin-top: 1rem; }
+  body.lang-zh .contact-cta p { font-family: var(--sans-zh); }
+
+  /* ── FOOTER ── */
+  footer { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; padding: 2rem 4.5rem; background: var(--ink); border-top: 1px solid rgba(255,255,255,0.06); }
+  .footer-logo { font-family: var(--serif-en); font-size: 1.05rem; font-weight: 700; color: #fff; }
+  .footer-logo span { color: var(--royal-light); }
+  .footer-copy { font-family: var(--sans-en); font-size: 0.65rem; color: rgba(255,255,255,0.25); letter-spacing: 0.08em; }
+  body.lang-zh .footer-copy { font-family: var(--sans-zh); }
+  .footer-links { display: flex; gap: 2rem; list-style: none; }
+  .footer-links a { font-family: var(--sans-en); font-size: 0.65rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
+  body.lang-zh .footer-links a { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .footer-links a:hover { color: var(--royal-light); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes expandW { from { width:0; } }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr; padding: 9rem 2rem 5rem; }
+    .hero-shape-inner, .hero-lines { display: none; }
+    .hero-right { display: none !important; }
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-center { display: none; }
+    section { padding: 5rem 1.5rem; }
+    .services-intro { grid-template-columns: 1fr; gap: 1.5rem; }
+    .services-grid, .deliverables-grid, .clients-grid, .pricing-grid { grid-template-columns: 1fr; }
+    .method-layout, .about-layout, .contact-layout { grid-template-columns: 1fr; gap: 3rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+    .pricing-card.featured { transform: none; }
+  }
+</style>
+</head>
+<body id="body">
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="nav-logo">
+    <span class="en-inline">Shion<span style="color:var(--royal)"> Quant</span></span>
+    <span class="zh-inline" style="font-family:'Noto Serif SC',serif;">欣安<span style="color:var(--royal)">量化</span></span>
+  </span>
+  <ul class="nav-center">
+    <li><a href="#services"><span class="en-inline">Services</span><span class="zh-inline">服务</span></a></li>
+    <li><a href="#methodology"><span class="en-inline">Methodology</span><span class="zh-inline">工作方法</span></a></li>
+    <li><a href="#clients"><span class="en-inline">Clients</span><span class="zh-inline">客户</span></a></li>
+    <li><a href="#pricing"><span class="en-inline">Pricing</span><span class="zh-inline">收费</span></a></li>
+    <li><a href="#about"><span class="en-inline">About</span><span class="zh-inline">关于</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+    </div>
+
+    <div class="login-wrap" id="loginWrap">
+      <button class="login-trigger" onclick="toggleLogin(event)" aria-haspopup="dialog" aria-expanded="false">
+        <span class="en-inline">Sign In</span>
+        <span class="zh-inline">登录</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="login-panel" role="dialog" aria-label="Client portal sign in">
+        <div class="login-eyebrow">
+          <span class="en-inline">Client Portal</span>
+          <span class="zh-inline">客户门户</span>
+        </div>
+        <div class="login-title">
+          <span class="en">Sign in to your <em>account</em></span>
+          <span class="zh">登录您的<em>账户</em></span>
+        </div>
+        <form onsubmit="return submitLogin(event)" autocomplete="on">
+          <div class="login-field">
+            <label for="loginEmail"><span class="en-inline">Email</span><span class="zh-inline">电子邮箱</span></label>
+            <input id="loginEmail" type="email" placeholder="name@firm.com" autocomplete="email" required>
+          </div>
+          <div class="login-field">
+            <label for="loginPwd"><span class="en-inline">Password</span><span class="zh-inline">密码</span></label>
+            <input id="loginPwd" type="password" placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+          <div class="login-row">
+            <label class="login-remember">
+              <input type="checkbox">
+              <span class="en-inline">Keep me signed in</span>
+              <span class="zh-inline">保持登录</span>
+            </label>
+            <a href="#" class="login-forgot" onclick="event.preventDefault()">
+              <span class="en-inline">Forgot?</span>
+              <span class="zh-inline">忘记密码？</span>
+            </a>
+          </div>
+          <button type="submit" class="login-submit">
+            <span class="en-inline">Sign In</span>
+            <span class="zh-inline">登录</span>
+          </button>
+        </form>
+        <p class="login-note">
+          <span class="en-inline">By invitation only. Contact your advisor or <a href="#contact">request access</a>.</span>
+          <span class="zh-inline">仅限受邀客户。如需开通，请联系您的顾问或<a href="#contact">申请访问</a>。</span>
+        </p>
+      </div>
+    </div>
+
+    <a href="#contact" class="nav-cta">
+      <span class="en-inline">Schedule Consultation</span>
+      <span class="zh-inline">预约咨询</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-shape-inner"></div>
+  <div class="hero-lines">
+    <svg viewBox="0 0 600 900" preserveAspectRatio="xMidYMid slice">
+      <line x1="50"  y1="0" x2="50"  y2="900" stroke="white" stroke-width="1"/>
+      <line x1="150" y1="0" x2="150" y2="900" stroke="white" stroke-width="1"/>
+      <line x1="250" y1="0" x2="250" y2="900" stroke="white" stroke-width="1"/>
+      <line x1="350" y1="0" x2="350" y2="900" stroke="white" stroke-width="1"/>
+      <line x1="450" y1="0" x2="450" y2="900" stroke="white" stroke-width="1"/>
+      <line x1="0" y1="200" x2="600" y2="200" stroke="white" stroke-width="1"/>
+      <line x1="0" y1="400" x2="600" y2="400" stroke="white" stroke-width="1"/>
+      <line x1="0" y1="600" x2="600" y2="600" stroke="white" stroke-width="1"/>
+      <line x1="0" y1="800" x2="600" y2="800" stroke="white" stroke-width="1"/>
+      <polyline points="0,700 80,560 160,620 240,400 320,320 400,260 480,180 600,100" stroke="white" stroke-width="2" fill="none"/>
+      <circle cx="240" cy="400" r="4" fill="white"/>
+      <circle cx="400" cy="260" r="4" fill="white"/>
+      <circle cx="600" cy="100" r="5" fill="white"/>
+    </svg>
+  </div>
+
+  <div class="hero-left">
+    <p class="hero-eyebrow">
+      <span class="en-inline">Quantitative Risk &amp; Algorithmic Advisory</span>
+      <span class="zh-inline">量化分析 · 风险管控 · 算法交易</span>
+    </p>
+    <h1 class="hero-title">
+      <span class="en">Where<br><em>precision</em><br>meets the<br>market.</span>
+      <span class="zh">以<em>精准</em>，<br>洞察市场。</span>
+    </h1>
+    <p class="hero-sub">
+      <span class="en-inline">Institutional-grade quantitative analysis, systematic risk control, and automated trading infrastructure — built for discerning hedge funds and family offices.</span>
+      <span class="zh-inline">欣安量化为对冲基金与家族办公室提供量化分析工具与系统——模型严谨、代码可靠、策略落地执行。</span>
+    </p>
+    <div class="hero-actions">
+      <a href="#services" class="btn-primary">
+        <span class="en-inline">Explore Services</span>
+        <span class="zh-inline">了解服务</span>
+      </a>
+      <a href="#contact" class="btn-ghost">
+        <span class="en-inline">Request a Brief</span>
+        <span class="zh-inline">获取简介</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-stat-card">
+      <span class="hsc-icon">📐</span>
+      <div>
+        <div class="hsc-label"><span class="en-inline">Core Capability</span><span class="zh-inline">核心能力</span></div>
+        <div class="hsc-value"><span class="en-inline">Alpha &amp; Risk Attribution</span><span class="zh-inline">Alpha 与风险归因</span></div>
+      </div>
+    </div>
+    <div class="hero-stat-card">
+      <span class="hsc-icon">⚙️</span>
+      <div>
+        <div class="hsc-label"><span class="en-inline">Technology</span><span class="zh-inline">技术栈</span></div>
+        <div class="hsc-value"><span class="en-inline">Python · IBKR · Alpaca APIs</span><span class="zh-inline">Python · IBKR · Alpaca</span></div>
+      </div>
+    </div>
+    <div class="hero-stat-card">
+      <span class="hsc-icon">🛡</span>
+      <div>
+        <div class="hsc-label"><span class="en-inline">Risk Focus</span><span class="zh-inline">风控重点</span></div>
+        <div class="hsc-value"><span class="en-inline">Options Hedging · Tail Risk</span><span class="zh-inline">期权对冲 · 尾部风险</span></div>
+      </div>
+    </div>
+    <div class="hero-stat-card">
+      <span class="hsc-icon">🔬</span>
+      <div>
+        <div class="hsc-label"><span class="en-inline">Foundation</span><span class="zh-inline">专业背景</span></div>
+        <div class="hsc-value"><span class="en-inline">Experimental Physics &amp; Precision Measurement</span><span class="zh-inline">实验物理 · 精密测量</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TICKER ── -->
+</div>
+
+<!-- ── SERVICES ── -->
+<section id="services" class="services-section">
+  <div class="services-intro">
+    <div>
+      <p class="section-label"><span class="en-inline">01 — Services</span><span class="zh-inline">01 — 服务内容</span></p>
+      <h2 class="section-title">
+        <span class="en-inline">What we <em>deliver</em></span>
+        <span class="zh-inline">核心<em>服务</em></span>
+      </h2>
+    </div>
+    <p class="services-lead">
+      <span class="en-inline">Every engagement is built around precision — rigorous models, clean code, and clear deliverables. No black boxes, no vague recommendations. Just actionable quantitative intelligence.</span>
+      <span class="zh-inline">每项服务以精准为核心——模型经过严格验证，代码达到生产级标准，交付物清晰可执行。无黑箱，无模糊建议，只有可落地的量化分析。</span>
+    </p>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-num">01</div>
+      <span class="service-icon">📐</span>
+      <h3 class="service-title"><span class="en-inline">Quantitative Portfolio Analysis</span><span class="zh-inline">量化投资组合分析</span></h3>
+      <p class="service-desc">
+        <span class="en-inline">Alpha/beta decomposition, Sharpe &amp; Sortino analytics, factor exposure attribution, and benchmark-relative performance across equities, options, and futures.</span>
+        <span class="zh-inline">Alpha/Beta分解、夏普与索提诺比率、因子敞口归因及基准相对表现分析，覆盖股票、期权与期货。</span>
+      </p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">02</div>
+      <span class="service-icon">🛡</span>
+      <h3 class="service-title"><span class="en-inline">Risk Control &amp; Hedging</span><span class="zh-inline">风险控制与对冲</span></h3>
+      <p class="service-desc">
+        <span class="en-inline">Tail-risk frameworks, dynamic hedge triggers, protective options structuring, and drawdown limit systems for long-only and barbell portfolios.</span>
+        <span class="zh-inline">尾部风险保护、动态对冲触发、期权保护结构——不管你是纯多头还是杠铃组合，我们帮你把防线设好。</span>
+      </p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">03</div>
+      <span class="service-icon">⚙️</span>
+      <h3 class="service-title"><span class="en-inline">Algorithmic Trading Systems</span><span class="zh-inline">算法交易系统</span></h3>
+      <p class="service-desc">
+        <span class="en-inline">End-to-end automated strategy development: signal generation, backtesting, and live execution via IBKR, Alpaca, or bespoke broker APIs.</span>
+        <span class="zh-inline">覆盖信号生成、策略回测至实盘执行的完整开发流程，支持 IBKR、Alpaca 及定制券商 API 对接。</span>
+      </p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">04</div>
+      <span class="service-icon">📊</span>
+      <h3 class="service-title"><span class="en-inline">Options Strategy Engineering</span><span class="zh-inline">期权策略构建</span></h3>
+      <p class="service-desc">
+        <span class="en-inline">Covered calls, protective puts, wheels, and spreads. Greeks management, GEX analysis, and systematic roll management with full automation.</span>
+        <span class="zh-inline">备兑开仓、保护性看跌、Wheel 及价差策略。含 Greeks 管理、GEX 分析与系统化自动展期。</span>
+      </p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">05</div>
+      <span class="service-icon">🔮</span>
+      <h3 class="service-title"><span class="en-inline">Macro &amp; Regime Monitoring</span><span class="zh-inline">宏观环境与市场体制监测</span></h3>
+      <p class="service-desc">
+        <span class="en-inline">Geopolitical event modeling, Fed regime dashboards, yield curve analytics, and commodity/FX overlay signals integrated into your framework.</span>
+        <span class="zh-inline">地缘政治事件建模、美联储政策仪表板、收益率曲线分析及大宗商品/外汇叠加信号，整合至投资框架。</span>
+      </p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">06</div>
+      <span class="service-icon">🧪</span>
+      <h3 class="service-title"><span class="en-inline">Custom Research &amp; Backtesting</span><span class="zh-inline">定制研究与回测</span></h3>
+      <p class="service-desc">
+        <span class="en-inline">Hypothesis-driven strategy research with walk-forward validation, Monte Carlo stress testing, and ML-augmented signal construction.</span>
+        <span class="zh-inline">基于假设驱动的策略研究，配合滚动前向验证、蒙特卡洛压力测试与机器学习信号构建。</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── METHODOLOGY ── -->
+<section id="methodology" class="methodology">
+  <p class="section-label"><span class="en-inline">02 — Methodology</span><span class="zh-inline">02 — 工作核心方法</span></p>
+  <h2 class="section-title">
+    <span class="en-inline">Rigorous by <em>design</em></span>
+    <span class="zh-inline">以<em>严谨</em>为核心方法</span>
+  </h2>
+
+  <div class="method-layout">
+    <div>
+      <div class="method-step">
+        <span class="step-num">01</span>
+        <div>
+          <div class="step-title"><span class="en-inline">Diagnostic &amp; Discovery</span><span class="zh-inline">诊断与梳理</span></div>
+          <div class="step-desc">
+            <span class="en-inline">Portfolio audit, risk exposure mapping, strategy clarification. We model what you hold before we model what you could do.</span>
+            <span class="zh-inline">对现有投资组合进行全面审计，梳理风险敞口与策略逻辑。理清现状，方能规划下一步。</span>
+          </div>
+        </div>
+      </div>
+      <div class="method-step">
+        <span class="step-num">02</span>
+        <div>
+          <div class="step-title"><span class="en-inline">Quantitative Modeling</span><span class="zh-inline">量化建模</span></div>
+          <div class="step-desc">
+            <span class="en-inline">Statistical analysis, signal research, factor construction — all validated out-of-sample with conservative assumptions on costs and slippage.</span>
+            <span class="zh-inline">统计分析、信号研究与因子构建，全部经过样本外验证。成本与滑点假设保守审慎，结果可信。</span>
+          </div>
+        </div>
+      </div>
+      <div class="method-step">
+        <span class="step-num">03</span>
+        <div>
+          <div class="step-title"><span class="en-inline">Systematic Implementation</span><span class="zh-inline">系统化实施</span></div>
+          <div class="step-desc">
+            <span class="en-inline">Python-based automation, API integration, real-time monitoring dashboards. Production-grade code reviewed for latency and fault tolerance.</span>
+            <span class="zh-inline">Python 自动化、API 集成与实时监控仪表板，交付生产级代码，覆盖延迟优化与容错处理。</span>
+          </div>
+        </div>
+      </div>
+      <div class="method-step">
+        <span class="step-num">04</span>
+        <div>
+          <div class="step-title"><span class="en-inline">Ongoing Calibration</span><span class="zh-inline">持续校准</span></div>
+          <div class="step-desc">
+            <span class="en-inline">Regime-adaptive recalibration, live performance attribution, and systematic review cycles. Markets evolve — your systems must too.</span>
+            <span class="zh-inline">市场环境持续演变，系统亦需同步迭代。定期重新校准模型，结合实时绩效归因与系统化复盘周期。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-panel">
+      <div class="code-header">
+        <div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div>
+      </div>
+<span class="c-comment"># Shion Quant 欣安量化 — Portfolio Risk Engine</span>
+
+<span class="c-key">import</span> <span class="c-var">numpy</span> <span class="c-key">as</span> <span class="c-var">np</span>
+<span class="c-key">import</span> <span class="c-var">pandas</span> <span class="c-key">as</span> <span class="c-var">pd</span>
+
+<span class="c-key">def</span> <span class="c-fn">compute_risk_metrics</span>(<span class="c-var">returns</span>, <span class="c-var">benchmark</span>, <span class="c-var">rf</span>=<span class="c-num">0.053</span>):
+    <span class="c-var">excess</span> = <span class="c-var">returns</span> - <span class="c-var">rf</span>/<span class="c-num">252</span>
+    <span class="c-var">cov</span>    = np.<span class="c-fn">cov</span>(<span class="c-var">returns</span>, <span class="c-var">benchmark</span>)
+    <span class="c-var">beta</span>   = <span class="c-var">cov</span>[<span class="c-num">0</span>,<span class="c-num">1</span>] / <span class="c-var">cov</span>[<span class="c-num">1</span>,<span class="c-num">1</span>]
+    <span class="c-var">alpha</span>  = (<span class="c-var">returns</span>.<span class="c-fn">mean</span>() - <span class="c-var">rf</span>/<span class="c-num">252</span>
+              - <span class="c-var">beta</span> * (<span class="c-var">benchmark</span>.<span class="c-fn">mean</span>()
+              - <span class="c-var">rf</span>/<span class="c-num">252</span>)) * <span class="c-num">252</span>
+    <span class="c-var">sharpe</span>  = <span class="c-var">excess</span>.<span class="c-fn">mean</span>() / <span class="c-var">excess</span>.<span class="c-fn">std</span>() * np.<span class="c-fn">sqrt</span>(<span class="c-num">252</span>)
+    <span class="c-var">downdev</span> = <span class="c-var">excess</span>[<span class="c-var">excess</span>&lt;<span class="c-num">0</span>].<span class="c-fn">std</span>() * np.<span class="c-fn">sqrt</span>(<span class="c-num">252</span>)
+    <span class="c-var">sortino</span> = (<span class="c-var">excess</span>.<span class="c-fn">mean</span>() * <span class="c-num">252</span>) / <span class="c-var">downdev</span>
+    <span class="c-var">cvar_95</span> = np.<span class="c-fn">percentile</span>(<span class="c-var">returns</span>, <span class="c-num">5</span>)
+    <span class="c-key">return</span> {
+        <span class="c-string">"alpha"</span>  : <span class="c-fn">round</span>(<span class="c-var">alpha</span>,  <span class="c-num">4</span>),
+        <span class="c-string">"beta"</span>   : <span class="c-fn">round</span>(<span class="c-var">beta</span>,   <span class="c-num">4</span>),
+        <span class="c-string">"sharpe"</span> : <span class="c-fn">round</span>(<span class="c-var">sharpe</span>, <span class="c-num">4</span>),
+        <span class="c-string">"sortino"</span>: <span class="c-fn">round</span>(<span class="c-var">sortino</span>,<span class="c-num">4</span>),
+        <span class="c-string">"cvar_95"</span>: <span class="c-fn">round</span>(<span class="c-var">cvar_95</span>,<span class="c-num">4</span>),
+    }
+
+<span class="c-key">def</span> <span class="c-fn">hedge_signal</span>(<span class="c-var">prices</span>):
+    <span class="c-var">ma200</span> = <span class="c-var">prices</span>.<span class="c-fn">rolling</span>(<span class="c-num">200</span>).<span class="c-fn">mean</span>()
+    <span class="c-key">return</span> <span class="c-var">prices</span>.<span class="c-fn">iloc</span>[-<span class="c-num">1</span>] &lt; <span class="c-var">ma200</span>.<span class="c-fn">iloc</span>[-<span class="c-num">1</span>]
+    </div>
+  </div>
+</section>
+
+<!-- ── DELIVERABLES ── -->
+<section id="deliverables" class="deliverables-section">
+  <p class="section-label"><span class="en-inline">03 — Deliverables</span><span class="zh-inline">03 — 交付成果</span></p>
+  <h2 class="section-title">
+    <span class="en-inline">Tangible <em>outputs</em></span>
+    <span class="zh-inline">具体可用的<em>交付物</em></span>
+  </h2>
+  <div class="deliverables-grid">
+    <div class="deliverable">
+      <span class="deliverable-icon">📋</span>
+      <div>
+        <div class="deliverable-title"><span class="en-inline">Monthly Risk Report</span><span class="zh-inline">月度风险报告</span></div>
+        <div class="deliverable-desc"><span class="en-inline">Full attribution, Greeks exposure, regime indicators, hedge effectiveness review, and forward scenario analysis.</span><span class="zh-inline">涵盖绩效归因、Greeks 敞口、市场体制指标、对冲有效性评估及前瞻情景分析。</span></div>
+      </div>
+    </div>
+    <div class="deliverable">
+      <span class="deliverable-icon">🤖</span>
+      <div>
+        <div class="deliverable-title"><span class="en-inline">Production Automation Scripts</span><span class="zh-inline">生产级自动化脚本</span></div>
+        <div class="deliverable-desc"><span class="en-inline">Owned, documented Python systems with API integrations, unit tests, and monitoring hooks — fully handed over.</span><span class="zh-inline">附完整文档与单元测试的 Python 系统，含 API 集成与监控钩子，完整移交客户所有。</span></div>
+      </div>
+    </div>
+    <div class="deliverable">
+      <span class="deliverable-icon">📡</span>
+      <div>
+        <div class="deliverable-title"><span class="en-inline">Live Monitoring Dashboard</span><span class="zh-inline">实时监控仪表板</span></div>
+        <div class="deliverable-desc"><span class="en-inline">Real-time portfolio tracker with P&amp;L, delta exposure, hedge status, and macro overlay signals.</span><span class="zh-inline">实时追踪盈亏、Delta 敞口、对冲状态与宏观叠加信号，多端适配。</span></div>
+      </div>
+    </div>
+    <div class="deliverable">
+      <span class="deliverable-icon">🔬</span>
+      <div>
+        <div class="deliverable-title"><span class="en-inline">Strategy Research Memos</span><span class="zh-inline">策略研究备忘录</span></div>
+        <div class="deliverable-desc"><span class="en-inline">Hypothesis, methodology, in-sample / out-of-sample results, and implementation recommendations.</span><span class="zh-inline">涵盖研究假设、核心方法论、样本内外测试结果及实施建议，达到学术级严谨标准。</span></div>
+      </div>
+    </div>
+    <div class="deliverable">
+      <span class="deliverable-icon">⚡</span>
+      <div>
+        <div class="deliverable-title"><span class="en-inline">Event-Driven Alerts</span><span class="zh-inline">事件预警通知</span></div>
+        <div class="deliverable-desc"><span class="en-inline">Configurable signals for VIX spikes, MA crossovers, geopolitical macro triggers, and position limit breaches.</span><span class="zh-inline">可配置的 VIX 骤升、均线交叉、地缘政治触发及持仓超限预警，自动推送通知。</span></div>
+      </div>
+    </div>
+    <div class="deliverable">
+      <span class="deliverable-icon">🎓</span>
+      <div>
+        <div class="deliverable-title"><span class="en-inline">Onboarding &amp; Training Sessions</span><span class="zh-inline">入职培训与知识传递</span></div>
+        <div class="deliverable-desc"><span class="en-inline">Structured knowledge transfer so your team understands every model and parameter — no black boxes.</span><span class="zh-inline">系统化知识传递，确保客户团队深入理解每一个模型与参数，实现真正独立运营。</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CLIENTS ── -->
+<section id="clients" class="clients-section">
+  <p class="section-label"><span class="en-inline">04 — Who We Serve</span><span class="zh-inline">04 — 服务对象</span></p>
+  <h2 class="section-title">
+    <span class="en-inline">Built for <em>sophisticated</em> investors</span>
+    <span class="zh-inline">专为<em>成熟</em>的投资者</span>
+  </h2>
+  <div class="clients-grid">
+    <div class="client-card">
+      <div class="client-type"><span class="en-inline">Profile A</span><span class="zh-inline">类型 A</span></div>
+      <div class="client-title"><span class="en-inline">Small Hedge Funds</span><span class="zh-inline">小型对冲基金</span></div>
+      <ul class="client-needs">
+        <li><span class="en-inline">Systematic strategy development &amp; backtesting</span><span class="zh-inline">系统化策略开发与回测</span></li>
+        <li><span class="en-inline">Risk-adjusted performance attribution</span><span class="zh-inline">风险调整绩效归因</span></li>
+        <li><span class="en-inline">Broker API automation (IBKR, Alpaca)</span><span class="zh-inline">券商 API 自动化（IBKR、Alpaca）</span></li>
+        <li><span class="en-inline">Regulatory-aware position sizing</span><span class="zh-inline">合规导向的仓位管理</span></li>
+        <li><span class="en-inline">Tail-risk hedging overlays</span><span class="zh-inline">尾部风险对冲叠加</span></li>
+      </ul>
+    </div>
+    <div class="client-card">
+      <div class="client-type"><span class="en-inline">Profile B</span><span class="zh-inline">类型 B</span></div>
+      <div class="client-title"><span class="en-inline">Family Offices</span><span class="zh-inline">家族办公室</span></div>
+      <ul class="client-needs">
+        <li><span class="en-inline">Barbell portfolio construction &amp; monitoring</span><span class="zh-inline">杠铃型投资组合构建与监控</span></li>
+        <li><span class="en-inline">Options income strategies (wheels, covered calls)</span><span class="zh-inline">期权收益策略（Wheel、备兑开仓）</span></li>
+        <li><span class="en-inline">Multi-account consolidation dashboards</span><span class="zh-inline">多账户整合仪表板</span></li>
+        <li><span class="en-inline">Macro regime &amp; geopolitical risk overlays</span><span class="zh-inline">宏观体制与地缘政治风险叠加</span></li>
+        <li><span class="en-inline">Tax-aware rebalancing analysis</span><span class="zh-inline">税务优化再平衡分析</span></li>
+      </ul>
+    </div>
+    <div class="client-card">
+      <div class="client-type"><span class="en-inline">Profile C</span><span class="zh-inline">类型 C</span></div>
+      <div class="client-title"><span class="en-inline">Active Prop Traders</span><span class="zh-inline">活跃自营交易者</span></div>
+      <ul class="client-needs">
+        <li><span class="en-inline">Futures &amp; options analytics (NQ, ES, CL)</span><span class="zh-inline">期货与期权分析（NQ、ES、CL）</span></li>
+        <li><span class="en-inline">Delta/gamma exposure monitoring</span><span class="zh-inline">Delta/Gamma 敞口监控</span></li>
+        <li><span class="en-inline">GEX &amp; options flow analysis</span><span class="zh-inline">GEX 与期权流分析</span></li>
+        <li><span class="en-inline">PDT-aware equity strategy design</span><span class="zh-inline">PDT 规则导向的股票策略设计</span></li>
+        <li><span class="en-inline">Custom signal research &amp; execution scripts</span><span class="zh-inline">定制化信号研究与执行脚本</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section id="about" class="about-section">
+  <p class="section-label"><span class="en-inline">05 — About</span><span class="zh-inline">05 — 关于</span></p>
+  <h2 class="section-title">
+    <span class="en-inline">Science-grade <em>rigor</em></span>
+    <span class="zh-inline">以科学核心方法论<em>驱动</em>量化</span>
+  </h2>
+  <div class="about-layout">
+    <div>
+      <p class="about-copy">
+        <span class="en-inline">Shion Quant brings <strong>experimental physics methodology</strong> to financial markets — the same statistical discipline, hypothesis testing, and systematic validation used in detecting rare events at the edge of measurability.<br><br>Most institutional-grade quantitative tools are <strong>inaccessible to smaller, sophisticated investors</strong>. Our mission is to close that gap — delivering rigorous, automation-ready analytics at a scale and price point that works for family offices and emerging hedge funds.</span>
+        <span class="zh-inline">欣安量化将<strong>实验物理的研究核心方法</strong>引入金融市场——运用同一套统计严谨性、假设检验与系统化验证流程，应用于资产定价与风险分析。<br><br>机构级量化工具对大多数中小型投资者而言<strong>门槛过高</strong>。欣安量化的使命，是以合理的规模与收费，向家族办公室和新兴对冲基金提供同等水准的量化能力。</span>
+      </p>
+      <div class="cred-grid">
+        <div class="cred">
+          <div class="cred-label"><span class="en-inline">Background</span><span class="zh-inline">专业背景</span></div>
+          <div class="cred-value"><span class="en-inline">Experimental Physics / Precision Measurement / New Signal Searches</span><span class="zh-inline">实验物理 / 精密测量 / 新信号探索</span></div>
+        </div>
+        <div class="cred">
+          <div class="cred-label"><span class="en-inline">Markets Focus</span><span class="zh-inline">市场方向</span></div>
+          <div class="cred-value"><span class="en-inline">Equities, Options, NQ/ES Futures</span><span class="zh-inline">股票、期权、NQ/ES 期货</span></div>
+        </div>
+        <div class="cred">
+          <div class="cred-label"><span class="en-inline">Tech Stack</span><span class="zh-inline">技术栈</span></div>
+          <div class="cred-value"><span class="en-inline">Python, IBKR API, Alpaca, NumPy, SciPy</span><span class="zh-inline">Python · IBKR · Alpaca · NumPy · SciPy</span></div>
+        </div>
+        <div class="cred">
+          <div class="cred-label"><span class="en-inline">Approach</span><span class="zh-inline">核心方法</span></div>
+          <div class="cred-value"><span class="en-inline">Systematic, Model-Driven, Regime-Aware</span><span class="zh-inline">系统化 · 模型驱动 · 体制感知</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="expertise-bars">
+      <div><div class="exp-header"><span><span class="en-inline">Quantitative Modeling</span><span class="zh-inline">量化建模</span></span><span>97%</span></div><div class="exp-track"><div class="exp-fill" style="width:97%;animation-delay:0.1s"></div></div></div>
+      <div><div class="exp-header"><span><span class="en-inline">Options &amp; Derivatives</span><span class="zh-inline">期权与衍生品</span></span><span>93%</span></div><div class="exp-track"><div class="exp-fill" style="width:93%;animation-delay:0.2s"></div></div></div>
+      <div><div class="exp-header"><span><span class="en-inline">Algorithmic Systems</span><span class="zh-inline">算法交易系统</span></span><span>95%</span></div><div class="exp-track"><div class="exp-fill" style="width:95%;animation-delay:0.3s"></div></div></div>
+      <div><div class="exp-header"><span><span class="en-inline">Risk Management</span><span class="zh-inline">风险管理</span></span><span>96%</span></div><div class="exp-track"><div class="exp-fill" style="width:96%;animation-delay:0.4s"></div></div></div>
+      <div><div class="exp-header"><span><span class="en-inline">Macro &amp; Regime Analysis</span><span class="zh-inline">宏观与体制分析</span></span><span>88%</span></div><div class="exp-track"><div class="exp-fill" style="width:88%;animation-delay:0.5s"></div></div></div>
+      <div><div class="exp-header"><span><span class="en-inline">Execution &amp; Automation</span><span class="zh-inline">执行与自动化</span></span><span>94%</span></div><div class="exp-track"><div class="exp-fill" style="width:94%;animation-delay:0.6s"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section id="pricing" class="pricing-section">
+  <p class="section-label"><span class="en-inline">06 — Pricing</span><span class="zh-inline">06 — 收费方案</span></p>
+  <h2 class="section-title">
+    <span class="en-inline">Transparent <em>engagements</em></span>
+    <span class="zh-inline">透明清晰的<em>合作方案</em></span>
+  </h2>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="pricing-tier"><span class="en-inline">Diagnostic</span><span class="zh-inline">诊断评估</span></div>
+      <div class="pricing-price">$2,500</div>
+      <div class="pricing-freq"><span class="en-inline">one-time engagement</span><span class="zh-inline">一次性服务</span></div>
+      <ul class="pricing-features">
+        <li><span class="en-inline">Full portfolio risk audit</span><span class="zh-inline">全面投资组合风险审计</span></li>
+        <li><span class="en-inline">Alpha/beta/Sharpe report</span><span class="zh-inline">Alpha/Beta/Sharpe 报告</span></li>
+        <li><span class="en-inline">Drawdown &amp; tail risk analysis</span><span class="zh-inline">回撤与尾部风险分析</span></li>
+        <li><span class="en-inline">Written recommendations memo</span><span class="zh-inline">书面建议备忘录</span></li>
+        <li><span class="en-inline">60-min debrief call</span><span class="zh-inline">60 分钟结果汇报电话</span></li>
+      </ul>
+      <a href="#contact" class="btn-ghost"><span class="en-inline">Get Started</span><span class="zh-inline">立即开始</span></a>
+    </div>
+    <div class="pricing-card featured">
+      <span class="pricing-badge"><span class="en-inline">Most Popular</span><span class="zh-inline">最受欢迎</span></span>
+      <div class="pricing-tier"><span class="en-inline">Retainer</span><span class="zh-inline">月度顾问</span></div>
+      <div class="pricing-price">$4,500</div>
+      <div class="pricing-freq"><span class="en-inline">per month</span><span class="zh-inline">每月</span></div>
+      <ul class="pricing-features">
+        <li><span class="en-inline">Everything in Diagnostic</span><span class="zh-inline">含诊断评估全部内容</span></li>
+        <li><span class="en-inline">Monthly risk attribution report</span><span class="zh-inline">月度风险归因报告</span></li>
+        <li><span class="en-inline">Hedge monitoring &amp; alerts</span><span class="zh-inline">对冲监控与预警</span></li>
+        <li><span class="en-inline">1 automation script / month</span><span class="zh-inline">每月 1 个自动化脚本</span></li>
+        <li><span class="en-inline">Options strategy reviews</span><span class="zh-inline">期权策略审核</span></li>
+        <li><span class="en-inline">Macro regime dashboard</span><span class="zh-inline">宏观体制仪表板</span></li>
+        <li><span class="en-inline">Weekly check-in calls</span><span class="zh-inline">每周例行沟通</span></li>
+      </ul>
+      <a href="#contact" class="btn-primary-inv"><span class="en-inline">Get Started</span><span class="zh-inline">立即开始</span></a>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-tier"><span class="en-inline">Build</span><span class="zh-inline">定制开发</span></div>
+      <div class="pricing-price">$15k+</div>
+      <div class="pricing-freq"><span class="en-inline">project-based</span><span class="zh-inline">按项目计费</span></div>
+      <ul class="pricing-features">
+        <li><span class="en-inline">Custom strategy research</span><span class="zh-inline">定制化策略研究</span></li>
+        <li><span class="en-inline">Full algorithm build &amp; backtest</span><span class="zh-inline">完整算法开发与回测</span></li>
+        <li><span class="en-inline">Live trading system deployment</span><span class="zh-inline">实盘交易系统部署</span></li>
+        <li><span class="en-inline">Dashboard &amp; monitoring infra</span><span class="zh-inline">仪表板与监控基础设施</span></li>
+        <li><span class="en-inline">Team training &amp; handover</span><span class="zh-inline">团队培训与完整交接</span></li>
+        <li><span class="en-inline">90-day post-launch support</span><span class="zh-inline">上线后 90 天技术支持</span></li>
+      </ul>
+      <a href="#contact" class="btn-ghost"><span class="en-inline">Discuss Scope</span><span class="zh-inline">洽谈项目范围</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ── -->
+<section id="contact" class="contact-section">
+  <div class="contact-layout">
+    <div>
+      <p class="section-label"><span class="en-inline">07 — Contact</span><span class="zh-inline">07 — 联系</span></p>
+      <h2 class="section-title">
+        <span class="en-inline">Let's build something <em>precise.</em></span>
+        <span class="zh-inline">开启合作，<em>从一次对话开始</em>。</span>
+      </h2>
+      <p class="contact-lead">
+        <span class="en-inline">Every engagement begins with a complimentary 30-minute strategy call. No decks, no pitches — just a direct conversation about your portfolio and what's possible.</span>
+        <span class="zh-inline">每次合作均从一次免费的 30 分钟策略通话开始。无需提前准备，直接聊投资组合现状与潜在方向即可。</span>
+      </p>
+      <div class="contact-items">
+        <div class="contact-item">
+          <div class="contact-dot"></div>
+          <div>
+            <div class="contact-label"><span class="en-inline">Email</span><span class="zh-inline">电子邮件</span></div>
+            <div class="contact-value"> contact@shionquant.com</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-dot"></div>
+          <div>
+            <div class="contact-label"><span class="en-inline">Location</span><span class="zh-inline">所在地</span></div>
+            <div class="contact-value"><span class="en-inline">San Diego, CA · Remote</span><span class="zh-inline">美国圣地亚哥 · 远程服务全球</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-cta">
+      <a href="mailto:contact@shionquant.com" class="btn-primary-inv" style="text-align:center;">
+        <span class="en-inline">Send an Inquiry</span><span class="zh-inline">发电子邮件给我们</span>
+      </a>
+      <a href="/ShionQuant_CapabilityBrief_EN.pdf" download class="btn-ghost" id="brief-en" style="text-align:center;border-color:rgba(255,255,255,0.25);color:rgba(255,255,255,0.7);">
+        Download Capability Brief
+      </a>
+      <a href="/XinAnQuant_CapabilityBrief_ZH.pdf" download class="btn-ghost" id="brief-zh" style="text-align:center;border-color:rgba(255,255,255,0.25);color:rgba(255,255,255,0.7);display:none;">
+        下载服务简介
+      </a>
+      <p>
+        <span class="en-inline">Typical response within one business day. All initial consultations are confidential and carry no obligation.</span>
+        <span class="zh-inline">通常在一个工作日内回复。初次咨询严格保密，不附带任何义务。</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span class="footer-logo">
+    <span class="en-inline">Shion<span style="color:var(--royal-light)"> Quant</span></span>
+    <span class="zh-inline" style="font-family:'Noto Serif SC',serif;">欣安<span style="color:var(--royal-light)">量化</span></span>
+  </span>
+  <ul class="footer-links">
+    <li><a href="#services"><span class="en-inline">Services</span><span class="zh-inline">服务</span></a></li>
+    <li><a href="#methodology"><span class="en-inline">Methodology</span><span class="zh-inline">工作方法</span></a></li>
+    <li><a href="#pricing"><span class="en-inline">Pricing</span><span class="zh-inline">收费</span></a></li>
+    <li><a href="#contact"><span class="en-inline">Contact</span><span class="zh-inline">联系</span></a></li>
+  </ul>
+  <span class="footer-copy">
+    <span class="en-inline">© 2026 Shion Quant. All rights reserved.</span>
+    <span class="zh-inline">© 2026 欣安量化. 保留所有权利。</span>
+  </span>
+</footer>
+
+<script>
+  function setLang(lang) {
+    const body = document.getElementById('body');
+    const btnEn = document.getElementById('btn-en');
+    const btnZh = document.getElementById('btn-zh');
+    const briefEn = document.getElementById('brief-en');
+    const briefZh = document.getElementById('brief-zh');
+    if (lang === 'zh') {
+      body.classList.add('lang-zh');
+      btnZh.classList.add('active');
+      btnEn.classList.remove('active');
+      document.documentElement.lang = 'zh-Hans';
+      briefEn.style.display = 'none';
+      briefZh.style.display = 'block';
+    } else {
+      body.classList.remove('lang-zh');
+      btnEn.classList.add('active');
+      btnZh.classList.remove('active');
+      document.documentElement.lang = 'en';
+      briefEn.style.display = 'block';
+      briefZh.style.display = 'none';
+    }
+  }
+
+  /* ── LOGIN DROPDOWN ── */
+  function toggleLogin(e) {
+    e.stopPropagation();
+    const wrap = document.getElementById('loginWrap');
+    const trigger = wrap.querySelector('.login-trigger');
+    const isOpen = wrap.classList.toggle('open');
+    trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (isOpen) {
+      setTimeout(() => document.getElementById('loginEmail')?.focus(), 180);
+    }
+  }
+  function submitLogin(e) {
+    e.preventDefault();
+    // Demo: any non-empty credentials redirect to the portal
+    window.location.href = 'Shion Quant Portal.html';
+    return false;
+  }
+  document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('loginWrap');
+    if (!wrap) return;
+    if (!wrap.contains(e.target) && wrap.classList.contains('open')) {
+      wrap.classList.remove('open');
+      wrap.querySelector('.login-trigger')?.setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const wrap = document.getElementById('loginWrap');
+      if (wrap?.classList.contains('open')) {
+        wrap.classList.remove('open');
+        wrap.querySelector('.login-trigger')?.setAttribute('aria-expanded', 'false');
+      }
+    }
+  });
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"a767a7c6e8a945598a225e69ff777a9b","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
