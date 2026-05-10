@@ -886,6 +886,21 @@
   }
   .ri-value.gold { color: var(--gold); }
 
+  /* Wire-up state: section fetch failed → show "Not loaded / 未读取" in
+     place of demo data. Visual is intentionally muted so it doesn't compete
+     with successfully-loaded numbers on the rest of the page. */
+  .rebuild-failed {
+    text-align: center;
+    padding: 1.1rem 1rem;
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); letter-spacing: 0.06em; }
+
   .portal-foot {
     background: var(--ink);
     padding: 1.4rem 3rem;
@@ -2694,11 +2709,81 @@
     setBindText('risk.volAnn', fmtPctPlain(num(m.volAnnualized), 1));
   }
 
+  // ─── Placeholders + per-section failure markers ───────────────────────
+  // Wire-up phase rule: never silently fall back to the hard-coded demo
+  // numbers — they hide whether the API is actually reachable. The flow is:
+  //   • boot() blanks every [data-bind] / [data-rebuild] target
+  //   • each section's fetch attempts and on success renders real data
+  //   • on failure the section's targets get flagged "Not loaded / 未读取"
+  // The reader can now tell at a glance which sections are wired and which
+  // are not, instead of looking at six-month-old fake numbers.
+  const PLACEHOLDER_LOADING = '—';
+  const TXT_FAILED_EN = 'Not loaded';
+  const TXT_FAILED_ZH = '未读取';
+  const SECTION_PREFIXES = {
+    overview:       ['overview.', 'allocation.'],
+    equity:         ['equity.'],
+    cash:           ['cash.'],
+    'other-assets': ['options.', 'bonds.', 'crypto.', 'futures.'],
+    risk:           ['risk.'],
+  };
+  const _failedTxt = () =>
+    document.body.classList.contains('lang-zh') ? TXT_FAILED_ZH : TXT_FAILED_EN;
+
+  function _blankAllBindings() {
+    document.querySelectorAll('[data-bind]').forEach((el) => {
+      // Wipe any sign class that might have been on the static demo markup
+      // so we don't carry over green/red colors into the loading state.
+      el.classList.remove('gain', 'loss');
+      const tag = (el.tagName || '').toLowerCase();
+      if (tag === 'path') el.setAttribute('d', '');
+      else if (tag === 'polyline') el.setAttribute('points', '');
+      else if (tag === 'circle') el.setAttribute('cx', '-9999'); // off-canvas
+      else el.textContent = PLACEHOLDER_LOADING;
+    });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => {
+      // Empty so the section renders blank until its fetch resolves; failed
+      // fetches re-populate with the "Not loaded" placeholder below.
+      el.innerHTML = '';
+    });
+  }
+
+  function _markSectionFailed(label) {
+    const failTxt = _failedTxt();
+    const prefixes = SECTION_PREFIXES[label] || [];
+    const matches = (key) => prefixes.some((p) => key.startsWith(p));
+
+    document.querySelectorAll('[data-bind]').forEach((el) => {
+      const key = el.getAttribute('data-bind') || '';
+      if (!matches(key)) return;
+      const tag = (el.tagName || '').toLowerCase();
+      // SVG primitives stay empty (no plausible text representation).
+      if (tag === 'path' || tag === 'polyline' || tag === 'circle') return;
+      el.textContent = failTxt;
+    });
+
+    document.querySelectorAll('[data-rebuild]').forEach((el) => {
+      const key = el.getAttribute('data-rebuild') || '';
+      if (!matches(key)) return;
+      const tag = (el.tagName || '').toLowerCase();
+      if (tag === 'tbody' || tag === 'tfoot') {
+        const table = el.closest('table');
+        const cols = table?.querySelector('thead tr')?.children.length || 9;
+        el.innerHTML = `<tr><td colspan="${cols}" class="rebuild-failed">${escapeHtml(failTxt)}</td></tr>`;
+      } else {
+        el.innerHTML = `<div class="rebuild-failed">${escapeHtml(failTxt)}</div>`;
+      }
+    });
+  }
+
   // ─── boot ──────────────────────────────────────────────────────────────
   async function boot() {
+    _blankAllBindings();
+
     const safe = (label, fn) =>
       fn().catch((err) => {
-        console.warn(`[portfolio] ${label} failed; keeping static fallback:`, err.message || err);
+        console.warn(`[portfolio] ${label} failed:`, err && err.message ? err.message : err);
+        _markSectionFailed(label);
       });
 
     const overviewP = fetchJson('/portfolio/overview');
