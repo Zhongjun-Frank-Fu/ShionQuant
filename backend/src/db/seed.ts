@@ -81,8 +81,20 @@ async function main() {
   if (existingUser) {
     console.log("  • removing prior user:", existingUser.id)
     // FK ON DELETE CASCADE handles auth_factors, recovery_codes, sessions,
-    // login_events (set null), and most child rows. Clients reference users
-    // via ON DELETE RESTRICT, so we must remove the client row first.
+    // login_events (set null), and most client-child rows. But a few tables
+    // intentionally use NO ACTION / RESTRICT to preserve firm history —
+    // notably `reports` (client_id has no cascade) and `documents` (RESTRICT
+    // because they're regulatory). The seed inserts both, so we have to
+    // clear them explicitly before the clients row can go.
+    const ownedClients = await db
+      .select({ id: clients.id })
+      .from(clients)
+      .where(eq(clients.userId, existingUser.id))
+    const ownedClientIds = ownedClients.map((c) => c.id)
+    if (ownedClientIds.length > 0) {
+      await db.delete(reports).where(inArray(reports.clientId, ownedClientIds))
+      await db.delete(documents).where(inArray(documents.clientId, ownedClientIds))
+    }
     await db.delete(clients).where(eq(clients.userId, existingUser.id))
     await db.delete(users).where(eq(users.id, existingUser.id))
   }
