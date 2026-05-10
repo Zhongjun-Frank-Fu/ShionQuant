@@ -1,14 +1,19 @@
 name: backend CI
 
+# Triggers on backend code AND repo-root HTML — both ship together via the
+# `shion-quant` Worker (HTML lives at the root for editing, gets synced into
+# `backend/public/` at deploy time by `pnpm sync-frontend`).
 on:
   push:
     branches: [main]
     paths:
       - "backend/**"
+      - "*.html"
       - ".github/workflows/backend-ci.yml"
   pull_request:
     paths:
       - "backend/**"
+      - "*.html"
       - ".github/workflows/backend-ci.yml"
   workflow_dispatch:
 
@@ -79,8 +84,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # `pnpm run deploy` runs sync-frontend first (mirrors HTML from repo
+      # root → backend/public/), then wrangler deploy. Don't switch to
+      # `pnpm exec wrangler deploy` — that would skip the sync step and
+      # ship a Worker without any frontend.
       - name: Deploy to Cloudflare Workers
-        run: pnpm exec wrangler deploy
+        run: pnpm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

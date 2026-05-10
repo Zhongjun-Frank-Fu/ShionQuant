@@ -19,12 +19,31 @@
  */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "shion-quant-api",
+  // Single Worker that serves BOTH the static portal HTML and the JSON API.
+  // Same origin → no CORS, no cross-site cookie pain. Frontend at the root
+  // (`/`, `/Shion%20Quant%20Portal.html`, …) is served from `./public/`,
+  // while `/api/*` runs the Hono app via `assets.run_worker_first`.
+  "name": "shion-quant",
   "main": "src/index.ts",
   "compatibility_date": "2025-05-01",
   // nodejs_compat is required for: drizzle-orm, @aws-sdk/client-s3,
   // node:crypto used by lib/kms.ts and lib/crypto.ts.
   "compatibility_flags": ["nodejs_compat"],
+
+  // ─── Static assets (frontend HTML) ──────────────────────────────────────
+  // `./public/` is gitignored — populated by `pnpm sync-frontend` (or the
+  // `predeploy` shorthand `pnpm run deploy`) which mirrors *.html from the
+  // repo root. Keep the canonical HTML edit surface at the repo root; this
+  // directory is always derived.
+  //
+  // run_worker_first: ["/api/*"] means a request to /api/v1/foo always
+  // executes the Worker (the static-asset matcher is bypassed); everything
+  // else falls through to ./public/.
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "none",
+    "run_worker_first": ["/api/*"]
+  },
 
   // ─── Plain env vars (visible in dashboard; NOT secrets) ─────────────────
   "vars": {
@@ -46,30 +65,7 @@
   // the Workers dashboard. Persists ~30 min per request.
   "observability": {
     "enabled": true
-  },
-
-  // ─── Durable Object migrations ──────────────────────────────────────────
-  // Cloudflare tracks DO classes across deploys. The previous Container
-  // deploy registered class `ApiContainer` (with sqlite storage). We're
-  // dropping it entirely now. The deletion migration tells the platform
-  // it's intentional — without it, deploy fails with code 10064.
-  //
-  // The deleted DOs had no production data (the Container never serving a
-  // real request), so dropping them is safe.
-  //
-  // Once this delete-class migration ships ONCE successfully, you can
-  // remove the entire `migrations` block — it stays here as documentation
-  // for future reference.
-  "migrations": [
-    {
-      "tag": "v1",
-      "new_sqlite_classes": ["ApiContainer"]
-    },
-    {
-      "tag": "v2",
-      "deleted_classes": ["ApiContainer"]
-    }
-  ]
+  }
 
   // To add scheduled retention (replaces the Node `pnpm retention` cron):
   // "triggers": { "crons": ["0 3 * * *"] }

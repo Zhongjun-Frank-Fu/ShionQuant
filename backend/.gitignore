@@ -7,6 +7,9 @@ dist/
 .DS_Store
 drizzle/
 
+# Derived: HTML synced from repo root by `pnpm sync-frontend`.
+public/
+
 # IDE
 .vscode/
 .idea/
