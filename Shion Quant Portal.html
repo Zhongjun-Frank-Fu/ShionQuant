@@ -1133,12 +1133,12 @@
       <span class="zh-inline">投资组合总值</span>
     </p>
     <div class="value-number privacy-mask">
-      <span class="currency">$</span>2,847,329<span class="cents">.42</span>
+      <span class="currency">$</span><span data-bind="overview.totalIntegerPart">2,847,329</span><span class="cents" data-bind="overview.totalCents">.42</span>
     </div>
-    <div class="value-change privacy-mask">
-      <span class="change-arrow gain">▲</span>
-      <span class="change-amount gain">$12,847.20</span>
-      <span class="change-pct gain">+0.45%</span>
+    <div class="value-change privacy-mask" data-bind-class="overview.dayChangeClass">
+      <span class="change-arrow gain" data-bind="overview.dayArrow" data-bind-class="overview.dayChangeClass">▲</span>
+      <span class="change-amount gain" data-bind="overview.dayPlAmount" data-bind-class="overview.dayChangeClass">$12,847.20</span>
+      <span class="change-pct gain" data-bind="overview.dayPlPct" data-bind-class="overview.dayChangeClass">+0.45%</span>
       <span class="change-period">
         <span class="en-inline">Fri session</span><span class="zh-inline">周五收盘</span>
       </span>
@@ -1146,15 +1146,15 @@
     <div class="value-stats">
       <div>
         <span class="vs-label"><span class="en-inline">YTD</span><span class="zh-inline">年初至今</span></span>
-        <strong class="gain">+18.74%</strong>
+        <strong class="gain" data-bind="overview.ytdPct" data-bind-class="overview.ytdClass">+18.74%</strong>
       </div>
       <div>
         <span class="vs-label"><span class="en-inline">1 Year</span><span class="zh-inline">近 1 年</span></span>
-        <strong class="gain">+22.18%</strong>
+        <strong class="gain" data-bind="overview.oneYearPct" data-bind-class="overview.oneYearClass">+22.18%</strong>
       </div>
       <div>
         <span class="vs-label"><span class="en-inline">Inception</span><span class="zh-inline">开户至今</span></span>
-        <strong class="gain">+47.31%</strong>
+        <strong class="gain" data-bind="overview.inceptionPct" data-bind-class="overview.inceptionClass">+47.31%</strong>
       </div>
     </div>
   </div>
@@ -1169,7 +1169,7 @@
         <button>1D</button><button>5D</button><button class="active">1M</button><button>3M</button><button>YTD</button><button>ALL</button>
       </div>
     </div>
-    <svg class="chart-svg" viewBox="0 0 600 200" preserveAspectRatio="none" aria-hidden="true">
+    <svg class="chart-svg" viewBox="0 0 600 200" preserveAspectRatio="none" aria-hidden="true" data-rebuild="overview.chart">
       <defs>
         <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stop-color="#2347d4" stop-opacity="0.20"/>
@@ -1179,11 +1179,11 @@
       <line x1="0" y1="50"  x2="600" y2="50"  stroke="rgba(35,71,212,0.06)" stroke-width="1"/>
       <line x1="0" y1="100" x2="600" y2="100" stroke="rgba(35,71,212,0.06)" stroke-width="1"/>
       <line x1="0" y1="150" x2="600" y2="150" stroke="rgba(35,71,212,0.06)" stroke-width="1"/>
-      <path d="M 0,140 L 20,134 L 40,138 L 60,128 L 80,124 L 100,130 L 120,118 L 140,112 L 160,118 L 180,104 L 200,98 L 220,95 L 240,100 L 260,88 L 280,82 L 300,78 L 320,84 L 340,70 L 360,62 L 380,68 L 400,58 L 420,52 L 440,46 L 460,52 L 480,42 L 500,46 L 520,38 L 540,32 L 560,38 L 580,28 L 600,22 L 600,200 L 0,200 Z" fill="url(#chartGradient)"/>
-      <polyline points="0,140 20,134 40,138 60,128 80,124 100,130 120,118 140,112 160,118 180,104 200,98 220,95 240,100 260,88 280,82 300,78 320,84 340,70 360,62 380,68 400,58 420,52 440,46 460,52 480,42 500,46 520,38 540,32 560,38 580,28 600,22" fill="none" stroke="#2347d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="600" cy="22" r="4" fill="#fff" stroke="#2347d4" stroke-width="2"/>
+      <path data-bind="overview.chartArea" d="M 0,140 L 20,134 L 40,138 L 60,128 L 80,124 L 100,130 L 120,118 L 140,112 L 160,118 L 180,104 L 200,98 L 220,95 L 240,100 L 260,88 L 280,82 L 300,78 L 320,84 L 340,70 L 360,62 L 380,68 L 400,58 L 420,52 L 440,46 L 460,52 L 480,42 L 500,46 L 520,38 L 540,32 L 560,38 L 580,28 L 600,22 L 600,200 L 0,200 Z" fill="url(#chartGradient)"/>
+      <polyline data-bind="overview.chartLine" points="0,140 20,134 40,138 60,128 80,124 100,130 120,118 140,112 160,118 180,104 200,98 220,95 240,100 260,88 280,82 300,78 320,84 340,70 360,62 380,68 400,58 420,52 440,46 460,52 480,42 500,46 520,38 540,32 560,38 580,28 600,22" fill="none" stroke="#2347d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle data-bind="overview.chartDot" cx="600" cy="22" r="4" fill="#fff" stroke="#2347d4" stroke-width="2"/>
     </svg>
-    <div class="chart-axis">
+    <div class="chart-axis" data-rebuild="overview.chartAxis">
       <span>26 Mar</span>
       <span>02 Apr</span>
       <span>09 Apr</span>
@@ -1203,7 +1203,7 @@
     <span class="en">Where the <em>capital</em> sits</span>
     <span class="zh">资产<em>分布</em></span>
   </h2>
-  <div class="alloc-bar privacy-mask">
+  <div class="alloc-bar privacy-mask" data-rebuild="allocation.bar">
     <div class="alloc-seg" style="width:53.3%; background:#2347d4" title="Equities 53.3%"></div>
     <div class="alloc-seg" style="width:6.5%;  background:#6f8be8" title="Options 6.5%"></div>
     <div class="alloc-seg" style="width:4.0%;  background:#4a6fdb" title="Futures 4.0%"></div>
@@ -1211,7 +1211,7 @@
     <div class="alloc-seg" style="width:18.0%; background:#8896b8" title="Cash 18.0%"></div>
     <div class="alloc-seg" style="width:6.2%;  background:#1a35a8" title="Digital 6.2%"></div>
   </div>
-  <div class="alloc-legend">
+  <div class="alloc-legend" data-rebuild="allocation.legend">
     <div class="alloc-item">
       <div class="alloc-label-row">
         <span class="alloc-dot" style="background:#2347d4"></span>
@@ -1287,7 +1287,7 @@
         <th><span class="en-inline">Weight</span><span class="zh-inline">权重</span></th>
       </tr>
     </thead>
-    <tbody>
+    <tbody data-rebuild="equity.rows">
       <tr>
         <td class="sym">NVDA</td>
         <td class="name">NVIDIA Corp</td>
@@ -1366,7 +1366,7 @@
         <td>1.95%</td>
       </tr>
     </tbody>
-    <tfoot>
+    <tfoot data-rebuild="equity.footer">
       <tr>
         <td colspan="2" class="total-label">
           <span class="en-inline">Total Equity · 7 positions</span>
@@ -1397,26 +1397,26 @@
   <div class="cash-grid">
     <div class="cash-block">
       <p class="block-label"><span class="en-inline">Available Cash</span><span class="zh-inline">可用现金</span></p>
-      <div class="block-value privacy-mask"><span class="currency">$</span>512,519</div>
+      <div class="block-value privacy-mask"><span class="currency">$</span><span data-bind="cash.availableUsd">512,519</span></div>
       <p class="block-sub">
-        <span class="en-inline">Settled across 3 currencies · withdrawable T+1</span>
-        <span class="zh-inline">3 种货币已结算 · 次日可提取</span>
+        <span class="en-inline" data-bind="cash.availableSubEn">Settled across 3 currencies · withdrawable T+1</span>
+        <span class="zh-inline" data-bind="cash.availableSubZh">3 种货币已结算 · 次日可提取</span>
       </p>
     </div>
     <div class="cash-block">
       <p class="block-label"><span class="en-inline">Margin Used</span><span class="zh-inline">已用保证金</span></p>
-      <div class="block-value privacy-mask"><span class="currency">$</span>113,893</div>
+      <div class="block-value privacy-mask"><span class="currency">$</span><span data-bind="cash.marginUsedUsd">113,893</span></div>
       <p class="block-sub">
-        <span class="en-inline">Reserved for 3 active futures contracts</span>
-        <span class="zh-inline">3 笔活跃期货合约保证金</span>
+        <span class="en-inline" data-bind="cash.marginSubEn">Reserved for 3 active futures contracts</span>
+        <span class="zh-inline" data-bind="cash.marginSubZh">3 笔活跃期货合约保证金</span>
       </p>
     </div>
     <div class="cash-block">
       <p class="block-label"><span class="en-inline">Buying Power</span><span class="zh-inline">购买力</span></p>
-      <div class="block-value privacy-mask"><span class="currency">$</span>1,876,500</div>
+      <div class="block-value privacy-mask"><span class="currency">$</span><span data-bind="cash.buyingPowerUsd">1,876,500</span></div>
       <p class="block-sub">
-        <span class="en-inline">Reg-T basis · 2× equity excluding crypto</span>
-        <span class="zh-inline">Reg-T 基准 · 股票部分 2× 杠杆，不含数字资产</span>
+        <span class="en-inline" data-bind="cash.buyingPowerSubEn">Reg-T basis · 2× equity excluding crypto</span>
+        <span class="zh-inline" data-bind="cash.buyingPowerSubZh">Reg-T 基准 · 股票部分 2× 杠杆，不含数字资产</span>
       </p>
     </div>
   </div>
@@ -1430,7 +1430,7 @@
         <th><span class="en-inline">Share</span><span class="zh-inline">占比</span></th>
       </tr>
     </thead>
-    <tbody>
+    <tbody data-rebuild="cash.rows">
       <tr>
         <td class="ccy-code">USD</td>
         <td class="privacy-mask">373,357.00</td>
@@ -1469,90 +1469,94 @@
   <div class="other-grid">
 
     <!-- OPTIONS -->
-    <div class="other-block">
+    <div class="other-block" data-block="options">
       <h3><span class="en-inline">Options</span><span class="zh-inline">期权持仓</span></h3>
       <p class="ob-sub">
-        <span class="en-inline">3 active strategies · net market value $185,076</span>
-        <span class="zh-inline">3 项活跃策略 · 净市值 $185,076</span>
+        <span class="en-inline" data-bind="options.subEn">3 active strategies · net market value $185,076</span>
+        <span class="zh-inline" data-bind="options.subZh">3 项活跃策略 · 净市值 $185,076</span>
       </p>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">AAPL</span>Covered Call · 230C · 16 May</span>
-          <span class="op-value privacy-mask">−$4,275</span>
+      <div data-rebuild="options.positions">
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">AAPL</span>Covered Call · 230C · 16 May</span>
+            <span class="op-value privacy-mask">−$4,275</span>
+          </div>
+          <div class="op-meta">
+            <span>15 ct · @ $4.20 → $2.85</span>
+            <span class="op-pl gain">+$2,025</span>
+          </div>
         </div>
-        <div class="op-meta">
-          <span>15 ct · @ $4.20 → $2.85</span>
-          <span class="op-pl gain">+$2,025</span>
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">SPY</span>Protective Put · 530P · 20 Jun</span>
+            <span class="op-value privacy-mask">+$8,960</span>
+          </div>
+          <div class="op-meta">
+            <span>8 ct · @ $9.40 → $11.20</span>
+            <span class="op-pl gain">+$1,440</span>
+          </div>
         </div>
-      </div>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">SPY</span>Protective Put · 530P · 20 Jun</span>
-          <span class="op-value privacy-mask">+$8,960</span>
-        </div>
-        <div class="op-meta">
-          <span>8 ct · @ $9.40 → $11.20</span>
-          <span class="op-pl gain">+$1,440</span>
-        </div>
-      </div>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">NVDA</span>Cash-Secured Put · 580P · 16 May</span>
-          <span class="op-value privacy-mask">−$1,260</span>
-        </div>
-        <div class="op-meta">
-          <span>3 ct · @ $11.50 → $4.20</span>
-          <span class="op-pl gain">+$2,190</span>
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">NVDA</span>Cash-Secured Put · 580P · 16 May</span>
+            <span class="op-value privacy-mask">−$1,260</span>
+          </div>
+          <div class="op-meta">
+            <span>3 ct · @ $11.50 → $4.20</span>
+            <span class="op-pl gain">+$2,190</span>
+          </div>
         </div>
       </div>
       <div class="greeks-strip">
         <div class="greek">
           <span class="greek-label">Δ Delta</span>
-          <span class="greek-value">−710</span>
+          <span class="greek-value" data-bind="options.delta" data-bind-class="options.deltaClass">−710</span>
         </div>
         <div class="greek">
           <span class="greek-label">Γ Gamma</span>
-          <span class="greek-value">−28</span>
+          <span class="greek-value" data-bind="options.gamma" data-bind-class="options.gammaClass">−28</span>
         </div>
         <div class="greek">
           <span class="greek-label">Θ Theta</span>
-          <span class="greek-value gain">+$485/d</span>
+          <span class="greek-value gain" data-bind="options.theta" data-bind-class="options.thetaClass">+$485/d</span>
         </div>
         <div class="greek">
           <span class="greek-label">𝒱 Vega</span>
-          <span class="greek-value">−$1,820</span>
+          <span class="greek-value" data-bind="options.vega" data-bind-class="options.vegaClass">−$1,820</span>
         </div>
       </div>
     </div>
 
     <!-- TREASURIES -->
-    <div class="other-block">
+    <div class="other-block" data-block="bonds">
       <h3><span class="en-inline">Treasuries</span><span class="zh-inline">美国国债</span></h3>
       <p class="ob-sub">
-        <span class="en-inline">2 holdings · weighted yield 4.65% · duration 4.4y</span>
-        <span class="zh-inline">2 笔持有 · 加权收益率 4.65% · 久期 4.4 年</span>
+        <span class="en-inline" data-bind="bonds.subEn">2 holdings · weighted yield 4.65% · duration 4.4y</span>
+        <span class="zh-inline" data-bind="bonds.subZh">2 笔持有 · 加权收益率 4.65% · 久期 4.4 年</span>
       </p>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">UST</span>10Y · 4.250% · May 2034</span>
-          <span class="op-value privacy-mask">$195,200</span>
+      <div data-rebuild="bonds.positions">
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">UST</span>10Y · 4.250% · May 2034</span>
+            <span class="op-value privacy-mask">$195,200</span>
+          </div>
+          <div class="op-meta">
+            <span>Face $200,000 · YTM 4.42%</span>
+            <span class="op-pl">Dur 7.8</span>
+          </div>
         </div>
-        <div class="op-meta">
-          <span>Face $200,000 · YTM 4.42%</span>
-          <span class="op-pl">Dur 7.8</span>
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">UST</span>2Y · 4.850% · Apr 2026</span>
+            <span class="op-value privacy-mask">$146,479</span>
+          </div>
+          <div class="op-meta">
+            <span>Face $150,000 · YTM 4.95%</span>
+            <span class="op-pl">Dur 0.9</span>
+          </div>
         </div>
       </div>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">UST</span>2Y · 4.850% · Apr 2026</span>
-          <span class="op-value privacy-mask">$146,479</span>
-        </div>
-        <div class="op-meta">
-          <span>Face $150,000 · YTM 4.95%</span>
-          <span class="op-pl">Dur 0.9</span>
-        </div>
-      </div>
-      <div class="other-pos">
+      <div class="other-pos" data-rebuild="bonds.summary">
         <div class="op-head">
           <span class="op-name">
             <span class="en-inline">Accrued interest YTD</span>
@@ -1568,100 +1572,104 @@
     </div>
 
     <!-- DIGITAL -->
-    <div class="other-block">
+    <div class="other-block" data-block="crypto">
       <h3><span class="en-inline">Digital Assets</span><span class="zh-inline">数字资产</span></h3>
       <p class="ob-sub">
-        <span class="en-inline">2 holdings · custody at Coinbase Prime</span>
-        <span class="zh-inline">2 笔持有 · 托管于 Coinbase Prime</span>
+        <span class="en-inline" data-bind="crypto.subEn">2 holdings · custody at Coinbase Prime</span>
+        <span class="zh-inline" data-bind="crypto.subZh">2 笔持有 · 托管于 Coinbase Prime</span>
       </p>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">BTC</span>Bitcoin · 1.65 BTC</span>
-          <span class="op-value privacy-mask">$158,730</span>
+      <div data-rebuild="crypto.positions">
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">BTC</span>Bitcoin · 1.65 BTC</span>
+            <span class="op-value privacy-mask">$158,730</span>
+          </div>
+          <div class="op-meta">
+            <span>Avg $48,500 → $96,200</span>
+            <span class="op-pl gain">+$78,705</span>
+          </div>
         </div>
-        <div class="op-meta">
-          <span>Avg $48,500 → $96,200</span>
-          <span class="op-pl gain">+$78,705</span>
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">ETH</span>Ethereum · 5.80 ETH</span>
+            <span class="op-value privacy-mask">$17,805</span>
+          </div>
+          <div class="op-meta">
+            <span>Avg $2,420 → $3,070</span>
+            <span class="op-pl gain">+$3,770</span>
+          </div>
         </div>
       </div>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">ETH</span>Ethereum · 5.80 ETH</span>
-          <span class="op-value privacy-mask">$17,805</span>
-        </div>
-        <div class="op-meta">
-          <span>Avg $2,420 → $3,070</span>
-          <span class="op-pl gain">+$3,770</span>
-        </div>
-      </div>
-      <div class="other-pos">
+      <div class="other-pos" data-rebuild="crypto.summary">
         <div class="op-head">
           <span class="op-name">
             <span class="en-inline">Combined unrealized P/L</span>
             <span class="zh-inline">合计未实现盈亏</span>
           </span>
-          <span class="op-value gain privacy-mask">+$82,475</span>
+          <span class="op-value gain privacy-mask" data-bind="crypto.combinedPl" data-bind-class="crypto.combinedPlClass">+$82,475</span>
         </div>
         <div class="op-meta">
           <span><span class="en-inline">YTD return</span><span class="zh-inline">年初至今</span></span>
-          <span class="op-pl gain">+47.8%</span>
+          <span class="op-pl gain" data-bind="crypto.ytdReturn" data-bind-class="crypto.ytdReturnClass">+47.8%</span>
         </div>
       </div>
     </div>
 
     <!-- FUTURES -->
-    <div class="other-block">
+    <div class="other-block" data-block="futures">
       <h3><span class="en-inline">Futures</span><span class="zh-inline">期货持仓</span></h3>
       <p class="ob-sub">
-        <span class="en-inline">3 contracts active · margin $113,893 · net long bias</span>
-        <span class="zh-inline">3 笔合约活跃 · 保证金 $113,893 · 净多头</span>
+        <span class="en-inline" data-bind="futures.subEn">3 contracts active · margin $113,893 · net long bias</span>
+        <span class="zh-inline" data-bind="futures.subZh">3 笔合约活跃 · 保证金 $113,893 · 净多头</span>
       </p>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">ES</span>S&amp;P 500 · short · Sep 2026</span>
-          <span class="op-value privacy-mask">−$271,750</span>
+      <div data-rebuild="futures.positions">
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">ES</span>S&amp;P 500 · short · Sep 2026</span>
+            <span class="op-value privacy-mask">−$271,750</span>
+          </div>
+          <div class="op-meta">
+            <span>1 ct · @ 5510 → 5435</span>
+            <span class="op-pl gain">+$3,750</span>
+          </div>
         </div>
-        <div class="op-meta">
-          <span>1 ct · @ 5510 → 5435</span>
-          <span class="op-pl gain">+$3,750</span>
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">NQ</span>Nasdaq 100 · long · Jun 2026</span>
+            <span class="op-value privacy-mask">+$380,000</span>
+          </div>
+          <div class="op-meta">
+            <span>1 ct · @ 18,800 → 19,000</span>
+            <span class="op-pl gain">+$4,000</span>
+          </div>
         </div>
-      </div>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">NQ</span>Nasdaq 100 · long · Jun 2026</span>
-          <span class="op-value privacy-mask">+$380,000</span>
-        </div>
-        <div class="op-meta">
-          <span>1 ct · @ 18,800 → 19,000</span>
-          <span class="op-pl gain">+$4,000</span>
-        </div>
-      </div>
-      <div class="other-pos">
-        <div class="op-head">
-          <span class="op-name"><span class="op-sym">ZN</span>10Y Treasury · long · Sep 2026</span>
-          <span class="op-value privacy-mask">+$432,000</span>
-        </div>
-        <div class="op-meta">
-          <span>4 ct · @ 108-10 → 108-22</span>
-          <span class="op-pl gain">+$1,200</span>
+        <div class="other-pos">
+          <div class="op-head">
+            <span class="op-name"><span class="op-sym">ZN</span>10Y Treasury · long · Sep 2026</span>
+            <span class="op-value privacy-mask">+$432,000</span>
+          </div>
+          <div class="op-meta">
+            <span>4 ct · @ 108-10 → 108-22</span>
+            <span class="op-pl gain">+$1,200</span>
+          </div>
         </div>
       </div>
       <div class="greeks-strip">
         <div class="greek">
           <span class="greek-label"><span class="en-inline">β contrib</span><span class="zh-inline">Beta 贡献</span></span>
-          <span class="greek-value">+0.04</span>
+          <span class="greek-value" data-bind="futures.betaContrib" data-bind-class="futures.betaContribClass">+0.04</span>
         </div>
         <div class="greek">
           <span class="greek-label">DV01</span>
-          <span class="greek-value">+$280</span>
+          <span class="greek-value" data-bind="futures.dv01" data-bind-class="futures.dv01Class">+$280</span>
         </div>
         <div class="greek">
           <span class="greek-label"><span class="en-inline">Initial Margin</span><span class="zh-inline">起始保证金</span></span>
-          <span class="greek-value">$42.3k</span>
+          <span class="greek-value" data-bind="futures.initialMargin">$42.3k</span>
         </div>
         <div class="greek">
           <span class="greek-label"><span class="en-inline">Total P/L</span><span class="zh-inline">合计盈亏</span></span>
-          <span class="greek-value gain">+$8,950</span>
+          <span class="greek-value gain" data-bind="futures.totalPl" data-bind-class="futures.totalPlClass">+$8,950</span>
         </div>
       </div>
     </div>
@@ -1678,23 +1686,23 @@
   <div class="risk-items">
     <div class="risk-item">
       <span class="ri-label">Beta</span>
-      <span class="ri-value">0.82</span>
+      <span class="ri-value" data-bind="risk.beta">0.82</span>
     </div>
     <div class="risk-item">
       <span class="ri-label">Sharpe</span>
-      <span class="ri-value">1.74</span>
+      <span class="ri-value" data-bind="risk.sharpe">1.74</span>
     </div>
     <div class="risk-item">
       <span class="ri-label">Sortino</span>
-      <span class="ri-value">2.41</span>
+      <span class="ri-value" data-bind="risk.sortino">2.41</span>
     </div>
     <div class="risk-item">
       <span class="ri-label">Max DD</span>
-      <span class="ri-value gold">−8.4%</span>
+      <span class="ri-value gold" data-bind="risk.maxDd">−8.4%</span>
     </div>
     <div class="risk-item">
       <span class="ri-label">σ ann.</span>
-      <span class="ri-value">14.2%</span>
+      <span class="ri-value" data-bind="risk.volAnn">14.2%</span>
     </div>
   </div>
 </div>
@@ -2028,6 +2036,678 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') wrap.classList.remove('open');
   });
+})();
+</script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+ * SQ-PORTFOLIO-V1
+ * Live wire-up for the Portal home page portfolio summary.
+ *
+ * On DOMContentLoaded, fetches:
+ *   GET /api/v1/portfolio/overview
+ *   GET /api/v1/portfolio/positions?assetType=equity
+ *   GET /api/v1/portfolio/cash
+ *   GET /api/v1/portfolio/other-assets
+ *   GET /api/v1/portfolio/risk
+ *
+ * Each section renders independently — if one endpoint fails the rest still
+ * paint, and any section that errors keeps its static demo content as a
+ * fallback so the page never goes blank.
+ *
+ * API base resolution (in priority order):
+ *   1. window.__SQ_API_BASE__
+ *   2. <meta name="sq-api-base" content="...">
+ *   3. file:// or localhost  → http://localhost:8787/api/v1
+ *   4. default               → /api/v1   (same-origin)
+ * ───────────────────────────────────────────────────────────────────────── */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  // ─── formatters ────────────────────────────────────────────────────────
+  const fmtMoneyNoSign = (n, frac = 0) => {
+    if (n === null || n === undefined || !isFinite(n)) return '—';
+    return Number(Math.abs(n)).toLocaleString('en-US', {
+      minimumFractionDigits: frac, maximumFractionDigits: frac,
+    });
+  };
+  const fmtUsd = (n, frac = 0) => {
+    if (n === null || n === undefined || !isFinite(n)) return '—';
+    const sign = n < 0 ? '−' : '';
+    return sign + '$' + fmtMoneyNoSign(n, frac);
+  };
+  const fmtUsdSigned = (n, frac = 0) => {
+    if (n === null || n === undefined || !isFinite(n)) return '—';
+    if (n === 0) return '$0';
+    const sign = n > 0 ? '+' : '−';
+    return sign + '$' + fmtMoneyNoSign(n, frac);
+  };
+  const fmtPctSigned = (n, frac = 2) => {
+    if (n === null || n === undefined || !isFinite(n)) return '—';
+    if (n === 0) return '0.00%';
+    const sign = n > 0 ? '+' : '−';
+    return sign + Math.abs(n).toFixed(frac) + '%';
+  };
+  const fmtPctPlain = (n, frac = 2) => {
+    if (n === null || n === undefined || !isFinite(n)) return '—';
+    return Number(n).toFixed(frac) + '%';
+  };
+  const fmtNum = (n, frac = 2) => {
+    if (n === null || n === undefined || !isFinite(n)) return '—';
+    return Number(n).toFixed(frac);
+  };
+  const fmtSignedNum = (n, frac = 2) => {
+    if (n === null || n === undefined || !isFinite(n)) return '—';
+    if (n === 0) return Number(0).toFixed(frac);
+    const sign = n > 0 ? '+' : '−';
+    return sign + Math.abs(n).toFixed(frac);
+  };
+  const fmtQty = (n) => {
+    if (n === null || n === undefined || !isFinite(n)) return '—';
+    const num = Number(n);
+    // Crypto / fractional quantities keep up to 4 places; share counts are
+    // always integers in the seed.
+    if (Math.abs(num - Math.round(num)) < 0.0001) {
+      return Math.round(num).toLocaleString('en-US');
+    }
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+  };
+  const fmtMonthDay = (isoDate) => {
+    if (!isoDate) return '—';
+    const d = new Date(isoDate);
+    if (Number.isNaN(d.getTime())) return isoDate;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+  const fmtMonthYear = (isoDate) => {
+    if (!isoDate) return '—';
+    const d = new Date(isoDate);
+    if (Number.isNaN(d.getTime())) return isoDate;
+    return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  };
+  const fmtDateZh = (isoDate) => {
+    if (!isoDate) return '—';
+    const d = new Date(isoDate);
+    if (Number.isNaN(d.getTime())) return isoDate;
+    return `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`;
+  };
+  const num = (v) => (v === null || v === undefined ? null : Number(v));
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+
+  // ─── DOM helpers ───────────────────────────────────────────────────────
+  const SIGN_CLASSES = ['gain', 'loss'];
+  const setBindText = (key, value) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => {
+      el.textContent = value;
+    });
+  };
+  const setBindHtml = (key, html) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => {
+      el.innerHTML = html;
+    });
+  };
+  const setBindAttr = (key, attr, value) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => {
+      el.setAttribute(attr, value);
+    });
+  };
+  /** Apply the sign class (gain/loss/neutral) to all elements bound to the
+   *  given semantic key. `cls` is 'gain' | 'loss' | '' (neutral). */
+  const setBindClass = (key, cls) => {
+    document.querySelectorAll(`[data-bind-class="${key}"]`).forEach((el) => {
+      SIGN_CLASSES.forEach((c) => el.classList.remove(c));
+      if (cls) el.classList.add(cls);
+    });
+  };
+  const signClass = (n) => (n > 0 ? 'gain' : n < 0 ? 'loss' : '');
+  const setRebuildHtml = (key, html) => {
+    const el = document.querySelector(`[data-rebuild="${key}"]`);
+    if (el) el.innerHTML = html;
+  };
+
+  // ─── networking ─────────────────────────────────────────────────────────
+  async function fetchJson(path) {
+    const res = await fetch(API_BASE + path, {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      const err = new Error(`HTTP ${res.status} ${path} :: ${body.slice(0, 200)}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+
+  // ─── Section: Overview hero + chart ────────────────────────────────────
+  function renderOverview(data) {
+    const total = num(data.navTotalUsd) ?? 0;
+    const totalStr = fmtMoneyNoSign(total, 2);
+    const dotIdx = totalStr.lastIndexOf('.');
+    setBindText('overview.totalIntegerPart', dotIdx >= 0 ? totalStr.slice(0, dotIdx) : totalStr);
+    setBindText('overview.totalCents', dotIdx >= 0 ? totalStr.slice(dotIdx) : '.00');
+
+    const dayPl = num(data.dayPlUsd);
+    const dayPlPct = num(data.dayPlPct);
+    setBindText('overview.dayArrow', dayPl > 0 ? '▲' : dayPl < 0 ? '▼' : '–');
+    setBindText('overview.dayPlAmount', fmtUsdSigned(dayPl, 2));
+    setBindText('overview.dayPlPct', fmtPctSigned(dayPlPct));
+    setBindClass('overview.dayChangeClass', signClass(dayPl));
+
+    const ytd = num(data.ytdPlPct);
+    const oneYr = num(data.oneYearPlPct);
+    const inc = num(data.inceptionPlPct);
+    setBindText('overview.ytdPct', fmtPctSigned(ytd));
+    setBindClass('overview.ytdClass', signClass(ytd));
+    setBindText('overview.oneYearPct', fmtPctSigned(oneYr));
+    setBindClass('overview.oneYearClass', signClass(oneYr));
+    setBindText('overview.inceptionPct', fmtPctSigned(inc));
+    setBindClass('overview.inceptionClass', signClass(inc));
+
+    // Chart: rebuild path + polyline + axis labels from navHistory.
+    const series = Array.isArray(data.navHistory) ? data.navHistory : [];
+    if (series.length >= 2) {
+      const values = series.map((r) => Number(r.navTotalUsd)).filter(isFinite);
+      const minV = Math.min(...values);
+      const maxV = Math.max(...values);
+      const range = maxV - minV || 1;
+      const W = 600, TOP = 20, BOTTOM = 180; // viewBox space for the curve
+      const points = series.map((r, i) => {
+        const x = (i / (series.length - 1)) * W;
+        const y = BOTTOM - ((Number(r.navTotalUsd) - minV) / range) * (BOTTOM - TOP);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      const polyStr = points.join(' ');
+      const lastPt = points[points.length - 1].split(',');
+      const pathStr = `M ${points[0]} L ${points.slice(1).join(' L ')} L ${W},200 L 0,200 Z`;
+      setBindAttr('overview.chartArea', 'd', pathStr);
+      setBindAttr('overview.chartLine', 'points', polyStr);
+      setBindAttr('overview.chartDot', 'cx', lastPt[0]);
+      setBindAttr('overview.chartDot', 'cy', lastPt[1]);
+
+      // Axis labels: 5 evenly spaced from oldest → newest.
+      const axisCount = 5;
+      const axis = Array.from({ length: axisCount }, (_, i) => {
+        const idx = Math.round((i / (axisCount - 1)) * (series.length - 1));
+        return `<span>${escapeHtml(fmtMonthDay(series[idx].asOf))}</span>`;
+      }).join('');
+      setRebuildHtml('overview.chartAxis', axis);
+    }
+  }
+
+  // ─── Section: Allocation bar + legend ──────────────────────────────────
+  // Display order, colors and labels match the existing static markup.
+  const ALLOC_ORDER = [
+    { key: 'equity', color: '#2347d4', en: 'Equities', zh: '股票' },
+    { key: 'option', color: '#6f8be8', en: 'Options', zh: '期权' },
+    { key: 'future', color: '#4a6fdb', en: 'Futures', zh: '期货' },
+    { key: 'bond', color: '#c8a84b', en: 'Treasuries', zh: '国债' },
+    { key: 'cash', color: '#8896b8', en: 'Cash', zh: '现金' },
+    { key: 'crypto', color: '#1a35a8', en: 'Digital', zh: '数字资产' },
+  ];
+  function renderAllocation(data) {
+    const alloc = data.allocation || {};
+    const segs = ALLOC_ORDER
+      .map((c) => {
+        const a = alloc[c.key];
+        if (!a || !a.pct) return '';
+        return `<div class="alloc-seg" style="width:${a.pct}%; background:${c.color}" title="${c.en} ${a.pct}%"></div>`;
+      })
+      .join('');
+    setRebuildHtml('allocation.bar', segs);
+
+    const legend = ALLOC_ORDER
+      .map((c) => {
+        const a = alloc[c.key];
+        const valueUsd = a ? a.valueUsd : 0;
+        const pct = a ? a.pct : 0;
+        return `
+          <div class="alloc-item">
+            <div class="alloc-label-row">
+              <span class="alloc-dot" style="background:${c.color}"></span>
+              <span class="alloc-label"><span class="en-inline">${c.en}</span><span class="zh-inline">${c.zh}</span></span>
+            </div>
+            <span class="alloc-amt privacy-mask">${escapeHtml(fmtUsd(valueUsd))}</span>
+            <span class="alloc-pct">${pct.toFixed(1)}%</span>
+          </div>`;
+      })
+      .join('');
+    setRebuildHtml('allocation.legend', legend);
+  }
+
+  // ─── Section: Equity Positions table ───────────────────────────────────
+  function renderEquityPositions(data, overview) {
+    const rows = Array.isArray(data.positions) ? data.positions : [];
+    const tbody = rows
+      .map((p) => {
+        const qty = Number(p.quantity);
+        const avg = num(p.costBasisAvg);
+        const mark = num(p.markPrice);
+        const pl = num(p.unrealizedPl);
+        const plPct = num(p.unrealizedPlPct);
+        const dayPct = num(p.dayChangePct);
+        const wt = num(p.weightPct);
+        return `
+          <tr>
+            <td class="sym">${escapeHtml(p.symbol ?? '')}</td>
+            <td class="name">${escapeHtml(p.displayName ?? '')}</td>
+            <td class="privacy-mask">${escapeHtml(fmtQty(qty))}</td>
+            <td>${escapeHtml(fmtNum(avg))}</td>
+            <td>${escapeHtml(fmtNum(mark))}</td>
+            <td class="${signClass(pl ?? 0)} privacy-mask">${escapeHtml(fmtUsdSigned(pl))}</td>
+            <td class="${signClass(plPct ?? 0)}">${escapeHtml(fmtPctSigned(plPct))}</td>
+            <td class="${signClass(dayPct ?? 0)}">${escapeHtml(fmtPctSigned(dayPct))}</td>
+            <td>${wt === null ? '—' : wt.toFixed(2) + '%'}</td>
+          </tr>`;
+      })
+      .join('');
+    setRebuildHtml('equity.rows', tbody);
+
+    // Footer aggregates
+    let totalMv = 0, totalPl = 0, totalCost = 0, totalDayChange = 0;
+    for (const p of rows) {
+      totalMv += Number(p.marketValue ?? 0);
+      totalPl += Number(p.unrealizedPl ?? 0);
+      totalCost += Number(p.costBasisTotal ?? 0);
+      totalDayChange += Number(p.dayChange ?? 0);
+    }
+    const totalPlPct = totalCost > 0 ? (totalPl / totalCost) * 100 : null;
+    const totalDayPct = totalMv > 0 ? (totalDayChange / totalMv) * 100 : null;
+    const totalCounts = (overview && overview.positionCounts && overview.positionCounts.equity) || rows.length;
+    const navTotal = (overview && overview.navTotalUsd) || 0;
+    const totalWeightPct = navTotal > 0 ? (totalMv / navTotal) * 100 : null;
+    const tfoot = `
+      <tr>
+        <td colspan="2" class="total-label">
+          <span class="en-inline">Total Equity · ${totalCounts} position${totalCounts === 1 ? '' : 's'}</span>
+          <span class="zh-inline">股票合计 · ${totalCounts} 笔</span>
+        </td>
+        <td>—</td>
+        <td>—</td>
+        <td class="privacy-mask">${escapeHtml(fmtUsd(totalMv))}</td>
+        <td class="${signClass(totalPl)} privacy-mask">${escapeHtml(fmtUsdSigned(totalPl))}</td>
+        <td class="${signClass(totalPlPct ?? 0)}">${escapeHtml(fmtPctSigned(totalPlPct))}</td>
+        <td class="${signClass(totalDayPct ?? 0)}">${escapeHtml(fmtPctSigned(totalDayPct))}</td>
+        <td>${totalWeightPct === null ? '—' : totalWeightPct.toFixed(2) + '%'}</td>
+      </tr>`;
+    setRebuildHtml('equity.footer', tfoot);
+  }
+
+  // ─── Section: Cash & Liquidity ─────────────────────────────────────────
+  function renderCash(data) {
+    const totals = data.totals || {};
+    setBindText('cash.availableUsd', fmtMoneyNoSign(num(totals.availableUsd), 0));
+    setBindText('cash.marginUsedUsd', fmtMoneyNoSign(num(totals.marginUsedUsd), 0));
+    setBindText('cash.buyingPowerUsd', fmtMoneyNoSign(num(totals.buyingPowerUsd), 0));
+
+    const ccyCount = Array.isArray(data.balances) ? data.balances.length : 0;
+    setBindText(
+      'cash.availableSubEn',
+      `Settled across ${ccyCount} currenc${ccyCount === 1 ? 'y' : 'ies'} · withdrawable T+1`,
+    );
+    setBindText(
+      'cash.availableSubZh',
+      `${ccyCount} 种货币已结算 · 次日可提取`,
+    );
+
+    const futCount = totals.futuresContractsCount ?? 0;
+    setBindText(
+      'cash.marginSubEn',
+      futCount > 0
+        ? `Reserved for ${futCount} active futures contract${futCount === 1 ? '' : 's'}`
+        : 'No active futures margin reservations',
+    );
+    setBindText(
+      'cash.marginSubZh',
+      futCount > 0 ? `${futCount} 笔活跃期货合约保证金` : '当前无活跃期货保证金',
+    );
+
+    const bpSrc = totals.buyingPowerSource;
+    if (bpSrc === 'broker') {
+      setBindText('cash.buyingPowerSubEn', 'Broker-reported · live from custodian');
+      setBindText('cash.buyingPowerSubZh', '券商精算 · 实时同步自托管方');
+    } else {
+      setBindText('cash.buyingPowerSubEn', 'Reg-T fallback · 2× equity + cash (broker value pending)');
+      setBindText('cash.buyingPowerSubZh', 'Reg-T 估算 · 2× 股票 + 现金（待券商精算）');
+    }
+
+    const balances = Array.isArray(data.balances) ? data.balances : [];
+    const tbody = balances
+      .map((b) => {
+        const local = num(b.amountLocal) ?? 0;
+        const usd = num(b.amountUsd) ?? 0;
+        const fx = num(b.fxRateToUsd) ?? 0;
+        const sharePct = num(b.sharePct) ?? 0;
+        return `
+          <tr>
+            <td class="ccy-code">${escapeHtml(b.currency)}</td>
+            <td class="privacy-mask">${escapeHtml(local.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</td>
+            <td class="privacy-mask">${escapeHtml(fmtUsd(usd, 2))}</td>
+            <td>${escapeHtml(fmtNum(fx, 4))}</td>
+            <td>${sharePct.toFixed(1)}%</td>
+          </tr>`;
+      })
+      .join('');
+    setRebuildHtml('cash.rows', tbody);
+  }
+
+  // ─── Section: Other Assets (options / bonds / crypto / futures) ────────
+  function renderOtherAssets(data) {
+    renderOptionsBlock(data.options || {});
+    renderBondsBlock(data.bonds || {});
+    renderCryptoBlock(data.crypto || {});
+    renderFuturesBlock(data.futures || {});
+  }
+
+  function optionStrategyLabel(p) {
+    // Best-effort guess from displayName / side / type. The demo seed
+    // tags strategy in displayName; for production, consider storing
+    // strategy explicitly on the position row.
+    const name = (p.displayName || '').toLowerCase();
+    if (name.includes('cover')) return { en: 'Covered Call', zh: '备兑看涨' };
+    if (name.includes('protect')) return { en: 'Protective Put', zh: '保护性看跌' };
+    if (name.includes('cash-secured') || name.includes('csp')) return { en: 'Cash-Secured Put', zh: '现金担保看跌' };
+    const t = p.option && p.option.type;
+    return t === 'C'
+      ? { en: 'Call', zh: '看涨' }
+      : t === 'P'
+        ? { en: 'Put', zh: '看跌' }
+        : { en: 'Option', zh: '期权' };
+  }
+
+  function renderOptionsBlock(block) {
+    const positions = Array.isArray(block.positions) ? block.positions : [];
+    const aggregate = block.aggregate || {};
+    const subEn = `${block.count ?? positions.length} active strateg${(block.count ?? positions.length) === 1 ? 'y' : 'ies'} · net market value ${fmtUsd(num(block.marketValueUsd))}`;
+    const subZh = `${block.count ?? positions.length} 项活跃策略 · 净市值 ${fmtUsd(num(block.marketValueUsd))}`;
+    setBindText('options.subEn', subEn);
+    setBindText('options.subZh', subZh);
+
+    const html = positions
+      .map((p) => {
+        const strat = optionStrategyLabel(p);
+        const strike = p.option && p.option.strike;
+        const type = p.option && p.option.type;
+        const expiry = p.option && p.option.expiry;
+        const strikeStr = strike ? `${Number(strike)}${type ?? ''}` : (type ?? '');
+        const tag = `${strat.en} · ${strikeStr} · ${fmtMonthDay(expiry)}`;
+        const tagZh = `${strat.zh} · ${strikeStr} · ${fmtMonthDay(expiry)}`;
+        const mv = num(p.marketValue);
+        const pl = num(p.unrealizedPl);
+        const qty = num(p.quantity);
+        const avg = num(p.costBasisAvg);
+        const mark = num(p.markPrice);
+        const underlying = (p.option && p.option.underlying) || p.symbol;
+        return `
+          <div class="other-pos">
+            <div class="op-head">
+              <span class="op-name">
+                <span class="op-sym">${escapeHtml(underlying)}</span>
+                <span class="en-inline">${escapeHtml(tag)}</span>
+                <span class="zh-inline">${escapeHtml(tagZh)}</span>
+              </span>
+              <span class="op-value privacy-mask">${escapeHtml(fmtUsdSigned(mv))}</span>
+            </div>
+            <div class="op-meta">
+              <span>${escapeHtml(fmtQty(qty))} ct · @ $${escapeHtml(fmtNum(avg))} → $${escapeHtml(fmtNum(mark))}</span>
+              <span class="op-pl ${signClass(pl ?? 0)}">${escapeHtml(fmtUsdSigned(pl))}</span>
+            </div>
+          </div>`;
+      })
+      .join('');
+    setRebuildHtml('options.positions', html);
+
+    // Greeks aggregate strip
+    const delta = num(aggregate.delta);
+    const gamma = num(aggregate.gamma);
+    const theta = num(aggregate.thetaUsdPerDay);
+    const vega = num(aggregate.vegaUsd);
+    setBindText('options.delta', delta === null ? '—' : (delta > 0 ? '+' : delta < 0 ? '−' : '') + Math.abs(Math.round(delta)));
+    setBindClass('options.deltaClass', signClass(delta ?? 0));
+    setBindText('options.gamma', gamma === null ? '—' : (gamma > 0 ? '+' : gamma < 0 ? '−' : '') + Math.abs(Math.round(gamma)));
+    setBindClass('options.gammaClass', signClass(gamma ?? 0));
+    setBindText('options.theta', theta === null ? '—' : `${fmtUsdSigned(theta, 0)}/d`);
+    setBindClass('options.thetaClass', signClass(theta ?? 0));
+    setBindText('options.vega', vega === null ? '—' : fmtUsdSigned(vega, 0));
+    setBindClass('options.vegaClass', signClass(vega ?? 0));
+  }
+
+  function renderBondsBlock(block) {
+    const positions = Array.isArray(block.positions) ? block.positions : [];
+    const aggregate = block.aggregate || {};
+    const yld = num(aggregate.weightedYieldPct);
+    const dur = num(aggregate.weightedDurationYears);
+    setBindText(
+      'bonds.subEn',
+      `${block.count ?? positions.length} holding${(block.count ?? positions.length) === 1 ? '' : 's'} · weighted yield ${yld === null ? '—' : yld.toFixed(2) + '%'} · duration ${dur === null ? '—' : dur.toFixed(1) + 'y'}`,
+    );
+    setBindText(
+      'bonds.subZh',
+      `${block.count ?? positions.length} 笔持有 · 加权收益率 ${yld === null ? '—' : yld.toFixed(2) + '%'} · 久期 ${dur === null ? '—' : dur.toFixed(1) + ' 年'}`,
+    );
+
+    const html = positions
+      .map((p) => {
+        const b = p.bond || {};
+        const couponPct = num(b.couponPct);
+        const ytm = num(b.ytm);
+        const duration = num(b.duration);
+        const face = num(b.faceValue);
+        const mv = num(p.marketValue);
+        // "10Y · 4.250% · May 2034" — derive tenor from current date vs maturity.
+        const tenor = b.maturity ? `${Math.max(1, Math.round((new Date(b.maturity) - new Date()) / 31557600000))}Y` : '';
+        const tag = `${tenor} · ${couponPct === null ? '—' : couponPct.toFixed(3) + '%'} · ${fmtMonthYear(b.maturity)}`;
+        return `
+          <div class="other-pos">
+            <div class="op-head">
+              <span class="op-name">
+                <span class="op-sym">UST</span>${escapeHtml(tag)}
+              </span>
+              <span class="op-value privacy-mask">${escapeHtml(fmtUsd(mv))}</span>
+            </div>
+            <div class="op-meta">
+              <span>Face ${escapeHtml(fmtUsd(face))} · YTM ${ytm === null ? '—' : ytm.toFixed(2) + '%'}</span>
+              <span class="op-pl">Dur ${duration === null ? '—' : duration.toFixed(1)}</span>
+            </div>
+          </div>`;
+      })
+      .join('');
+    setRebuildHtml('bonds.positions', html);
+
+    // Bond summary row (accrued interest YTD + next coupon).
+    const accrued = num(aggregate.accruedInterestYtd);
+    const next = aggregate.nextCoupon;
+    const summary = `
+      <div class="op-head">
+        <span class="op-name">
+          <span class="en-inline">Accrued interest YTD</span>
+          <span class="zh-inline">年内已计利息</span>
+        </span>
+        <span class="op-value gain privacy-mask">${escapeHtml(accrued === null ? '—' : fmtUsdSigned(accrued))}</span>
+      </div>
+      <div class="op-meta">
+        <span>
+          <span class="en-inline">Next coupon · ${escapeHtml(next ? fmtMonthDay(next.date) + ' ' + new Date(next.date).getUTCFullYear() : '—')}</span>
+          <span class="zh-inline">下次付息 · ${escapeHtml(next ? fmtDateZh(next.date) : '—')}</span>
+        </span>
+        <span class="op-pl">${escapeHtml(next ? fmtUsd(next.amountUsd) : '—')}</span>
+      </div>`;
+    setRebuildHtml('bonds.summary', summary);
+  }
+
+  function renderCryptoBlock(block) {
+    const positions = Array.isArray(block.positions) ? block.positions : [];
+    const aggregate = block.aggregate || {};
+    setBindText(
+      'crypto.subEn',
+      `${block.count ?? positions.length} holding${(block.count ?? positions.length) === 1 ? '' : 's'} · custody at Coinbase Prime`,
+    );
+    setBindText(
+      'crypto.subZh',
+      `${block.count ?? positions.length} 笔持有 · 托管于 Coinbase Prime`,
+    );
+
+    const html = positions
+      .map((p) => {
+        const qty = num(p.quantity);
+        const avg = num(p.costBasisAvg);
+        const mark = num(p.markPrice);
+        const mv = num(p.marketValue);
+        const pl = num(p.unrealizedPl);
+        return `
+          <div class="other-pos">
+            <div class="op-head">
+              <span class="op-name">
+                <span class="op-sym">${escapeHtml(p.symbol ?? '')}</span>${escapeHtml(p.displayName ?? '')} · ${escapeHtml(fmtQty(qty))} ${escapeHtml(p.symbol ?? '')}
+              </span>
+              <span class="op-value privacy-mask">${escapeHtml(fmtUsd(mv))}</span>
+            </div>
+            <div class="op-meta">
+              <span>Avg $${escapeHtml(fmtNum(avg, 0))} → $${escapeHtml(fmtNum(mark, 0))}</span>
+              <span class="op-pl ${signClass(pl ?? 0)}">${escapeHtml(fmtUsdSigned(pl))}</span>
+            </div>
+          </div>`;
+      })
+      .join('');
+    setRebuildHtml('crypto.positions', html);
+
+    const combined = num(aggregate.combinedUnrealizedPlUsd);
+    const ytd = num(aggregate.ytdReturnPct);
+    setBindText('crypto.combinedPl', fmtUsdSigned(combined));
+    setBindClass('crypto.combinedPlClass', signClass(combined ?? 0));
+    setBindText('crypto.ytdReturn', fmtPctSigned(ytd, 1));
+    setBindClass('crypto.ytdReturnClass', signClass(ytd ?? 0));
+  }
+
+  function renderFuturesBlock(block) {
+    const positions = Array.isArray(block.positions) ? block.positions : [];
+    const aggregate = block.aggregate || {};
+    const margin = num(aggregate.initialMarginUsd) ?? 0;
+    const biasEn = aggregate.netBias === 'long'
+      ? 'net long bias'
+      : aggregate.netBias === 'short'
+        ? 'net short bias'
+        : 'balanced exposure';
+    const biasZh = aggregate.netBias === 'long'
+      ? '净多头'
+      : aggregate.netBias === 'short'
+        ? '净空头'
+        : '多空均衡';
+    setBindText(
+      'futures.subEn',
+      `${block.count ?? positions.length} contract${(block.count ?? positions.length) === 1 ? '' : 's'} active · margin ${fmtUsd(margin)} · ${biasEn}`,
+    );
+    setBindText(
+      'futures.subZh',
+      `${block.count ?? positions.length} 笔合约活跃 · 保证金 ${fmtUsd(margin)} · ${biasZh}`,
+    );
+
+    const html = positions
+      .map((p) => {
+        const f = p.future || {};
+        const qty = num(p.quantity);
+        const avg = num(p.costBasisAvg);
+        const mark = num(p.markPrice);
+        const mv = num(p.marketValue);
+        const pl = num(p.unrealizedPl);
+        const sideEn = p.side === 'short' ? 'short' : 'long';
+        const sideZh = p.side === 'short' ? '空头' : '多头';
+        const tagEn = `${escapeHtml(p.displayName ?? '')} · ${sideEn} · ${escapeHtml(fmtMonthYear(f.expiry))}`;
+        const tagZh = `${escapeHtml(p.displayName ?? '')} · ${sideZh} · ${escapeHtml(fmtMonthYear(f.expiry))}`;
+        return `
+          <div class="other-pos">
+            <div class="op-head">
+              <span class="op-name">
+                <span class="op-sym">${escapeHtml(f.underlying ?? '')}</span>
+                <span class="en-inline">${tagEn}</span>
+                <span class="zh-inline">${tagZh}</span>
+              </span>
+              <span class="op-value privacy-mask">${escapeHtml(fmtUsdSigned(mv))}</span>
+            </div>
+            <div class="op-meta">
+              <span>${escapeHtml(fmtQty(qty))} ct · @ ${escapeHtml(fmtNum(avg))} → ${escapeHtml(fmtNum(mark))}</span>
+              <span class="op-pl ${signClass(pl ?? 0)}">${escapeHtml(fmtUsdSigned(pl))}</span>
+            </div>
+          </div>`;
+      })
+      .join('');
+    setRebuildHtml('futures.positions', html);
+
+    const beta = num(aggregate.betaContrib);
+    const dv01 = num(aggregate.dv01);
+    const totalPl = num(aggregate.totalPlUsd);
+    setBindText('futures.betaContrib', beta === null ? '—' : fmtSignedNum(beta, 2));
+    setBindClass('futures.betaContribClass', signClass(beta ?? 0));
+    setBindText('futures.dv01', dv01 === null ? '—' : fmtUsdSigned(dv01, 0));
+    setBindClass('futures.dv01Class', signClass(dv01 ?? 0));
+    setBindText(
+      'futures.initialMargin',
+      margin >= 1000 ? '$' + (margin / 1000).toFixed(1) + 'k' : fmtUsd(margin),
+    );
+    setBindText('futures.totalPl', fmtUsdSigned(totalPl));
+    setBindClass('futures.totalPlClass', signClass(totalPl ?? 0));
+  }
+
+  // ─── Section: Risk strip ───────────────────────────────────────────────
+  function renderRisk(data) {
+    const m = data.metrics || {};
+    setBindText('risk.beta', fmtNum(num(m.beta), 2));
+    setBindText('risk.sharpe', fmtNum(num(m.sharpe), 2));
+    setBindText('risk.sortino', fmtNum(num(m.sortino), 2));
+    const dd = num(m.maxDrawdown);
+    setBindText('risk.maxDd', dd === null ? '—' : fmtPctPlain(dd, 1));
+    setBindText('risk.volAnn', fmtPctPlain(num(m.volAnnualized), 1));
+  }
+
+  // ─── boot ──────────────────────────────────────────────────────────────
+  async function boot() {
+    const safe = (label, fn) =>
+      fn().catch((err) => {
+        console.warn(`[portfolio] ${label} failed; keeping static fallback:`, err.message || err);
+      });
+
+    const overviewP = fetchJson('/portfolio/overview');
+    const equityP = fetchJson('/portfolio/positions?assetType=equity');
+    const cashP = fetchJson('/portfolio/cash');
+    const otherP = fetchJson('/portfolio/other-assets');
+    const riskP = fetchJson('/portfolio/risk');
+
+    let overview = null;
+    await safe('overview', async () => {
+      overview = await overviewP;
+      renderOverview(overview);
+      renderAllocation(overview);
+    });
+    await safe('equity', async () => {
+      const eq = await equityP;
+      renderEquityPositions(eq, overview);
+    });
+    await safe('cash', async () => {
+      renderCash(await cashP);
+    });
+    await safe('other-assets', async () => {
+      renderOtherAssets(await otherP);
+    });
+    await safe('risk', async () => {
+      renderRisk(await riskP);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
 })();
 </script>
 
