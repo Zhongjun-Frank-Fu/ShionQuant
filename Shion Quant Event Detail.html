@@ -1460,7 +1460,7 @@
       </a>
     </div>
     <div class="ud-section">
-      <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="ud-item signout" role="menuitem">
+      <a href="index.html" class="ud-item signout" role="menuitem">
         <svg class="ud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
@@ -1471,6 +1471,31 @@
     </div>
   `;
   wrap.appendChild(dropdown);
+
+  // SQ-LOGOUT-V1 — wire the Sign-out item to revoke the server session and
+  // then navigate to the landing page. Network failure still navigates, so a
+  // dead API doesn't leave the user stuck on an authenticated page.
+  dropdown.querySelector('.ud-item.signout')?.addEventListener('click', async (ev) => {
+    ev.preventDefault();
+    const apiBase = (() => {
+      if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+      const meta = document.querySelector('meta[name="sq-api-base"]');
+      if (meta && meta.content) return meta.content;
+      const host = window.location.hostname;
+      const isLocal = window.location.protocol === 'file:' ||
+                      host === 'localhost' || host === '127.0.0.1' || host === '';
+      return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+    })();
+    try {
+      await fetch(apiBase + '/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+    } catch { /* fall through to nav even on network fail */ }
+    window.location.href = 'index.html';
+  });
 
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
