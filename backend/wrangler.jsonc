@@ -1,0 +1,80 @@
+/**
+ * Cloudflare Workers config — Workers-only (no Container).
+ *
+ * Migrated from Path B (Container behind a Worker) to direct-Workers execution.
+ * The full Hono app runs inside the Worker isolate; @node-rs/argon2 was
+ * swapped for hash-wasm to make this possible.
+ *
+ * Secrets live in Cloudflare's secret store (NOT here). Set with:
+ *
+ *     wrangler secret put NEON_DATABASE_URL
+ *     wrangler secret put SESSION_SECRET
+ *     wrangler secret put ARGON2_PEPPER
+ *     wrangler secret put KYC_KEK_BASE64
+ *     wrangler secret put KYC_SEARCH_KEY_BASE64
+ *     wrangler secret put R2_ACCESS_KEY
+ *     wrangler secret put R2_SECRET_KEY
+ *
+ * Non-secret env vars go in `vars` below.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shion-quant-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-05-01",
+  // nodejs_compat is required for: drizzle-orm, @aws-sdk/client-s3,
+  // node:crypto used by lib/kms.ts and lib/crypto.ts.
+  "compatibility_flags": ["nodejs_compat"],
+
+  // ─── Plain env vars (visible in dashboard; NOT secrets) ─────────────────
+  "vars": {
+    "NODE_ENV": "production",
+    "SESSION_TTL_HOURS": "336",
+    "SESSION_COOKIE_NAME": "sq_session",
+    "TOTP_ISSUER": "Shion Quant",
+    "MAX_LOGIN_FAILURES": "5",
+    "LOCKOUT_MINUTES": "15",
+    "RATE_LIMIT_LOGIN_PER_MIN": "10",
+    "RATE_LIMIT_GLOBAL_PER_MIN": "120",
+    "ALLOWED_ORIGINS": "https://shionquant.pages.dev,https://portal.shionquant.com",
+    "R2_ENDPOINT": "https://<account-id>.r2.cloudflarestorage.com",
+    "R2_BUCKET": "shion-quant-docs-prod",
+    "R2_REGION": "auto"
+  },
+
+  // Built-in observability — request logs available in `wrangler tail` AND
+  // the Workers dashboard. Persists ~30 min per request.
+  "observability": {
+    "enabled": true
+  },
+
+  // ─── Durable Object migrations ──────────────────────────────────────────
+  // Cloudflare tracks DO classes across deploys. The previous Container
+  // deploy registered class `ApiContainer` (with sqlite storage). We're
+  // dropping it entirely now. The deletion migration tells the platform
+  // it's intentional — without it, deploy fails with code 10064.
+  //
+  // The deleted DOs had no production data (the Container never serving a
+  // real request), so dropping them is safe.
+  //
+  // Once this delete-class migration ships ONCE successfully, you can
+  // remove the entire `migrations` block — it stays here as documentation
+  // for future reference.
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["ApiContainer"]
+    },
+    {
+      "tag": "v2",
+      "deleted_classes": ["ApiContainer"]
+    }
+  ]
+
+  // To add scheduled retention (replaces the Node `pnpm retention` cron):
+  // "triggers": { "crons": ["0 3 * * *"] }
+  //
+  // Then export a `scheduled` handler in src/index.ts. Skipped for now —
+  // run retention from your laptop / GitHub Actions on a schedule until
+  // traffic warrants it.
+}

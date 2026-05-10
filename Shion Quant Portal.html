@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shion Quant Portal | Mr. Chen 陈先生</title>
+<title>INTELLIGENCE INVESTMENT Portal | Mr. Chen 陈先生</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@200;300;400;500;600&family=Noto+Serif+SC:wght@300;400;600&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -521,7 +521,7 @@
 
   .alloc-legend {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 0;
   }
   .alloc-item {
@@ -724,8 +724,8 @@
   /* ── OTHER ASSETS ── */
   .other-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 3rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.4rem 3rem;
   }
   .other-block h3 {
     font-family: var(--serif-en);
@@ -1048,8 +1048,8 @@
 <nav class="portal-nav">
   <div class="nav-left">
     <a href="Shion Quant 欣安量化 _ Quantitative &amp; Risk Analytics.html" class="nav-logo" title="Back to home">
-      <span class="en-inline">Shion<span class="hl"> Quant</span></span>
-      <span class="zh-inline">欣安<span class="hl">量化</span></span>
+      <span class="en-inline">INTELLIGENCE<span class="hl"> INVESTMENT</span></span>
+      <span class="zh-inline">智能<span class="hl">投资</span></span>
     </a>
     <ul class="portal-tabs">
       <li><a href="Shion Quant Portal.html" class="active">
@@ -1206,8 +1206,9 @@
   <div class="alloc-bar privacy-mask">
     <div class="alloc-seg" style="width:53.3%; background:#2347d4" title="Equities 53.3%"></div>
     <div class="alloc-seg" style="width:6.5%;  background:#6f8be8" title="Options 6.5%"></div>
+    <div class="alloc-seg" style="width:4.0%;  background:#4a6fdb" title="Futures 4.0%"></div>
     <div class="alloc-seg" style="width:12.0%; background:#c8a84b" title="Treasuries 12.0%"></div>
-    <div class="alloc-seg" style="width:22.0%; background:#8896b8" title="Cash 22.0%"></div>
+    <div class="alloc-seg" style="width:18.0%; background:#8896b8" title="Cash 18.0%"></div>
     <div class="alloc-seg" style="width:6.2%;  background:#1a35a8" title="Digital 6.2%"></div>
   </div>
   <div class="alloc-legend">
@@ -1229,6 +1230,14 @@
     </div>
     <div class="alloc-item">
       <div class="alloc-label-row">
+        <span class="alloc-dot" style="background:#4a6fdb"></span>
+        <span class="alloc-label"><span class="en-inline">Futures</span><span class="zh-inline">期货</span></span>
+      </div>
+      <span class="alloc-amt privacy-mask">$113,893</span>
+      <span class="alloc-pct">4.0%</span>
+    </div>
+    <div class="alloc-item">
+      <div class="alloc-label-row">
         <span class="alloc-dot" style="background:#c8a84b"></span>
         <span class="alloc-label"><span class="en-inline">Treasuries</span><span class="zh-inline">国债</span></span>
       </div>
@@ -1240,8 +1249,8 @@
         <span class="alloc-dot" style="background:#8896b8"></span>
         <span class="alloc-label"><span class="en-inline">Cash</span><span class="zh-inline">现金</span></span>
       </div>
-      <span class="alloc-amt privacy-mask">$626,412</span>
-      <span class="alloc-pct">22.0%</span>
+      <span class="alloc-amt privacy-mask">$512,519</span>
+      <span class="alloc-pct">18.0%</span>
     </div>
     <div class="alloc-item">
       <div class="alloc-label-row">
@@ -1388,7 +1397,7 @@
   <div class="cash-grid">
     <div class="cash-block">
       <p class="block-label"><span class="en-inline">Available Cash</span><span class="zh-inline">可用现金</span></p>
-      <div class="block-value privacy-mask"><span class="currency">$</span>626,412</div>
+      <div class="block-value privacy-mask"><span class="currency">$</span>512,519</div>
       <p class="block-sub">
         <span class="en-inline">Settled across 3 currencies · withdrawable T+1</span>
         <span class="zh-inline">3 种货币已结算 · 次日可提取</span>
@@ -1396,10 +1405,10 @@
     </div>
     <div class="cash-block">
       <p class="block-label"><span class="en-inline">Margin Used</span><span class="zh-inline">已用保证金</span></p>
-      <div class="block-value privacy-mask"><span class="currency">$</span>0</div>
+      <div class="block-value privacy-mask"><span class="currency">$</span>113,893</div>
       <p class="block-sub">
-        <span class="en-inline">No margin facility currently active</span>
-        <span class="zh-inline">当前未启用任何融资额度</span>
+        <span class="en-inline">Reserved for 3 active futures contracts</span>
+        <span class="zh-inline">3 笔活跃期货合约保证金</span>
       </p>
     </div>
     <div class="cash-block">
@@ -1424,24 +1433,24 @@
     <tbody>
       <tr>
         <td class="ccy-code">USD</td>
-        <td class="privacy-mask">487,250.00</td>
-        <td class="privacy-mask">$487,250.00</td>
+        <td class="privacy-mask">373,357.00</td>
+        <td class="privacy-mask">$373,357.00</td>
         <td>1.0000</td>
-        <td>77.8%</td>
+        <td>72.9%</td>
       </tr>
       <tr>
         <td class="ccy-code">HKD</td>
         <td class="privacy-mask">768,300.00</td>
         <td class="privacy-mask">$98,500.00</td>
         <td>0.1282</td>
-        <td>15.7%</td>
+        <td>19.2%</td>
       </tr>
       <tr>
         <td class="ccy-code">CNY</td>
         <td class="privacy-mask">295,200.00</td>
         <td class="privacy-mask">$40,662.00</td>
         <td>0.1378</td>
-        <td>6.5%</td>
+        <td>7.9%</td>
       </tr>
     </tbody>
   </table>
@@ -1600,6 +1609,63 @@
       </div>
     </div>
 
+    <!-- FUTURES -->
+    <div class="other-block">
+      <h3><span class="en-inline">Futures</span><span class="zh-inline">期货持仓</span></h3>
+      <p class="ob-sub">
+        <span class="en-inline">3 contracts active · margin $113,893 · net long bias</span>
+        <span class="zh-inline">3 笔合约活跃 · 保证金 $113,893 · 净多头</span>
+      </p>
+      <div class="other-pos">
+        <div class="op-head">
+          <span class="op-name"><span class="op-sym">ES</span>S&amp;P 500 · short · Sep 2026</span>
+          <span class="op-value privacy-mask">−$271,750</span>
+        </div>
+        <div class="op-meta">
+          <span>1 ct · @ 5510 → 5435</span>
+          <span class="op-pl gain">+$3,750</span>
+        </div>
+      </div>
+      <div class="other-pos">
+        <div class="op-head">
+          <span class="op-name"><span class="op-sym">NQ</span>Nasdaq 100 · long · Jun 2026</span>
+          <span class="op-value privacy-mask">+$380,000</span>
+        </div>
+        <div class="op-meta">
+          <span>1 ct · @ 18,800 → 19,000</span>
+          <span class="op-pl gain">+$4,000</span>
+        </div>
+      </div>
+      <div class="other-pos">
+        <div class="op-head">
+          <span class="op-name"><span class="op-sym">ZN</span>10Y Treasury · long · Sep 2026</span>
+          <span class="op-value privacy-mask">+$432,000</span>
+        </div>
+        <div class="op-meta">
+          <span>4 ct · @ 108-10 → 108-22</span>
+          <span class="op-pl gain">+$1,200</span>
+        </div>
+      </div>
+      <div class="greeks-strip">
+        <div class="greek">
+          <span class="greek-label"><span class="en-inline">β contrib</span><span class="zh-inline">Beta 贡献</span></span>
+          <span class="greek-value">+0.04</span>
+        </div>
+        <div class="greek">
+          <span class="greek-label">DV01</span>
+          <span class="greek-value">+$280</span>
+        </div>
+        <div class="greek">
+          <span class="greek-label"><span class="en-inline">Initial Margin</span><span class="zh-inline">起始保证金</span></span>
+          <span class="greek-value">$42.3k</span>
+        </div>
+        <div class="greek">
+          <span class="greek-label"><span class="en-inline">Total P/L</span><span class="zh-inline">合计盈亏</span></span>
+          <span class="greek-value gain">+$8,950</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1636,8 +1702,8 @@
 <!-- ── FOOTER ── -->
 <footer class="portal-foot">
   <span class="portal-foot-logo">
-    <span class="en-inline">Shion<span class="hl"> Quant</span></span>
-    <span class="zh-inline">欣安<span class="hl">量化</span></span>
+    <span class="en-inline">INTELLIGENCE<span class="hl"> INVESTMENT</span></span>
+    <span class="zh-inline">智能<span class="hl">投资</span></span>
   </span>
   <span class="portal-foot-meta">
     <span class="en-inline">Client Portal v1.0 · Encrypted session · Last sync 09:32 ET ·</span>
