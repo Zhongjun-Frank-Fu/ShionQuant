@@ -1,44 +1,51 @@
 /**
- * Argon2id password hashing — Workers-compatible implementation via hash-wasm.
+ * Argon2id password hashing — pure-JS implementation via @noble/hashes.
  *
- * The native @node-rs/argon2 binding doesn't run on Cloudflare Workers
- * (V8 isolates have no Node native module support). hash-wasm ships a pure
- * WebAssembly Argon2 that's CPU-time-comparable to the native version and
- * runs identically on Node + Workers + Bun + Deno.
+ * Why not hash-wasm:
+ *   hash-wasm needs runtime `WebAssembly.compile(buffer)` which Cloudflare
+ *   Workers blocks in production ("Wasm code generation disallowed by
+ *   embedder"). All WASM in Workers must be bound at deploy time via
+ *   wrangler.toml `[[wasm_modules]]`, and hash-wasm's API doesn't support
+ *   external module injection. Switched to @noble/hashes/argon2 which is
+ *   pure JS — slower than WASM but works identically across Node, Workers,
+ *   browsers, Bun, and Deno.
+ *
+ * Why not @node-rs/argon2:
+ *   Native Node bindings won't run in V8 isolates either.
+ *
+ * Performance note:
+ *   Pure-JS argon2id with m=19456 (19 MiB), t=2, p=1 takes roughly 100–300 ms
+ *   on a Workers Paid CPU — within the 30 s limit and acceptable for an auth
+ *   endpoint where we already pay 50–100 ms in DB round-trips. If hashing
+ *   becomes a bottleneck, the right move is to bind the WASM module via
+ *   wrangler config (more invasive but ~3× faster) rather than to revert.
  *
  * Parameters (OWASP 2024 — m=19 MiB, t=2, p=1):
- *   We've moved DOWN from the native build's 64 MiB / t=3 / p=4 because:
- *     - Workers cap each invocation at 128 MiB total, so 64 MiB hash memory
- *       leaves no headroom for the Hono stack + AWS SDK + Drizzle.
- *     - 19 MiB / t=2 / p=1 is OWASP's middle-tier recommendation; still
- *       strong against modern GPU/ASIC attackers.
- *     - On a Workers Paid CPU (~50 ms per request budget), this configuration
- *       hashes in ~30-50 ms — well within the 30 s cap.
+ *   See ITERATIONS / MEMORY_KIB constants below. Tune `iterations` upward
+ *   as hardware improves; `verifyPassword()` returns a fresh hash via
+ *   `newHash` whenever the stored params are below current targets, so
+ *   callers can transparently UPDATE on next successful login.
  *
- * Pepper handling — the BIG difference vs the native build:
- *   @node-rs/argon2 supported the RFC 9106 `secret` parameter natively.
- *   hash-wasm doesn't expose it. We approximate by concatenating the pepper
- *   to the password BEFORE hashing — security-equivalent in practice (an
- *   attacker who steals the DB still needs the pepper to test guesses) but
- *   slightly different from the spec. Pepper rotation requires re-hashing.
+ * Pepper handling — same strategy as the previous hash-wasm impl:
+ *   noble's argon2 doesn't accept the RFC 9106 `secret` parameter either
+ *   (it isn't part of the basic API), so we approximate by concatenating
+ *   the pepper to the password BEFORE hashing. Security-equivalent in
+ *   practice. Pepper rotation requires re-hashing on next login.
  *
  * Hash format on the wire:
  *   `$argon2id$v=19$m=19456,t=2,p=1$<salt-base64>$<hash-base64>`
- *   Compatible with anything else that reads PHC strings. Self-describing —
- *   the params are encoded in the string, so verify() doesn't need
- *   parameters supplied separately.
+ *   Compatible with anything else that reads PHC strings (verify across
+ *   any argon2 implementation that follows the spec). The `<base64>` here
+ *   is "PHC base64" — standard base64 alphabet but WITHOUT trailing `=`
+ *   padding. We strip on encode and accept either form on parse.
  */
 
-import { argon2id, argon2Verify } from "hash-wasm"
+import { argon2id } from "@noble/hashes/argon2.js"
 
 import { env } from "../env.js"
 
 // ─── Configuration ─────────────────────────────────────────────────────────
 
-// OWASP 2024 middle-tier params. Tune `iterations` upward as hardware
-// improves; `verifyPassword()` returns a fresh hash via `newHash` whenever
-// the stored params are below current targets, so caller can transparently
-// UPDATE on next successful login.
 const PARALLELISM = 1
 const ITERATIONS = 2
 const MEMORY_KIB = 19456 // 19 MiB
@@ -49,10 +56,10 @@ const SALT_LENGTH = 16
 const MIN_PASSWORD_LENGTH = 12
 
 /**
- * Apply the optional pepper (RFC 9106 §3.1 spec calls it `secret`).
- * hash-wasm doesn't take a separate secret arg, so we prefix the password
- * with the pepper. An attacker with the DB but not the pepper can't verify
- * candidate passwords, which is the security property we wanted.
+ * Apply the optional pepper. We prefix the password with the pepper +
+ * a NUL separator (avoids ambiguity if a future pepper happens to be a
+ * valid prefix of a password). An attacker with the DB but not the pepper
+ * can't verify candidate passwords — the security property we wanted.
  */
 function withPepper(password: string): string {
   const pepper = env.ARGON2_PEPPER ?? ""
@@ -64,6 +71,82 @@ function randomSalt(): Uint8Array {
   const salt = new Uint8Array(SALT_LENGTH)
   crypto.getRandomValues(salt)
   return salt
+}
+
+// ─── PHC string encoder / parser ──────────────────────────────────────────
+
+/**
+ * Encode raw argon2 output as a PHC-format string.
+ * Format: `$argon2id$v=19$m=<m>,t=<t>,p=<p>$<salt-b64>$<hash-b64>`
+ * "PHC base64" = standard base64 with `=` padding stripped.
+ */
+function encodePhc(salt: Uint8Array, hash: Uint8Array, params: {
+  m: number
+  t: number
+  p: number
+}): string {
+  const saltB64 = base64NoPad(salt)
+  const hashB64 = base64NoPad(hash)
+  return `$argon2id$v=19$m=${params.m},t=${params.t},p=${params.p}$${saltB64}$${hashB64}`
+}
+
+interface ParsedPhc {
+  v: number
+  m: number
+  t: number
+  p: number
+  salt: Uint8Array
+  hash: Uint8Array
+}
+
+/**
+ * Parse a PHC string into params + salt + hash bytes. Throws if the format
+ * doesn't match. Caller (verifyPassword) maps any throw to `{ok: false}` so
+ * malformed hashes don't leak as a different response code.
+ */
+function parsePhc(stored: string): ParsedPhc {
+  // Anchored regex — anything off-spec rejects.
+  const m = stored.match(
+    /^\$argon2id\$v=(\d+)\$m=(\d+),t=(\d+),p=(\d+)\$([A-Za-z0-9+/=]+)\$([A-Za-z0-9+/=]+)$/,
+  )
+  if (!m) throw new Error("malformed argon2 PHC string")
+  return {
+    v: Number.parseInt(m[1]!, 10),
+    m: Number.parseInt(m[2]!, 10),
+    t: Number.parseInt(m[3]!, 10),
+    p: Number.parseInt(m[4]!, 10),
+    salt: base64Decode(m[5]!),
+    hash: base64Decode(m[6]!),
+  }
+}
+
+function base64NoPad(bytes: Uint8Array): string {
+  let bin = ""
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]!)
+  // btoa exists on Workers + modern Node (>=16).
+  return btoa(bin).replace(/=+$/, "")
+}
+
+function base64Decode(str: string): Uint8Array {
+  // Re-pad if caller stripped `=`. atob requires padding to multiple of 4.
+  const padding = (4 - (str.length % 4)) % 4
+  const padded = str + "=".repeat(padding)
+  const bin = atob(padded)
+  const out = new Uint8Array(bin.length)
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
+  return out
+}
+
+/**
+ * Constant-time byte-array comparison. Returns true iff the arrays are
+ * equal. NEVER use `===` or `Buffer.compare()` on hash output — timing leaks
+ * via early-exit comparison can let an attacker recover the hash.
+ */
+function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a[i]! ^ b[i]!
+  return diff === 0
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────
@@ -81,15 +164,14 @@ export async function hashPassword(password: string): Promise<string> {
   if (password.length < MIN_PASSWORD_LENGTH) {
     throw new Error(`password must be at least ${MIN_PASSWORD_LENGTH} characters`)
   }
-  return argon2id({
-    password: withPepper(password),
-    salt: randomSalt(),
-    parallelism: PARALLELISM,
-    iterations: ITERATIONS,
-    memorySize: MEMORY_KIB,
-    hashLength: HASH_LENGTH,
-    outputType: "encoded",
+  const salt = randomSalt()
+  const raw = argon2id(withPepper(password), salt, {
+    t: ITERATIONS,
+    m: MEMORY_KIB,
+    p: PARALLELISM,
+    dkLen: HASH_LENGTH,
   })
+  return encodePhc(salt, raw, { m: MEMORY_KIB, t: ITERATIONS, p: PARALLELISM })
 }
 
 /**
@@ -101,19 +183,20 @@ export async function hashPassword(password: string): Promise<string> {
  */
 export async function hashSecret(secret: string): Promise<string> {
   if (!secret) throw new Error("secret must not be empty")
-  return argon2id({
-    password: withPepper(secret),
-    salt: randomSalt(),
-    parallelism: PARALLELISM,
-    iterations: ITERATIONS,
-    memorySize: MEMORY_KIB,
-    hashLength: HASH_LENGTH,
-    outputType: "encoded",
+  const salt = randomSalt()
+  const raw = argon2id(withPepper(secret), salt, {
+    t: ITERATIONS,
+    m: MEMORY_KIB,
+    p: PARALLELISM,
+    dkLen: HASH_LENGTH,
   })
+  return encodePhc(salt, raw, { m: MEMORY_KIB, t: ITERATIONS, p: PARALLELISM })
 }
 
 /**
- * Verify a password against a stored hash. Constant-time inside hash-wasm.
+ * Verify a password against a stored hash. Constant-time comparison on the
+ * derived hash bytes; argon2 itself is intrinsically constant-time per
+ * fixed parameters.
  *
  * Returns:
  *   { ok: true }                       — password matches, no rehash needed
@@ -128,18 +211,32 @@ export async function verifyPassword(
   storedHash: string,
   password: string,
 ): Promise<{ ok: boolean; newHash?: string }> {
-  let ok = false
+  let parsed: ParsedPhc
   try {
-    ok = await argon2Verify({
-      password: withPepper(password),
-      hash: storedHash,
+    parsed = parsePhc(storedHash)
+  } catch {
+    return { ok: false }
+  }
+
+  let recomputed: Uint8Array
+  try {
+    recomputed = argon2id(withPepper(password), parsed.salt, {
+      t: parsed.t,
+      m: parsed.m,
+      p: parsed.p,
+      dkLen: parsed.hash.length,
     })
   } catch {
     return { ok: false }
   }
-  if (!ok) return { ok: false }
 
-  if (needsRehash(storedHash)) {
+  if (!constantTimeEqual(recomputed, parsed.hash)) return { ok: false }
+
+  if (
+    parsed.m < MEMORY_KIB ||
+    parsed.t < ITERATIONS ||
+    parsed.p < PARALLELISM
+  ) {
     return { ok: true, newHash: await hashPassword(password) }
   }
   return { ok: true }
@@ -154,7 +251,7 @@ export async function verifyPassword(
  *
  *     const user = await db.query.users.findFirst({ where: ... })
  *     if (!user) {
- *       await dummyVerify()              // ~30-50 ms
+ *       await dummyVerify()              // ~100-300 ms
  *       return c.json({ ok: false }, 401)
  *     }
  *     const result = await verifyPassword(user.passwordHash, password)
@@ -168,10 +265,7 @@ export async function dummyVerify(): Promise<void> {
     "YWFhYWFhYWFhYWFhYWFhYQ$" + // 'aaaaaaaaaaaaaaaa' base64
     "TZGvFQOHPYDi+0bMJ5fEW7L/3i80yLkUBgWgu0+pmkY"
   try {
-    await argon2Verify({
-      password: "definitely-not-the-password",
-      hash: sentinelHash,
-    })
+    await verifyPassword(sentinelHash, "definitely-not-the-password")
   } catch {
     /* expected; timing-only */
   }
@@ -203,23 +297,4 @@ export function generateRecoveryCodes(n = 10): string[] {
     codes.push(`${body.slice(0, 5)}-${body.slice(5)}`)
   }
   return codes
-}
-
-// ─── Internal ─────────────────────────────────────────────────────────────
-
-/**
- * Check whether the stored hash uses parameters below current targets.
- * Returns true → caller should rehash + UPDATE on next successful login.
- */
-function needsRehash(stored: string): boolean {
-  const m = stored.match(/^\$argon2id\$v=\d+\$m=(\d+),t=(\d+),p=(\d+)/)
-  if (!m || m.length < 4) return true
-  const mem = m[1] ?? ""
-  const time = m[2] ?? ""
-  const par = m[3] ?? ""
-  return (
-    Number.parseInt(mem, 10) < MEMORY_KIB ||
-    Number.parseInt(time, 10) < ITERATIONS ||
-    Number.parseInt(par, 10) < PARALLELISM
-  )
 }

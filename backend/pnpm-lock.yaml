@@ -17,15 +17,15 @@ importers:
       '@neondatabase/serverless':
         specifier: ^0.10.4
         version: 0.10.4
+      '@noble/hashes':
+        specifier: ^2.2.0
+        version: 2.2.0
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1
       drizzle-orm:
         specifier: ^0.36.4
         version: 0.36.4(@cloudflare/workers-types@4.20260508.1)(@neondatabase/serverless@0.10.4)(@types/pg@8.11.6)
-      hash-wasm:
-        specifier: ^4.12.0
-        version: 4.12.0
       hono:
         specifier: ^4.6.14
         version: 4.12.18
@@ -1457,9 +1457,6 @@ packages:
 
   get-tsconfig@4.14.0:
     resolution: {integrity: sha512-yTb+8DXzDREzgvYmh6s9vHsSVCHeC0G3PI5bEXNBHtmshPnO+S5O7qgLEOn0I5QvMy6kpZN8K1NKGyilLb93wA==}
-
-  hash-wasm@4.12.0:
-    resolution: {integrity: sha512-+/2B2rYLb48I/evdOIhP+K/DD2ca2fgBjp6O+GBEnCDk2e4rpeXIK8GvIyRPjTezgmWn9gmKwkQjjx6BtqDHVQ==}
 
   hono@4.12.18:
     resolution: {integrity: sha512-RWzP96k/yv0PQfyXnWjs6zot20TqfpfsNXhOnev8d1InAxubW93L11/oNUc3tQqn2G0bSdAOBpX+2uDFHV7kdQ==}
@@ -3083,8 +3080,6 @@ snapshots:
   get-tsconfig@4.14.0:
     dependencies:
       resolve-pkg-maps: 1.0.0
-
-  hash-wasm@4.12.0: {}
 
   hono@4.12.18: {}
 
