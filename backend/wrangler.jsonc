@@ -55,9 +55,12 @@
     "LOCKOUT_MINUTES": "15",
     "RATE_LIMIT_LOGIN_PER_MIN": "10",
     "RATE_LIMIT_GLOBAL_PER_MIN": "120",
-    "ALLOWED_ORIGINS": "https://shionquant.pages.dev,https://portal.shionquant.com",
-    "R2_ENDPOINT": "https://<account-id>.r2.cloudflarestorage.com",
-    "R2_BUCKET": "shion-quant-docs-prod",
+    "ALLOWED_ORIGINS": "https://shion-quant.raincitiw.workers.dev,https://shionquant.pages.dev,https://portal.shionquant.com",
+    // R2_ENDPOINT / R2_BUCKET / R2_ACCESS_KEY / R2_SECRET_KEY are optional —
+    // unset until the documents vault gets wired to a real R2 bucket. When
+    // you do, set R2_ENDPOINT to the actual https://<accountId>.r2.cloudflarestorage.com
+    // (substitute the literal account ID, not <accountId>) here, and push
+    // R2_ACCESS_KEY / R2_SECRET_KEY via `pnpm deploy:secrets`.
     "R2_REGION": "auto"
   },
 

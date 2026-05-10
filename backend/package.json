@@ -11,6 +11,7 @@
     "sync-frontend": "node scripts/sync-frontend.mjs",
     "dev": "pnpm run sync-frontend && wrangler dev",
     "deploy": "pnpm run sync-frontend && wrangler deploy",
+    "deploy:secrets": "node scripts/push-secrets.mjs",
     "selftest:argon2": "tsx src/auth/argon2.selftest.ts",
     "seed": "tsx src/db/seed.ts",
     "retention": "tsx src/db/retention.ts",
