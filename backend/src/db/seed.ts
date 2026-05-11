@@ -57,6 +57,7 @@ import {
   reportSubscriptions,
   reports,
   riskMetrics,
+  sessions,
   taxResidencies,
   users,
 } from "./client.js"
@@ -80,17 +81,21 @@ async function main() {
   })
   if (existingUser) {
     console.log("  • removing prior user:", existingUser.id)
-    // FK ON DELETE CASCADE handles auth_factors, recovery_codes, sessions,
-    // login_events (set null), and most client-child rows. But a few tables
-    // intentionally use NO ACTION / RESTRICT to preserve firm history —
-    // notably `reports` (client_id has no cascade) and `documents` (RESTRICT
-    // because they're regulatory). The seed inserts both, so we have to
-    // clear them explicitly before the clients row can go.
+    // FK ON DELETE CASCADE handles auth_factors, recovery_codes, login_events
+    // (set null), and most client-child rows. But several tables intentionally
+    // use NO ACTION / RESTRICT to preserve audit / firm history, and we have
+    // to clear those before the clients row can go:
+    //   - reports.client_id           (NO ACTION — firm history preserved)
+    //   - documents.client_id         (RESTRICT — regulatory)
+    //   - sessions.client_id          (NO ACTION — live logins from CLI tests)
     const ownedClients = await db
       .select({ id: clients.id })
       .from(clients)
       .where(eq(clients.userId, existingUser.id))
     const ownedClientIds = ownedClients.map((c) => c.id)
+    // sessions reference BOTH client_id and user_id; deleting by user_id is
+    // safer (covers also sessions issued before this client existed).
+    await db.delete(sessions).where(eq(sessions.userId, existingUser.id))
     if (ownedClientIds.length > 0) {
       await db.delete(reports).where(inArray(reports.clientId, ownedClientIds))
       await db.delete(documents).where(inArray(documents.clientId, ownedClientIds))
@@ -796,6 +801,70 @@ async function main() {
         endsAt: day(40, 21, 0),
         isAllDay: false,
         isCritical: true,
+        metadata: {
+          sections: [
+            {
+              kind: "prose",
+              title: { en: "Position context", zh: "仓位背景" },
+              eyebrow: { en: "Long call · 10 contracts", zh: "看涨期权 · 10 张" },
+              body: {
+                en: "The 600-strike SPY call from September has decayed roughly 50% from entry as the underlying drifted sideways through Q2. Currently OTM by ~2.6%; with three weeks of theta-burn ahead and IV likely to compress into summer doldrums, doing nothing trends to zero.",
+                zh: "9 月开仓的 600 行权价 SPY 看涨已较成本损耗约 50%，标的二季度横盘。当前虚值约 2.6%；后续三周 Theta 持续消耗 + 夏季 IV 大概率走低，被动持有将逼近归零。",
+              },
+            },
+            {
+              kind: "table",
+              title: { en: "Affected position", zh: "关联仓位" },
+              columns: [
+                { key: "symbol", label: { en: "Symbol", zh: "代码" } },
+                { key: "qty", label: { en: "Qty", zh: "数量" }, align: "right" },
+                { key: "cost", label: { en: "Avg cost", zh: "成本" }, align: "right" },
+                { key: "mark", label: { en: "Mark", zh: "现价" }, align: "right" },
+                { key: "pl", label: { en: "P/L", zh: "盈亏" }, align: "right", tone: "sign" },
+              ],
+              rows: [
+                {
+                  symbol: "SPY 600C 2026-06-19",
+                  qty: "10",
+                  cost: "$24.50",
+                  mark: "$12.10",
+                  pl: "−$12,400",
+                },
+              ],
+            },
+            {
+              kind: "actions",
+              title: { en: "Three options", zh: "三种选择" },
+              eyebrow: { en: "Decide before 19 Jun · 4 PM ET", zh: "请于 6/19 美东 16:00 前决定" },
+              items: [
+                {
+                  priority: "high",
+                  action: { en: "Roll to Aug 590C", zh: "滚动至 8 月 590C" },
+                  rationale: {
+                    en: "Drop 10 strikes for ~$3.20 net debit; preserves ~70% of original delta exposure with 8 extra weeks of premium.",
+                    zh: "下移 10 个行权价，净付出约 $3.20；保留约 70% 原 delta 暴露，多 8 周时间价值。",
+                  },
+                },
+                {
+                  priority: "medium",
+                  action: { en: "Close for residual value", zh: "平仓回收剩余价值" },
+                  rationale: {
+                    en: "Bank $12,100 in proceeds, redeploy capital. Cleanest exit if you've lost conviction in the upside thesis.",
+                    zh: "回收 $12,100 资金，重新部署。若已不看好上行逻辑，这是最干净的退出。",
+                  },
+                },
+                {
+                  priority: "low",
+                  action: { en: "Let it expire worthless", zh: "放任到期作废" },
+                  rationale: {
+                    en: "Acceptable only if you expect a >3% rally in the next 3 weeks. Historical hit rate from this distance is ~22%.",
+                    zh: "仅当预期 3 周内涨幅 >3% 时合理。从该虚值距离到期内 ITM 的历史命中率约 22%。",
+                  },
+                },
+              ],
+            },
+          ],
+        },
       },
       reminders: [
         { channel: "email", leadMinutes: 60 * 24 * 7 }, // 7 days
@@ -815,6 +884,65 @@ async function main() {
         startsAt: day(80),
         isAllDay: true,
         isCritical: false,
+        metadata: {
+          sections: [
+            {
+              kind: "prose",
+              title: { en: "Coupon overview", zh: "付息概览" },
+              body: {
+                en: "Routine semi-annual coupon on the $200,000 face holding of US 4.25% Aug-34. Payment hits the IBKR USD cash account on the settlement date; reinvestment is your choice — see actions below.",
+                zh: "$200,000 面值美国 4.25% 2034-08 半年期付息，常规事件。付款日当日打入 IBKR 美元现金账户；是否再投资见下方建议。",
+              },
+            },
+            {
+              kind: "kvgrid",
+              title: { en: "Payment facts", zh: "付息要素" },
+              items: [
+                {
+                  label: { en: "Gross coupon", zh: "票息总额" },
+                  value: "$4,250.00",
+                  sub: { en: "200k face × 4.25% / 2", zh: "20 万面值 × 4.25% / 2" },
+                },
+                {
+                  label: { en: "Settlement", zh: "结算日" },
+                  value: "T+1 USD",
+                  sub: { en: "Lands in IBKR cash", zh: "结算到 IBKR 现金账户" },
+                },
+                {
+                  label: { en: "YTM (entry)", zh: "建仓 YTM" },
+                  value: "4.42%",
+                },
+                {
+                  label: { en: "Duration", zh: "久期" },
+                  value: "7.8 yr",
+                  pill: { text: { en: "MID", zh: "中等" } },
+                },
+              ],
+            },
+            {
+              kind: "actions",
+              title: { en: "Cash deployment", zh: "现金部署" },
+              items: [
+                {
+                  priority: "medium",
+                  action: { en: "Re-invest into 2-yr Treasury", zh: "再投资 2 年期国债" },
+                  rationale: {
+                    en: "Front-end yields ~4.95% currently; keeps duration profile balanced.",
+                    zh: "当前 2 年期收益率约 4.95%，使整体久期更均衡。",
+                  },
+                },
+                {
+                  priority: "low",
+                  action: { en: "Hold as USD cash", zh: "保留为美元现金" },
+                  rationale: {
+                    en: "Money-market sweep yields ~4.30%; flexibility for opportunistic deployment.",
+                    zh: "货币市场基金收益约 4.30%，保留机动性。",
+                  },
+                },
+              ],
+            },
+          ],
+        },
       },
     },
     {
@@ -825,11 +953,127 @@ async function main() {
         source: "broker",
         title: "AAPL Q3 2026 Earnings",
         description:
-          "Apple Inc. fiscal Q3 earnings. Holding 500 shares. Consensus EPS: $1.62.",
+          "Apple Inc. fiscal Q3 earnings. Holding 800 shares. Consensus EPS: $1.62.",
         ticker: "AAPL",
         startsAt: day(55, 20, 30),
         endsAt: day(55, 21, 30),
         isAllDay: false,
+        metadata: {
+          sections: [
+            {
+              kind: "prose",
+              title: { en: "Position context", zh: "仓位背景" },
+              eyebrow: { en: "Direct + linked exposures", zh: "直接 + 关联敞口" },
+              body: {
+                en: "Two positions on the book react to Thursday's print: 800 shares of AAPL (6.05% portfolio weight) plus a covered call written at 230C / 16 May. The covered-call leg caps upside above $230 but is currently +47% on premium decay — letting it ride through earnings risks an upside gap.",
+                zh: "两笔仓位将受到周四财报直接影响：800 股 AAPL（占组合 6.05%）+ 卖出 16 May 230C 备兑看涨。备兑期权封顶 $230 以上上行，但当前权利金已浮盈 47%；财报跳空上涨将放大对冲缺口。",
+              },
+            },
+            {
+              kind: "table",
+              title: { en: "Linked positions", zh: "关联仓位" },
+              columns: [
+                { key: "symbol", label: { en: "Symbol", zh: "代码" } },
+                { key: "qty", label: { en: "Qty", zh: "数量" }, align: "right" },
+                { key: "mark", label: { en: "Mark", zh: "现价" }, align: "right" },
+                { key: "notional", label: { en: "Notional", zh: "名义" }, align: "right" },
+                { key: "pl", label: { en: "P/L", zh: "盈亏" }, align: "right", tone: "sign" },
+              ],
+              rows: [
+                { symbol: "AAPL", qty: "800", mark: "$215.62", notional: "$172,496", pl: "+$29,696" },
+                { symbol: "AAPL 230C 16-May", qty: "−15", mark: "$2.85", notional: "−$4,275", pl: "+$2,025" },
+              ],
+            },
+            {
+              kind: "kvgrid",
+              title: { en: "Consensus & implied", zh: "市场共识与隐含" },
+              items: [
+                {
+                  label: { en: "Consensus EPS", zh: "EPS 共识" },
+                  value: "$1.62",
+                  sub: { en: "vs $1.51 prior", zh: "上季 $1.51" },
+                  pill: { text: { en: "Beat ?", zh: "可能超预期" }, tone: "gain" },
+                },
+                {
+                  label: { en: "IV before", zh: "事件前隐含波动" },
+                  value: "34%",
+                  sub: { en: "ATM 1-week", zh: "1 周平值" },
+                },
+                {
+                  label: { en: "Implied move", zh: "预期波幅" },
+                  value: "±5.2%",
+                  pill: { text: { en: "Normal", zh: "正常" } },
+                },
+                {
+                  label: { en: "Concentration", zh: "集中度" },
+                  value: "6.05%",
+                  sub: { en: "Of total portfolio", zh: "占组合总值" },
+                },
+              ],
+            },
+            {
+              kind: "reaction",
+              title: { en: "Historical reaction", zh: "历史反应" },
+              eyebrow: { en: "Last 4 quarters", zh: "近 4 季度" },
+              rows: [
+                {
+                  period: { en: "Q2 2026", zh: "Q2 2026" },
+                  surprise: { en: "+8.4% vs consensus", zh: "超共识 +8.4%" },
+                  reaction: { en: "Stock +4.1% next session", zh: "次日 +4.1%" },
+                  tone: "gain",
+                },
+                {
+                  period: { en: "Q1 2026", zh: "Q1 2026" },
+                  surprise: { en: "+1.2% vs consensus", zh: "微超 +1.2%" },
+                  reaction: { en: "Stock −0.6% (guidance soft)", zh: "次日 −0.6%（指引偏软）" },
+                  tone: "loss",
+                },
+                {
+                  period: { en: "Q4 2025", zh: "Q4 2025" },
+                  surprise: { en: "+6.8% vs consensus", zh: "超共识 +6.8%" },
+                  reaction: { en: "Stock +5.9% next session", zh: "次日 +5.9%" },
+                  tone: "gain",
+                },
+                {
+                  period: { en: "Q3 2025", zh: "Q3 2025" },
+                  surprise: { en: "−2.3% miss", zh: "低于共识 2.3%" },
+                  reaction: { en: "Stock −7.1% next session", zh: "次日 −7.1%" },
+                  tone: "loss",
+                },
+              ],
+            },
+            {
+              kind: "actions",
+              title: { en: "Pre-print playbook", zh: "财报前预案" },
+              items: [
+                {
+                  priority: "high",
+                  action: { en: "Roll the 230C up to 240C", zh: "将 230C 上移至 240C" },
+                  rationale: {
+                    en: "Removes the upside cap that would bite on a beat; net cost ~$1.05/share given current premium.",
+                    zh: "解除上行封顶（若超预期反弹将受损），按当前权利金净付出约 $1.05/股。",
+                  },
+                },
+                {
+                  priority: "medium",
+                  action: { en: "Close the covered call", zh: "平掉备兑看涨" },
+                  rationale: {
+                    en: "Locks in the +$2,025 premium gain. Leaves stock fully exposed to the print — fine if you're bullish.",
+                    zh: "锁定 +$2,025 权利金浮盈；股票端裸露全部财报敞口（若看多则合理）。",
+                  },
+                },
+                {
+                  priority: "low",
+                  action: { en: "Hold both legs through the print", zh: "原样持有" },
+                  rationale: {
+                    en: "Status quo. Caps upside above $230 but earns full theta decay if AAPL stays flat-to-down.",
+                    zh: "维持现状。封顶 $230 以上上行，AAPL 持平或下跌时全额吃 theta 收益。",
+                  },
+                },
+              ],
+            },
+          ],
+        },
       },
       reminders: [{ channel: "email", leadMinutes: 60 * 24 }],
     },
@@ -846,7 +1090,83 @@ async function main() {
         isAllDay: false,
         displayTz: "Asia/Hong_Kong",
         isCritical: true,
-        metadata: { location: "Zoom (link in confirmation email)" },
+        metadata: {
+          location: "Zoom (link in confirmation email)",
+          sections: [
+            {
+              kind: "prose",
+              title: { en: "Meeting overview", zh: "会议概要" },
+              body: {
+                en: "Standing quarterly review with Kira Tanaka (lead advisor). Sixty minutes, video. Agenda spans Q2 attribution, the Tencent rebalance memo, the treasury ladder refresh, and FATCA renewal logistics. KT will share screen and walk through positioning charts.",
+                zh: "与 Kira Tanaka（首席顾问）的例行季度复盘，60 分钟视频。议程涵盖 Q2 归因、腾讯调仓备忘、国债梯形再平衡，以及 FATCA 续签流程。KT 将共享屏幕讲解仓位图表。",
+              },
+            },
+            {
+              kind: "kvgrid",
+              title: { en: "Meeting facts", zh: "会议要素" },
+              items: [
+                {
+                  label: { en: "Advisor", zh: "顾问" },
+                  value: "Kira Tanaka",
+                  sub: { en: "Lead advisor · Hong Kong", zh: "首席顾问 · 香港" },
+                },
+                {
+                  label: { en: "Duration", zh: "时长" },
+                  value: "60 min",
+                },
+                {
+                  label: { en: "Mode", zh: "形式" },
+                  value: "Video",
+                  pill: { text: { en: "Zoom", zh: "Zoom" } },
+                },
+                {
+                  label: { en: "Recurrence", zh: "周期" },
+                  value: "Quarterly",
+                  sub: { en: "Next: Aug 2026", zh: "下次：2026/8" },
+                },
+              ],
+            },
+            {
+              kind: "actions",
+              title: { en: "Agenda", zh: "议程" },
+              eyebrow: { en: "Four discussion items", zh: "四项议题" },
+              items: [
+                {
+                  priority: "high",
+                  action: { en: "Q2 attribution walkthrough", zh: "Q2 归因解读" },
+                  rationale: {
+                    en: "Where did the +2.4% net return come from? Sector vs security vs FX vs tactical.",
+                    zh: "+2.4% 净回报的拆解：行业 / 个股 / 汇率 / 交易性。",
+                  },
+                },
+                {
+                  priority: "high",
+                  action: { en: "Tencent trim trigger review", zh: "腾讯减仓阈值检视" },
+                  rationale: {
+                    en: "Position is at +19.3% — KT to present three rebalance options (full / partial / let-run).",
+                    zh: "腾讯仓位浮盈 19.3%；KT 将给出三种方案（全减 / 部分 / 不动）。",
+                  },
+                },
+                {
+                  priority: "medium",
+                  action: { en: "Treasury ladder refresh", zh: "国债梯形再平衡" },
+                  rationale: {
+                    en: "Curve has flattened ~30bp; consider rolling half the 10-yr into a 2-yr.",
+                    zh: "曲线趋平约 30bp；考虑将一半 10 年期滚动到 2 年期。",
+                  },
+                },
+                {
+                  priority: "medium",
+                  action: { en: "FATCA W-8BEN renewal logistics", zh: "FATCA W-8BEN 续签流程" },
+                  rationale: {
+                    en: "Due in 25 days; KT to walk through the e-signature flow.",
+                    zh: "25 天后到期；KT 讲解电子签流程。",
+                  },
+                },
+              ],
+            },
+          ],
+        },
       },
       reminders: [
         { channel: "email", leadMinutes: 60 * 24 },
@@ -865,6 +1185,48 @@ async function main() {
         startsAt: day(25),
         isAllDay: true,
         isCritical: true,
+        metadata: {
+          sections: [
+            {
+              kind: "prose",
+              title: { en: "Why this matters", zh: "为什么重要" },
+              body: {
+                en: "Your W-8BEN expires in 25 days. If not renewed, IBKR is required by US regulation to apply the punitive 30% non-resident withholding rate on dividends and certain interest — versus the 15% treaty rate currently in place. Estimated cost of a lapse over a full year: ~$3,800 in extra withholding given current US-listed holdings.",
+                zh: "您的 W-8BEN 将在 25 天后到期。若未续签，按美国法规 IBKR 必须对您的分红与部分利息适用 30% 非居民惩罚预扣，而非目前的 15% 协定优惠。按当前美股持仓估算，过期一年将多被预扣约 $3,800。",
+              },
+            },
+            {
+              kind: "actions",
+              title: { en: "Three ways forward", zh: "三种选择" },
+              items: [
+                {
+                  priority: "high",
+                  action: { en: "Sign electronically now", zh: "立即电子签署" },
+                  rationale: {
+                    en: "Fastest path: pre-filled form in Documents → review → e-sign → done in 5 minutes.",
+                    zh: "最快路径：文档库已预填表单 → 复核 → 电子签 → 5 分钟内完成。",
+                  },
+                },
+                {
+                  priority: "medium",
+                  action: { en: "Schedule a 15-min call with KT", zh: "与 KT 预约 15 分钟通话" },
+                  rationale: {
+                    en: "If you want to walk through the form before signing.",
+                    zh: "若希望先和顾问过一遍表单再签。",
+                  },
+                },
+                {
+                  priority: "low",
+                  action: { en: "Print, wet-sign, mail back", zh: "打印纸质签字并寄回" },
+                  rationale: {
+                    en: "Required only if you've changed name / passport since the last filing.",
+                    zh: "仅在上次申报后姓名 / 护照有变更时才需要走纸质流程。",
+                  },
+                },
+              ],
+            },
+          ],
+        },
       },
       reminders: [
         { channel: "email", leadMinutes: 60 * 24 * 7 },
@@ -883,6 +1245,73 @@ async function main() {
         endsAt: day(42, 18, 30),
         isAllDay: false,
         isCritical: false,
+        metadata: {
+          sections: [
+            {
+              kind: "prose",
+              title: { en: "Portfolio sensitivity", zh: "组合敏感度" },
+              body: {
+                en: "Two sleeves of the book are directly rate-sensitive. The long-end of the Treasury holding (10-yr) has ~$160 DV01, so a 25bp surprise either direction moves NAV by ~$4,000. The futures sleeve includes a +4 ZN long that adds another $280 DV01. Equity beta is the second-order risk — historical Fed-day reactions average ±0.8% on SPY.",
+                zh: "组合中两段对利率直接敏感。国债部分 10 年期 DV01 约 $160，任一方向 25bp 意外将影响 NAV 约 $4,000；期货段含 +4 ZN 多头，DV01 增加 $280。股票 Beta 是次级风险——历史 FOMC 当日 SPY 反应平均 ±0.8%。",
+              },
+            },
+            {
+              kind: "kvgrid",
+              title: { en: "Market pricing", zh: "市场定价" },
+              items: [
+                {
+                  label: { en: "Hike probability", zh: "加息概率" },
+                  value: "8%",
+                  sub: { en: "Fed Funds futures", zh: "联邦基金期货" },
+                },
+                {
+                  label: { en: "Hold probability", zh: "持平概率" },
+                  value: "70%",
+                  pill: { text: { en: "BASE", zh: "基准" } },
+                },
+                {
+                  label: { en: "Cut probability", zh: "降息概率" },
+                  value: "22%",
+                },
+                {
+                  label: { en: "Combined DV01", zh: "总 DV01" },
+                  value: "$440",
+                  sub: { en: "Bonds + futures", zh: "国债 + 期货" },
+                },
+              ],
+            },
+            {
+              kind: "actions",
+              title: { en: "Scenario playbook", zh: "情景预案" },
+              items: [
+                {
+                  priority: "high",
+                  action: { en: "Surprise cut (22% odds)", zh: "意外降息（22%）" },
+                  rationale: {
+                    en: "Expect +$11k bond MTM gain, +$2.5k futures gain. Consider trimming half the ZN position into strength.",
+                    zh: "预计国债 MTM +$11k，期货 +$2.5k；可考虑在 ZN 大涨时减一半。",
+                  },
+                },
+                {
+                  priority: "medium",
+                  action: { en: "Hawkish hold (typical path)", zh: "鹰派持平（基准情形）" },
+                  rationale: {
+                    en: "No book change. Watch the press-conference Q&A for September signal.",
+                    zh: "仓位不动；关注新闻发布会 Q&A 中对 9 月的暗示。",
+                  },
+                },
+                {
+                  priority: "high",
+                  action: { en: "Surprise hike (8% odds)", zh: "意外加息（8%）" },
+                  rationale: {
+                    en: "Expect −$11k bond MTM hit. The SPY 530P put provides ~2% equity downside cushion that would activate.",
+                    zh: "预计国债 MTM −$11k；现有 SPY 530P 可激活，提供约 2% 股票端下行缓冲。",
+                  },
+                },
+              ],
+            },
+          ],
+        },
       },
     },
     {
@@ -896,6 +1325,45 @@ async function main() {
         startsAt: day(30 - today.getUTCDate() + 1), // ~1st of next month
         isAllDay: true,
         rrule: "FREQ=MONTHLY;BYMONTHDAY=1",
+        metadata: {
+          sections: [
+            {
+              kind: "prose",
+              title: { en: "Report scope", zh: "报告范围" },
+              body: {
+                en: "Monthly performance brief covers MTD net return, attribution by sleeve (HK equities / US equities / options / futures / bonds / crypto), top contributors and detractors, risk metrics (Beta / Sharpe / Vol / MaxDD), and a forward-looking 'what to watch' note from KT. PDF + portal versions delivered together.",
+                zh: "月度报告覆盖：当月净回报、按板块归因（港股 / 美股 / 期权 / 期货 / 国债 / 加密）、贡献最大与拖累最大的仓位、风险指标（Beta / Sharpe / 波动率 / 最大回撤），以及 KT 撰写的下月关注要点。同时投递 PDF 与门户版本。",
+              },
+            },
+            {
+              kind: "actions",
+              title: { en: "When it arrives", zh: "投递后" },
+              items: [
+                {
+                  priority: "high",
+                  action: { en: "Read in the portal", zh: "在门户中阅读" },
+                  rationale: {
+                    en: "Charts are interactive; click any position bar to drill into trade-level history.",
+                    zh: "图表可交互；点击任一仓位条目可下钻到交易级历史。",
+                  },
+                },
+                {
+                  priority: "medium",
+                  action: { en: "Download the PDF", zh: "下载 PDF" },
+                  rationale: { en: "For records / accountant sharing.", zh: "便于存档或转给会计。" },
+                },
+                {
+                  priority: "low",
+                  action: { en: "Forward to spouse / family CFO", zh: "转发给配偶 / 家族 CFO" },
+                  rationale: {
+                    en: "Read-only link expires after 30 days.",
+                    zh: "只读链接 30 天后过期。",
+                  },
+                },
+              ],
+            },
+          ],
+        },
       },
     },
     {
@@ -910,6 +1378,32 @@ async function main() {
         endsAt: day(105),
         isAllDay: true,
         displayTz: "Asia/Hong_Kong",
+        metadata: {
+          location: "Tokyo, Japan",
+          sections: [
+            {
+              kind: "prose",
+              title: { en: "Personal note", zh: "个人备忘" },
+              body: {
+                en: "Family vacation, 10 days. KT has been informed; she'll cover urgent issues via WhatsApp only. No scheduled calls. Reachable for genuine emergencies (lockout, fraud alert) at the usual numbers.",
+                zh: "家庭度假，10 天。已通知 KT，期间仅紧急情况通过 WhatsApp 处理，不安排正式通话。账户冻结 / 欺诈警报等真正紧急事件仍可拨打常用联系方式。",
+              },
+            },
+            {
+              kind: "kvgrid",
+              title: { en: "Trip facts", zh: "行程信息" },
+              items: [
+                { label: { en: "Destination", zh: "目的地" }, value: "Tokyo, Japan" },
+                { label: { en: "Duration", zh: "时长" }, value: "10 days" },
+                {
+                  label: { en: "Advisor coverage", zh: "顾问覆盖" },
+                  value: "WhatsApp only",
+                  pill: { text: { en: "EMERGENCIES", zh: "仅紧急" }, tone: "warn" },
+                },
+              ],
+            },
+          ],
+        },
       },
     },
   ]

@@ -1768,11 +1768,54 @@
   const MONTHS_ZH = ['1 月','2 月','3 月','4 月','5 月','6 月','7 月','8 月','9 月','10 月','11 月','12 月'];
   const WEEKDAYS_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const WEEKDAYS_ZH = ['周日','周一','周二','周三','周四','周五','周六'];
-  const fmtDay = (d) => String(d.getUTCDate()).padStart(2, '0');
-  const fmtTime = (d) => {
-    // "10:30 ET" style. UTC for now; backend hasn't propagated displayTz yet.
-    return `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC`;
-  };
+  /**
+   * Format a Date in the event's preferred timezone (or browser local).
+   * Uses Intl.DateTimeFormat so we get the correct hour AND a short tz tag
+   * like "ET" / "HKT" / "GMT+8" without hand-rolled offset math.
+   * `tz` may be null/undefined (fall back to browser local).
+   */
+  const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  function fmtTime(date, tz) {
+    const zone = tz || browserTz;
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: zone,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZoneName: 'short',
+      }).formatToParts(date);
+      const hh = parts.find((p) => p.type === 'hour')?.value ?? '00';
+      const mm = parts.find((p) => p.type === 'minute')?.value ?? '00';
+      const tag = parts.find((p) => p.type === 'timeZoneName')?.value ?? 'UTC';
+      return `${hh}:${mm} ${tag}`;
+    } catch {
+      // Bad tz string from DB — fall back to UTC.
+      return `${String(date.getUTCHours()).padStart(2,'0')}:${String(date.getUTCMinutes()).padStart(2,'0')} UTC`;
+    }
+  }
+  /**
+   * The "01 / May / Thu" date block on the left of each event card. Display
+   * in the event's tz so a 14:00 HKT event on May 18 doesn't accidentally
+   * say "May 17" because UTC is a day behind.
+   */
+  function dateParts(date, tz) {
+    const zone = tz || browserTz;
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: zone, year: 'numeric', month: 'numeric',
+        day: 'numeric', weekday: 'short',
+      }).formatToParts(date);
+      const m = (t) => parts.find((p) => p.type === t)?.value;
+      return {
+        day: String(m('day') ?? '').padStart(2, '0'),
+        monthIdx: parseInt(m('month') ?? '1', 10) - 1,
+        weekdayIdx: WEEKDAYS_EN.indexOf(m('weekday') ?? 'Sun'),
+      };
+    } catch {
+      return { day: String(date.getUTCDate()).padStart(2, '0'), monthIdx: date.getUTCMonth(), weekdayIdx: date.getUTCDay() };
+    }
+  }
   /** Monday of the week containing `d` (UTC). */
   function weekStart(d) {
     const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
@@ -1817,13 +1860,13 @@
   }
 
   // ─── Event card renderers (one per renderer kind) ────────────────────
-  function dateBlockHtml(d) {
-    const dow = d.getUTCDay();
+  function dateBlockHtml(d, tz) {
+    const p = dateParts(d, tz);
     return `
       <div class="event-date">
-        <span class="ed-day">${fmtDay(d)}</span>
-        <span class="ed-month"><span class="en-inline">${MONTHS_EN[d.getUTCMonth()]}</span><span class="zh-inline">${MONTHS_ZH[d.getUTCMonth()]}</span></span>
-        <span class="ed-weekday"><span class="en-inline">${WEEKDAYS_EN[dow]}</span><span class="zh-inline">${WEEKDAYS_ZH[dow]}</span></span>
+        <span class="ed-day">${p.day}</span>
+        <span class="ed-month"><span class="en-inline">${MONTHS_EN[p.monthIdx]}</span><span class="zh-inline">${MONTHS_ZH[p.monthIdx]}</span></span>
+        <span class="ed-weekday"><span class="en-inline">${WEEKDAYS_EN[p.weekdayIdx]}</span><span class="zh-inline">${WEEKDAYS_ZH[p.weekdayIdx]}</span></span>
       </div>`;
   }
   function detailUrl(id) {
@@ -1846,10 +1889,10 @@
     const meetingType = meta.meetingType || 'Video';
     return `
       <article class="event">
-        ${dateBlockHtml(d)}
+        ${dateBlockHtml(d, e.displayTz)}
         <div class="event-body">
           <div class="event-meta">
-            <span class="time">${escapeHtml(fmtTime(d))}</span>
+            <span class="time">${escapeHtml(fmtTime(d, e.displayTz))}</span>
             ${tagHtml('Advisor', '顾问', false)}
             <span><span class="en-inline">${durationMin} min · ${escapeHtml(meetingType)}</span><span class="zh-inline">${durationMin} 分钟 · ${escapeHtml(meetingType)}</span></span>
           </div>
@@ -1883,10 +1926,10 @@
     const lbl = TYPE_LABELS[e.eventType] || { en: e.eventType, zh: e.eventType };
     return `
       <article class="event">
-        ${dateBlockHtml(d)}
+        ${dateBlockHtml(d, e.displayTz)}
         <div class="event-body">
           <div class="event-meta">
-            <span class="time">${escapeHtml(fmtTime(d))}</span>
+            <span class="time">${escapeHtml(fmtTime(d, e.displayTz))}</span>
             ${tagHtml(lbl.en, lbl.zh, false)}
           </div>
           <div class="event-title">
@@ -1912,10 +1955,10 @@
       : { en: 'View Report', zh: '查看报告' };
     return `
       <article class="event">
-        ${dateBlockHtml(d)}
+        ${dateBlockHtml(d, e.displayTz)}
         <div class="event-body">
           <div class="event-meta">
-            <span class="time">${escapeHtml(fmtTime(d))}</span>
+            <span class="time">${escapeHtml(fmtTime(d, e.displayTz))}</span>
             ${tagHtml(lbl.en, lbl.zh, false)}
           </div>
           <div class="event-title">
@@ -1934,10 +1977,10 @@
     const d = new Date(e.startsAt);
     return `
       <article class="event">
-        ${dateBlockHtml(d)}
+        ${dateBlockHtml(d, e.displayTz)}
         <div class="event-body">
           <div class="event-meta">
-            <span class="time">${escapeHtml(fmtTime(d))}</span>
+            <span class="time">${escapeHtml(fmtTime(d, e.displayTz))}</span>
             ${tagHtml(e.eventType, e.eventType, false)}
           </div>
           <div class="event-title">
@@ -2041,7 +2084,12 @@
 
   function renderTimeline(events) {
     if (events.length === 0) {
-      const empty = _zh() ? '当前时间窗口内暂无事件' : 'No events in the selected window';
+      // Distinguish "API returned nothing" from "filter has no matches" so
+      // the user knows whether clearing the filter would help.
+      const isFilterEmpty = _activeFilter !== 'all' && _allEvents.length > 0;
+      const empty = isFilterEmpty
+        ? (_zh() ? '此筛选无事件 · 切回「全部」查看其它' : 'No events match this filter · click All')
+        : (_zh() ? '当前时间窗口内暂无事件' : 'No events in the selected window');
       setRebuild('timeline.weeks', `<div class="rebuild-failed">${escapeHtml(empty)}</div>`);
       return;
     }
@@ -2066,21 +2114,39 @@
     setRebuild('timeline.weeks', html);
   }
 
+  /**
+   * Map a chip's `data-filter` value to the set of event types it covers.
+   * The "Reports" chip aggregates report_delivery + rebalance (matches the
+   * chip-count math in renderFilterChips); the "All" chip clears the filter.
+   */
+  const FILTER_TO_TYPES = {
+    all:                null, // null = no filter
+    option_expiry:      ['option_expiry'],
+    earnings:           ['earnings'],
+    macro:              ['macro'],
+    bond_coupon:        ['bond_coupon'],
+    advisor_call:       ['advisor_call'],
+    report_delivery:    ['report_delivery', 'rebalance'],
+  };
+
+  let _allEvents = [];      // full list, never mutated after fetch
+  let _activeFilter = 'all';
+
+  function applyFilter() {
+    const types = FILTER_TO_TYPES[_activeFilter];
+    const filtered = types === null
+      ? _allEvents
+      : _allEvents.filter((e) => types.includes(e.eventType));
+    renderTimeline(filtered);
+  }
+
   function wireFilterClicks() {
     document.querySelectorAll('[data-filter]').forEach((btn) => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-filter]').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-        const filter = btn.getAttribute('data-filter');
-        document.querySelectorAll('.event').forEach((card) => {
-          // We don't currently tag rendered cards with their type; quick
-          // visual filter via display:none requires that. Leave wiring as
-          // a TODO — chip state changes are still informative on their own.
-          card.style.display = '';
-        });
-        if (filter !== 'all') {
-          console.info('[schedules] filter click:', filter, '(visual filtering pending implementation)');
-        }
+        _activeFilter = btn.getAttribute('data-filter') || 'all';
+        applyFilter();
       });
     });
   }
@@ -2090,12 +2156,14 @@
     _blankAllBindings();
     try {
       const data = await fetchEvents();
-      const events = Array.isArray(data.events) ? data.events : [];
-      renderHeader(events);
-      renderSummary(events);
-      renderFilterChips(events);
-      renderTimeline(events);
+      _allEvents = Array.isArray(data.events) ? data.events : [];
+      // Header / summary / chip counts always reflect the FULL set so a
+      // narrow filter doesn't hide how many events exist overall.
+      renderHeader(_allEvents);
+      renderSummary(_allEvents);
+      renderFilterChips(_allEvents);
       wireFilterClicks();
+      applyFilter(); // initial render under whatever filter is active (`all`)
     } catch (err) {
       console.warn('[schedules] fetch failed:', err.message || err);
       _markFailed();

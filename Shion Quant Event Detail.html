@@ -600,6 +600,122 @@
   .aside-actions { display: flex; flex-direction: column; gap: 0.5rem; }
   .aside-actions .ha-btn { width: 100%; }
 
+  /* ─── metadata-driven section blocks ─────────────────────────────────
+     Five block kinds render into <main class="detail-main">. See
+     docs/event-metadata-schema.md for the data contract. */
+
+  /* kvgrid */
+  .kv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 720px) { .kv-grid { grid-template-columns: 1fr; } }
+  .kv-tile {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0.85rem 1rem;
+    background: #fff;
+  }
+  .kv-label {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.35rem;
+  }
+  body.lang-zh .kv-label { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .kv-value {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 1.35rem;
+    color: var(--ink);
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .kv-sub {
+    font-family: var(--sans-en);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    margin-top: 0.35rem;
+  }
+  body.lang-zh .kv-sub { font-family: var(--sans-zh); }
+  .kv-pill {
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    background: rgba(35,71,212,0.08);
+    color: var(--royal);
+    white-space: nowrap;
+  }
+  body.lang-zh .kv-pill { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .kv-pill-warn { background: #fdf2ee; color: #c84a32; }
+  .kv-pill-gain { background: rgba(46,160,67,0.1); color: #2ea043; }
+  .kv-pill-loss { background: rgba(200,74,50,0.1); color: #c84a32; }
+
+  /* actions list */
+  .action-list { display: flex; flex-direction: column; }
+  .action-row {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 1rem;
+    padding: 0.95rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .action-row:first-child { border-top: none; padding-top: 0.4rem; }
+  .action-prio {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.3rem 0;
+    border-radius: 2px;
+    height: fit-content;
+  }
+  body.lang-zh .action-prio { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .action-prio.prio-high { background: #fdf2ee; color: #c84a32; }
+  .action-prio.prio-med  { background: rgba(35,71,212,0.08); color: var(--royal); }
+  .action-prio.prio-low  { background: rgba(136,150,184,0.15); color: var(--ink-soft); }
+  .action-title {
+    font-family: var(--sans-en);
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+  body.lang-zh .action-title { font-family: var(--sans-zh); }
+  .action-why {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  body.lang-zh .action-why { font-family: var(--sans-zh); }
+
+  /* graceful-degradation placeholder (shared with Schedules) */
+  .rebuild-failed {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); letter-spacing: 0.06em; }
+
   .linked-list { display: flex; flex-direction: column; }
   .linked-item {
     padding: 0.7rem 0;
@@ -837,254 +953,9 @@
 <div class="detail-body">
 
   <!-- MAIN COLUMN -->
-  <main class="detail-main">
-
-    <!-- Position Context -->
-    <section class="det-section">
-      <div class="det-section-head">
-        <span class="ds-num">01</span>
-        <span class="ds-title">
-          <span class="en">Position <em>context</em></span>
-          <span class="zh">仓位<em>背景</em></span>
-        </span>
-        <span class="ds-meta">
-          <span class="en-inline">Direct + linked exposures</span>
-          <span class="zh-inline">直接 + 关联敞口</span>
-        </span>
-      </div>
-      <p class="det-prose">
-        <span class="en-inline">Three positions on the book are directly affected by Thursday's print. The equity leg accounts for 18.0% of total portfolio value, exceeding the 15% concentration trigger that activated on 22 April. Indirect exposure runs through SPY (NVDA is ~7.4% of S&amp;P 500 weight), so the protective put hedge provides partial spillover protection.</span>
-        <span class="zh-inline">三笔仓位将直接受到本次财报影响。其中股票部分占组合总值的 18.0%，已超过 4/22 触发的 15% 集中度阈值。间接敞口通过 SPY 传导（NVDA 约占 S&amp;P 500 权重 7.4%），SPY 保护性看跌可提供部分溢出保护。</span>
-      </p>
-      <table class="pos-mini">
-        <thead>
-          <tr>
-            <th><span class="en-inline">Symbol</span><span class="zh-inline">代码</span></th>
-            <th><span class="en-inline">Position</span><span class="zh-inline">持仓</span></th>
-            <th><span class="en-inline">Mark</span><span class="zh-inline">现价</span></th>
-            <th><span class="en-inline">Notional</span><span class="zh-inline">名义</span></th>
-            <th><span class="en-inline">P/L</span><span class="zh-inline">盈亏</span></th>
-            <th><span class="en-inline">Weight</span><span class="zh-inline">权重</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="sym">NVDA</td>
-            <td class="name"><span class="en-inline">800 shares · long</span><span class="zh-inline">800 股 · 多头</span></td>
-            <td>642.18</td>
-            <td>$513,744</td>
-            <td class="gain">+$123,904</td>
-            <td>18.04%</td>
-          </tr>
-          <tr>
-            <td class="sym">NVDA 580P</td>
-            <td class="name"><span class="en-inline">3 ct · short · 16 May</span><span class="zh-inline">3 张 · 空头 · 5/16</span></td>
-            <td>4.20</td>
-            <td>$174,000 <span style="color:var(--silver); font-size:0.7rem;">collateral</span></td>
-            <td class="gain">+$2,190</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td class="sym">SPY 530P</td>
-            <td class="name"><span class="en-inline">8 ct · long · 20 Jun · indirect</span><span class="zh-inline">8 张 · 多头 · 6/20 · 间接</span></td>
-            <td>11.20</td>
-            <td>$424,000 <span style="color:var(--silver); font-size:0.7rem;">notional</span></td>
-            <td class="gain">+$1,440</td>
-            <td>—</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- Consensus & Implied -->
-    <section class="det-section">
-      <div class="det-section-head">
-        <span class="ds-num">02</span>
-        <span class="ds-title">
-          <span class="en"><em>Consensus</em> &amp; implied</span>
-          <span class="zh"><em>市场预期</em>与隐含</span>
-        </span>
-        <span class="ds-meta">
-          <span class="en-inline">As of 24 Apr close</span>
-          <span class="zh-inline">截至 4/24 收盘</span>
-        </span>
-      </div>
-      <p class="det-prose">
-        <span class="en-inline">Sell-side consensus has tightened over the past two weeks, with the high-low EPS range narrowing from $0.78–$1.02 to $0.84–$0.94. Whisper number sits ~5% above consensus. Implied move of ±8.4% is roughly in line with the trailing 8-quarter average of 8.7%.</span>
-        <span class="zh-inline">过去两周卖方预期收窄，EPS 高低区间由 $0.78–$1.02 收窄至 $0.84–$0.94。市场私下预期高于共识约 5%。当前 ±8.4% 隐含波幅与近 8 个季度均值 8.7% 基本吻合。</span>
-      </p>
-      <div class="kv-grid">
-        <div class="kv-cell">
-          <span class="kv-label"><span class="en-inline">Consensus EPS</span><span class="zh-inline">EPS 预期</span></span>
-          <span class="kv-value">$0.89</span>
-          <div class="kv-sub">Range $0.84 – $0.94</div>
-        </div>
-        <div class="kv-cell">
-          <span class="kv-label"><span class="en-inline">Whisper</span><span class="zh-inline">市场私下预期</span></span>
-          <span class="kv-value">$0.93</span>
-          <div class="kv-sub">+4.5% vs consensus</div>
-        </div>
-        <div class="kv-cell">
-          <span class="kv-label"><span class="en-inline">Revenue</span><span class="zh-inline">营收</span></span>
-          <span class="kv-value">$26.8B</span>
-          <div class="kv-sub">YoY +148%</div>
-        </div>
-        <div class="kv-cell">
-          <span class="kv-label"><span class="en-inline">IV (1d before)</span><span class="zh-inline">财报前 IV</span></span>
-          <span class="kv-value warn">52%</span>
-          <div class="kv-sub">90-day baseline 38%</div>
-        </div>
-        <div class="kv-cell">
-          <span class="kv-label"><span class="en-inline">Implied Move</span><span class="zh-inline">隐含波幅</span></span>
-          <span class="kv-value">±8.4%</span>
-          <div class="kv-sub">≈ ±$54 from $642</div>
-        </div>
-        <div class="kv-cell">
-          <span class="kv-label"><span class="en-inline">IV Crush Est.</span><span class="zh-inline">IV 回落预期</span></span>
-          <span class="kv-value">−18 vols</span>
-          <div class="kv-sub">52% → ~34% post-print</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Historical Reaction -->
-    <section class="det-section">
-      <div class="det-section-head">
-        <span class="ds-num">03</span>
-        <span class="ds-title">
-          <span class="en">Historical <em>reaction</em></span>
-          <span class="zh">历史<em>反应</em></span>
-        </span>
-        <span class="ds-meta">
-          <span class="en-inline">Last 8 quarters</span>
-          <span class="zh-inline">近 8 个季度</span>
-        </span>
-      </div>
-      <p class="det-prose">
-        <span class="en-inline">Realized post-earnings moves have been larger than implied in 5 of the last 8 quarters. The asymmetry skews positive — three of those surprise-larger reactions were beats, two were misses. Within 5 trading days, the print direction has held in 6 of 8 cases.</span>
-        <span class="zh-inline">过去 8 个季度中，实际财报后波幅有 5 次大于隐含。其中 3 次为超预期上涨、2 次为不及预期下跌。在 5 个交易日内，财报后的方向在 8 次中有 6 次延续。</span>
-      </p>
-      <table class="hist-table">
-        <thead>
-          <tr>
-            <th><span class="en-inline">Quarter</span><span class="zh-inline">季度</span></th>
-            <th><span class="en-inline">EPS Est.</span><span class="zh-inline">EPS 预期</span></th>
-            <th><span class="en-inline">Reported</span><span class="zh-inline">实际</span></th>
-            <th><span class="en-inline">Surprise</span><span class="zh-inline">超预期</span></th>
-            <th><span class="en-inline">1d Move</span><span class="zh-inline">单日</span></th>
-            <th><span class="en-inline">5d Move</span><span class="zh-inline">5 日</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Q4 FY25</td><td>$0.84</td><td>$0.89</td><td class="gain">+5.9%</td><td class="gain">+9.3%</td><td class="gain">+12.1%</td></tr>
-          <tr><td>Q3 FY25</td><td>$0.74</td><td>$0.81</td><td class="gain">+9.4%</td><td class="loss">−2.5%</td><td class="loss">−4.8%</td></tr>
-          <tr><td>Q2 FY25</td><td>$0.65</td><td>$0.68</td><td class="gain">+4.6%</td><td class="gain">+0.1%</td><td class="gain">+3.6%</td></tr>
-          <tr><td>Q1 FY25</td><td>$0.60</td><td>$0.61</td><td class="gain">+1.6%</td><td class="loss">−7.7%</td><td class="loss">−10.2%</td></tr>
-          <tr><td>Q4 FY24</td><td>$0.51</td><td>$0.52</td><td class="gain">+2.0%</td><td class="gain">+16.4%</td><td class="gain">+14.0%</td></tr>
-          <tr><td>Q3 FY24</td><td>$0.40</td><td>$0.40</td><td>0.0%</td><td class="gain">+9.7%</td><td class="gain">+11.5%</td></tr>
-          <tr><td>Q2 FY24</td><td>$0.27</td><td>$0.27</td><td>0.0%</td><td class="gain">+0.1%</td><td class="loss">−6.4%</td></tr>
-          <tr><td>Q1 FY24</td><td>$0.21</td><td>$0.21</td><td>0.0%</td><td class="gain">+24.4%</td><td class="gain">+26.5%</td></tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td><span class="en-inline">Median</span><span class="zh-inline">中位数</span></td>
-            <td>—</td>
-            <td>—</td>
-            <td>+1.8%</td>
-            <td>+5.0%</td>
-            <td>+7.6%</td>
-          </tr>
-        </tfoot>
-      </table>
-    </section>
-
-    <!-- Recommended Actions -->
-    <section class="det-section">
-      <div class="det-section-head">
-        <span class="ds-num">04</span>
-        <span class="ds-title">
-          <span class="en">Recommended <em>options</em></span>
-          <span class="zh">建议<em>方案</em></span>
-        </span>
-        <span class="ds-meta">
-          <span class="en-inline">From 19 Apr Strategy Memo</span>
-          <span class="zh-inline">来自 4/19 策略备忘</span>
-        </span>
-      </div>
-      <p class="det-prose">
-        <span class="en-inline">Three pre-earnings actions are on the table, ranked by the 19 April strategy memo. None require execution — the memo's purpose is to ensure decisions are made deliberately rather than reactively. Final selection due by 16:00 ET on Wednesday 30 April.</span>
-        <span class="zh-inline">财报前可选三种处置方案，按 4/19 备忘排序。三者皆非必选——备忘的目的是确保决策出于深思而非应激。最终选择须于 4/30（周三）16:00 ET 前确定。</span>
-      </p>
-      <div class="options-list">
-        <div class="opt-item recommended">
-          <div class="opt-head">
-            <span class="opt-letter">A</span>
-            <span class="opt-title">
-              <span class="en-inline">Trim 200 sh pre-print</span>
-              <span class="zh-inline">财报前减持 200 股</span>
-            </span>
-            <span class="opt-flag">
-              <span class="en-inline">★ Memo's pick</span><span class="zh-inline">★ 备忘推荐</span>
-            </span>
-          </div>
-          <div class="opt-desc">
-            <span class="en-inline">Reduces NVDA weight from 18.0% → 13.5%, restoring concentration buffer. Locks in $30,976 of unrealized gains. Tax: +$24,781 short-term capital gain (HK domicile, 0% applicable).</span>
-            <span class="zh-inline">将 NVDA 权重由 18.0% 降至 13.5%，恢复集中度安全边际。锁定 $30,976 浮盈。税务：+$24,781 短期资本利得（港籍居民适用 0% 税率）。</span>
-          </div>
-          <div class="opt-meta">
-            <span><span class="en-inline">New weight</span><span class="zh-inline">新权重</span><strong>13.5%</strong></span>
-            <span><span class="en-inline">Realized gain</span><span class="zh-inline">已实现盈利</span><strong>$30,976</strong></span>
-            <span><span class="en-inline">Tax impact</span><span class="zh-inline">税务影响</span><strong>None (HK)</strong></span>
-          </div>
-        </div>
-
-        <div class="opt-item">
-          <div class="opt-head">
-            <span class="opt-letter">B</span>
-            <span class="opt-title">
-              <span class="en-inline">Layer covered calls 700C / 720C</span>
-              <span class="zh-inline">分批开备兑 700C / 720C</span>
-            </span>
-            <span class="opt-flag">
-              <span class="en-inline">Yield play</span><span class="zh-inline">收益型</span>
-            </span>
-          </div>
-          <div class="opt-desc">
-            <span class="en-inline">Hold full position; sell 4 ct 700C (5 May exp) + 4 ct 720C (16 May). Collects $11.20/ct premium = $4,480, captures IV crush. Caps upside at $700/$720 if assigned.</span>
-            <span class="zh-inline">维持全仓；卖出 4 张 700C（5/5 到期）+ 4 张 720C（5/16）。收取权利金 $11.20/张 = $4,480，捕获 IV 回落。若被行权，上行封顶 $700 / $720。</span>
-          </div>
-          <div class="opt-meta">
-            <span><span class="en-inline">Premium</span><span class="zh-inline">权利金</span><strong>+$4,480</strong></span>
-            <span><span class="en-inline">Upside cap</span><span class="zh-inline">上行封顶</span><strong>$700 / $720</strong></span>
-            <span><span class="en-inline">If pinned</span><span class="zh-inline">若被行权</span><strong>+9% / +12%</strong></span>
-          </div>
-        </div>
-
-        <div class="opt-item">
-          <div class="opt-head">
-            <span class="opt-letter">C</span>
-            <span class="opt-title">
-              <span class="en-inline">Buy protective put 600P / 16 May</span>
-              <span class="zh-inline">买入保护性看跌 600P / 5/16</span>
-            </span>
-            <span class="opt-flag">
-              <span class="en-inline">Defensive</span><span class="zh-inline">防守型</span>
-            </span>
-          </div>
-          <div class="opt-desc">
-            <span class="en-inline">Add 8 ct long puts at 600 strike. Premium ~$8.50/ct = $6,800 cost. Caps NVDA-specific drawdown at ~6.5% from current mark. Pure cost; loses on flat / up tape.</span>
-            <span class="zh-inline">买入 8 张 600 行权价看跌。权利金约 $8.50/张 = $6,800。将 NVDA 单仓回撤封顶在现价下方约 6.5%。纯成本——若价格持平或上涨则全损。</span>
-          </div>
-          <div class="opt-meta">
-            <span><span class="en-inline">Cost</span><span class="zh-inline">成本</span><strong>−$6,800</strong></span>
-            <span><span class="en-inline">DD floor</span><span class="zh-inline">回撤底线</span><strong>−6.5%</strong></span>
-            <span><span class="en-inline">Break-even</span><span class="zh-inline">盈亏平衡</span><strong>$591.50</strong></span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
+  <!-- All content here is rebuilt by SQ-EVENT-DETAIL-V1 from
+       event.metadata.sections. See docs/event-metadata-schema.md. -->
+  <main class="detail-main" data-rebuild="detail.sections"></main>
 
   <!-- ASIDE -->
   <aside class="detail-aside">
@@ -1547,6 +1418,45 @@
   const WEEKDAYS_LONG_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const WEEKDAYS_LONG_ZH = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
 
+  /**
+   * Format a Date in the event's preferred timezone (or browser local).
+   * Returns { day, monthIdx, year, weekdayIdx, time }. Mirrors the helper
+   * used in Schedules.html — keep these two in sync (or factor out into
+   * a shared script later when the page count justifies it).
+   */
+  const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  function inferZonedParts(date, tz) {
+    const zone = tz || browserTz;
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: zone,
+        year: 'numeric', month: 'numeric', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: false,
+        weekday: 'long', timeZoneName: 'short',
+      }).formatToParts(date);
+      const m = (t) => parts.find((p) => p.type === t)?.value;
+      const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const hh = m('hour') ?? '00';
+      const mm = m('minute') ?? '00';
+      const tag = m('timeZoneName') ?? 'UTC';
+      return {
+        day: String(m('day') ?? '').padStart(2, '0'),
+        monthIdx: parseInt(m('month') ?? '1', 10) - 1,
+        year: parseInt(m('year') ?? '2026', 10),
+        weekdayIdx: WEEKDAYS.indexOf(m('weekday') ?? 'Sunday'),
+        time: `${hh}:${mm} ${tag}`,
+      };
+    } catch {
+      return {
+        day: String(date.getUTCDate()).padStart(2, '0'),
+        monthIdx: date.getUTCMonth(),
+        year: date.getUTCFullYear(),
+        weekdayIdx: date.getUTCDay(),
+        time: `${String(date.getUTCHours()).padStart(2,'0')}:${String(date.getUTCMinutes()).padStart(2,'0')} UTC`,
+      };
+    }
+  }
+
   const setBind = (key, val) => {
     document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => { el.textContent = val; });
   };
@@ -1599,23 +1509,24 @@
 
   function renderHeader(event) {
     const d = new Date(event.startsAt);
-    const dow = d.getUTCDay();
+    const zp = inferZonedParts(d, event.displayTz);
     document.title = `${event.title} · Shion Quant`;
 
     // Breadcrumb
-    setBind('breadcrumb.monthYear', `${MONTHS_LONG_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`);
+    setBind('breadcrumb.monthYear', `${MONTHS_LONG_EN[zp.monthIdx]} ${zp.year}`);
     setBind('breadcrumb.eventName', event.title);
 
-    // Header date block
-    setBind('header.day', String(d.getUTCDate()).padStart(2, '0'));
-    setBind('header.monthEn', `${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`);
-    setBind('header.monthZh', `${MONTHS_ZH[d.getUTCMonth()]} ${d.getUTCFullYear()}`);
-    setBind('header.weekdayEn', WEEKDAYS_LONG_EN[dow]);
-    setBind('header.weekdayZh', WEEKDAYS_LONG_ZH[dow]);
+    // Header date block (rendered in the event's tz so a 14:00 HKT meeting
+    // on the 18th doesn't show as "17" because UTC is behind).
+    setBind('header.day', zp.day);
+    setBind('header.monthEn', `${MONTHS_EN[zp.monthIdx]} ${zp.year}`);
+    setBind('header.monthZh', `${MONTHS_ZH[zp.monthIdx]} ${zp.year}`);
+    setBind('header.weekdayEn', WEEKDAYS_LONG_EN[zp.weekdayIdx]);
+    setBind('header.weekdayZh', WEEKDAYS_LONG_ZH[zp.weekdayIdx]);
 
     // Tags row
     const lbl = TYPE_LABELS[event.eventType] || { en: event.eventType, zh: event.eventType };
-    const time = `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC`;
+    const time = zp.time;
     const tags = [];
     if (event.isCritical) {
       tags.push(`<span class="eh-tag critical"><span class="en-inline">Critical</span><span class="zh-inline">重点</span></span>`);
@@ -1671,10 +1582,10 @@
       const hours = Math.floor((diffMs % (24 * 60 * 60_000)) / (60 * 60_000));
       setBind('countdown.days', String(days));
       setBind('countdown.hours', String(hours));
-      const time = `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC`;
-      const dateStr = `${d.getUTCDate()} ${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-      setBind('countdown.metaEn', `${time} · ${dateStr}`);
-      setBind('countdown.metaZh', `${time} · ${dateStr}`);
+      const zp = inferZonedParts(d, event.displayTz);
+      const dateStr = `${parseInt(zp.day, 10)} ${MONTHS_EN[zp.monthIdx]} ${zp.year}`;
+      setBind('countdown.metaEn', `${zp.time} · ${dateStr}`);
+      setBind('countdown.metaZh', `${zp.time} · ${dateStr}`);
     }
   }
 
@@ -1714,6 +1625,171 @@
     setBind('hedge.metaZh', txt);
   }
 
+  // ═════════════════════════════════════════════════════════════════════
+  //  Section dispatch + 5 block renderers
+  //  See backend/docs/event-metadata-schema.md for the JSON contract.
+  // ═════════════════════════════════════════════════════════════════════
+
+  /** Bilingual string helper: accepts `{en,zh}` OR a plain string. */
+  function bi(value) {
+    if (value == null) return '';
+    if (typeof value === 'string') return value;
+    return _zh() ? (value.zh ?? value.en ?? '') : (value.en ?? value.zh ?? '');
+  }
+
+  function _sectionHead(num, title, eyebrow) {
+    if (!title && !eyebrow) return '';
+    return `
+      <div class="det-section-head">
+        <span class="ds-num">${String(num).padStart(2, '0')}</span>
+        ${title ? `<span class="ds-title">${escapeHtml(bi(title))}</span>` : ''}
+        ${eyebrow ? `<span class="ds-meta">${escapeHtml(bi(eyebrow))}</span>` : ''}
+      </div>`;
+  }
+
+  function renderProse(block, idx) {
+    return `
+      <section class="det-section">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <p class="det-prose">${escapeHtml(bi(block.body))}</p>
+      </section>`;
+  }
+
+  function renderTable(block, idx) {
+    const cols = Array.isArray(block.columns) ? block.columns : [];
+    const rows = Array.isArray(block.rows) ? block.rows : [];
+    const head = `
+      <thead>
+        <tr>
+          ${cols.map((c) => {
+            const alignStyle = c.align === 'right' ? ' style="text-align:right"' : c.align === 'center' ? ' style="text-align:center"' : '';
+            return `<th${alignStyle}>${escapeHtml(bi(c.label))}</th>`;
+          }).join('')}
+        </tr>
+      </thead>`;
+    const body = `
+      <tbody>
+        ${rows.map((r) => `
+          <tr>
+            ${cols.map((c) => {
+              const raw = r[c.key];
+              const text = raw == null ? '—' : String(raw);
+              const alignStyle = c.align === 'right' ? ' style="text-align:right"' : c.align === 'center' ? ' style="text-align:center"' : '';
+              let toneClass = '';
+              if (c.tone === 'sign' && typeof text === 'string') {
+                if (text.startsWith('+')) toneClass = ' class="gain"';
+                else if (text.startsWith('−') || text.startsWith('-')) toneClass = ' class="loss"';
+              }
+              return `<td${toneClass}${alignStyle}>${escapeHtml(text)}</td>`;
+            }).join('')}
+          </tr>`).join('')}
+      </tbody>`;
+    return `
+      <section class="det-section">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <table class="pos-mini">${head}${body}</table>
+      </section>`;
+  }
+
+  function renderKvGrid(block, idx) {
+    const items = Array.isArray(block.items) ? block.items : [];
+    const tiles = items.map((item) => {
+      const pill = item.pill
+        ? `<span class="kv-pill kv-pill-${escapeHtml(item.pill.tone || 'default')}">${escapeHtml(bi(item.pill.text))}</span>`
+        : '';
+      const sub = item.sub
+        ? `<div class="kv-sub">${escapeHtml(bi(item.sub))}</div>`
+        : '';
+      return `
+        <div class="kv-tile">
+          <div class="kv-label">${escapeHtml(bi(item.label))}</div>
+          <div class="kv-value">${escapeHtml(String(item.value ?? '—'))} ${pill}</div>
+          ${sub}
+        </div>`;
+    }).join('');
+    return `
+      <section class="det-section">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <div class="kv-grid">${tiles}</div>
+      </section>`;
+  }
+
+  function renderActions(block, idx) {
+    const items = Array.isArray(block.items) ? block.items : [];
+    const rows = items.map((item) => {
+      const pTone = item.priority === 'high' ? 'high' : item.priority === 'low' ? 'low' : 'med';
+      const pLabelEn = item.priority === 'high' ? 'High' : item.priority === 'low' ? 'Low' : 'Med';
+      const pLabelZh = item.priority === 'high' ? '高' : item.priority === 'low' ? '低' : '中';
+      return `
+        <div class="action-row">
+          <span class="action-prio prio-${pTone}">
+            <span class="en-inline">${pLabelEn}</span><span class="zh-inline">${pLabelZh}</span>
+          </span>
+          <div class="action-body">
+            <div class="action-title">${escapeHtml(bi(item.action))}</div>
+            ${item.rationale ? `<div class="action-why">${escapeHtml(bi(item.rationale))}</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+    return `
+      <section class="det-section">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <div class="action-list">${rows}</div>
+      </section>`;
+  }
+
+  function renderReaction(block, idx) {
+    const rows = Array.isArray(block.rows) ? block.rows : [];
+    const tbody = rows.map((r) => {
+      const toneClass = r.tone === 'gain' ? 'gain' : r.tone === 'loss' ? 'loss' : '';
+      return `
+        <tr>
+          <td>${escapeHtml(bi(r.period))}</td>
+          <td>${escapeHtml(bi(r.surprise))}</td>
+          <td class="${toneClass}">${escapeHtml(bi(r.reaction))}</td>
+        </tr>`;
+    }).join('');
+    return `
+      <section class="det-section">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <table class="pos-mini">
+          <thead>
+            <tr>
+              <th><span class="en-inline">Period</span><span class="zh-inline">期间</span></th>
+              <th><span class="en-inline">Surprise</span><span class="zh-inline">超预期</span></th>
+              <th><span class="en-inline">Reaction</span><span class="zh-inline">反应</span></th>
+            </tr>
+          </thead>
+          <tbody>${tbody}</tbody>
+        </table>
+      </section>`;
+  }
+
+  /** Dispatch a single block to its renderer; skip unknowns. */
+  function renderSection(block, idx) {
+    switch (block?.kind) {
+      case 'prose':    return renderProse(block, idx);
+      case 'table':    return renderTable(block, idx);
+      case 'kvgrid':   return renderKvGrid(block, idx);
+      case 'actions':  return renderActions(block, idx);
+      case 'reaction': return renderReaction(block, idx);
+      default:
+        console.warn('[event-detail] unknown section kind:', block?.kind);
+        return '';
+    }
+  }
+
+  function renderSections(event) {
+    const sections = event?.metadata?.sections;
+    if (!Array.isArray(sections) || sections.length === 0) {
+      const msg = _zh() ? '此事件暂无补充资料' : 'No additional context for this event';
+      setRebuild('detail.sections', `<div class="rebuild-failed">${escapeHtml(msg)}</div>`);
+      return;
+    }
+    const html = sections.map((b, i) => renderSection(b, i)).join('');
+    setRebuild('detail.sections', html);
+  }
+
   async function boot() {
     _blankAllBindings();
     const url = new URL(window.location.href);
@@ -1730,6 +1806,7 @@
       renderCountdown(event);
       renderPosition(data);
       renderImpliedAndHedge();
+      renderSections(event);
     } catch (err) {
       console.warn('[event-detail] fetch failed:', err.message || err);
       _markFailed();
@@ -1743,20 +1820,6 @@
   }
 })();
 </script>
-
-<style>
-  .rebuild-failed {
-    text-align: center;
-    padding: 1.5rem 1rem;
-    font-family: var(--sans-en);
-    font-size: 0.84rem;
-    color: var(--ink-soft);
-    opacity: 0.55;
-    font-style: italic;
-    letter-spacing: 0.04em;
-  }
-  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); letter-spacing: 0.06em; }
-</style>
 
 </body>
 </html>

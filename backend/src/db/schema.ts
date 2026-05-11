@@ -41,6 +41,8 @@ import {
   uuid,
 } from "drizzle-orm/pg-core"
 
+import type { EventMetadata } from "../types/event-metadata.js"
+
 // ─── Custom Postgres types not in drizzle/pg-core ─────────────────────────
 
 const inet = customType<{ data: string }>({ dataType: () => "inet" })
@@ -480,7 +482,9 @@ export const events = pgTable(
     isCritical: boolean("is_critical").notNull().default(false),
     isArchived: boolean("is_archived").notNull().default(false),
     rrule: text("rrule"),
-    metadata: jsonb("metadata"),
+    // Free-form jsonb that drives Event Detail's rich main column.
+    // See docs/event-metadata-schema.md + types/event-metadata.ts.
+    metadata: jsonb("metadata").$type<EventMetadata>(),
     createdAt: ts("created_at").notNull().defaultNow(),
     updatedAt: ts("updated_at").notNull().defaultNow(),
   },
