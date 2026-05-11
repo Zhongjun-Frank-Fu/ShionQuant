@@ -876,6 +876,45 @@ export const invoices = pgTable(
   (t) => [index("invoices_client_issued_idx").on(t.clientId, t.issuedAt)],
 )
 
+/**
+ * Structured metadata for a custom project. Stored in
+ * `custom_projects.metadata` (jsonb). Drives the Billing page's per-project
+ * detail row + (later) a dedicated project-detail view. Free-form by
+ * design — we want to be able to add new project shapes without schema
+ * migration.
+ */
+export interface CustomProjectMilestone {
+  /** Stable id for editor diffing. */
+  id: string
+  label: { en: string; zh: string } | string
+  /** ISO date when this milestone is targeted (or null = TBD). */
+  dueAt?: string | null
+  /** When it actually closed; null = not yet. */
+  completedAt?: string | null
+}
+
+export interface CustomProjectDeliverable {
+  kind: "report" | "memo" | "spreadsheet" | "code" | "other"
+  label: { en: string; zh: string } | string
+  /** Optional reference to a delivered document / report id. */
+  documentId?: string
+  reportId?: string
+  /** Free-form notes shown under the deliverable line. */
+  notes?: { en: string; zh: string } | string
+}
+
+export interface CustomProjectMetadata {
+  /** Short bilingual summary shown in the Billing page expansion. */
+  summary?: { en: string; zh: string } | string
+  /** Per-milestone progress timeline. */
+  milestones?: CustomProjectMilestone[]
+  /** Tangible outputs produced by the project. */
+  deliverables?: CustomProjectDeliverable[]
+  /** Anything else clients/advisors want to record here. */
+  notes?: { en: string; zh: string } | string
+  [key: string]: unknown
+}
+
 export const customProjects = pgTable("custom_projects", {
   id: uuid("id").defaultRandom().primaryKey(),
   clientId: uuid("client_id").notNull().references(() => clients.id, { onDelete: "restrict" }),
@@ -893,6 +932,8 @@ export const customProjects = pgTable("custom_projects", {
   startedAt: date("started_at"),
   deliveredAt: date("delivered_at"),
   closedAt: date("closed_at"),
+  /** Structured project payload — see CustomProjectMetadata above. */
+  metadata: jsonb("metadata").$type<CustomProjectMetadata>(),
   createdAt: ts("created_at").notNull().defaultNow(),
 })
 

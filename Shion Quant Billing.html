@@ -535,163 +535,40 @@
     </p>
   </div>
 
-  <!-- 1. PLAN + NEXT BILL -->
+  <!-- 1. CURRENT PLAN + auto-computed Next Bill + Preview Invoice -->
   <section class="sec">
     <div class="sec-head">
       <h2 class="sec-title"><span class="en">Current <em>plan</em></span><span class="zh">当前<em>等级</em></span></h2>
-      <a href="#" class="sec-edit"><span class="en-inline">View other plans</span><span class="zh-inline">查看其他等级</span></a>
+      <!-- "View other plans" link intentionally omitted per spec. -->
     </div>
-    <div class="card">
-      <div class="plan-row">
-        <div class="pr-info">
-          <div class="pr-name">
-            <span class="en">Retainer · <em>monthly advisory</em></span>
-            <span class="zh">月度顾问 · <em>持续合作</em></span>
-          </div>
-          <div class="pr-meta">
-            <span class="en-inline">Active since 1 Jul 2024 · renews annually · 60-day notice to terminate</span>
-            <span class="zh-inline">自 2024/7/1 起 · 每年续约 · 60 天通知即可解约</span>
-          </div>
-        </div>
-        <div class="pr-price">
-          <span class="currency">$</span>4,500
-          <span class="cycle"><span class="en-inline">/ month</span><span class="zh-inline">/ 月</span></span>
-        </div>
-        <a href="#" class="pr-action"><span class="en-inline">Manage</span><span class="zh-inline">管理</span></a>
-      </div>
-      <div class="next-bill">
-        <span class="nb-text">
-          <span class="en-inline">Next bill <strong>$4,500</strong> on <strong>1 May 2026</strong></span>
-          <span class="zh-inline">下次扣款 <strong>$4,500</strong> · <strong>2026/5/1</strong></span>
-          <span class="nb-ts"><span class="en-inline">in 5 days</span><span class="zh-inline">5 天后</span></span>
-        </span>
-        <a href="#" class="nb-link"><span class="en-inline">Preview invoice ›</span><span class="zh-inline">预览发票 ›</span></a>
-      </div>
-    </div>
+    <div class="card" data-rebuild="billing.plan"></div>
   </section>
 
-  <!-- 2. RECENT INVOICES -->
+  <!-- 2. RECENT INVOICES (+ All invoices expand) -->
   <section class="sec">
     <div class="sec-head">
-      <h2 class="sec-title"><span class="en">Recent <em>invoices</em></span><span class="zh">最近<em>发票</em></span></h2>
+      <h2 class="sec-title"><span class="en"><em>Invoices</em></span><span class="zh"><em>发票</em></span></h2>
     </div>
-    <div class="card">
-      <div class="inv-row">
-        <div class="inv-info">
-          <div class="inv-name">
-            <span class="en-inline">Apr 2026 · Retainer</span>
-            <span class="zh-inline">2026/4 · 月度顾问</span>
-          </div>
-          <div class="inv-meta">SQ-2026-0042 · 1 Apr 2026</div>
-        </div>
-        <div class="inv-amt">$4,500.00</div>
-        <span class="inv-status">PAID</span>
-        <a href="#" class="inv-action" title="Download"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>
-      </div>
-      <div class="inv-row">
-        <div class="inv-info">
-          <div class="inv-name">
-            <span class="en-inline">SPY Wheel Optimization</span>
-            <span class="zh-inline">SPY Wheel 优化研究</span>
-            <span class="inv-tag">PROJECT</span>
-          </div>
-          <div class="inv-meta">SQ-2026-0038 · 14 Mar 2026</div>
-        </div>
-        <div class="inv-amt">$22,000.00</div>
-        <span class="inv-status">PAID</span>
-        <a href="#" class="inv-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>
-      </div>
-      <div class="inv-row">
-        <div class="inv-info">
-          <div class="inv-name">
-            <span class="en-inline">Mar 2026 · Retainer</span>
-            <span class="zh-inline">2026/3 · 月度顾问</span>
-          </div>
-          <div class="inv-meta">SQ-2026-0033 · 1 Mar 2026</div>
-        </div>
-        <div class="inv-amt">$4,500.00</div>
-        <span class="inv-status">PAID</span>
-        <a href="#" class="inv-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>
-      </div>
-      <div class="inv-foot">
-        <span class="inv-foot-text"><span class="en-inline">22 invoices · all paid · YTD $40,500</span><span class="zh-inline">共 22 张 · 全部已付 · 年内 $40,500</span></span>
-        <a href="#" class="inv-foot-link"><span class="en-inline">All invoices ›</span><span class="zh-inline">查看全部 ›</span></a>
-      </div>
-    </div>
+    <div class="card" data-rebuild="billing.invoices"></div>
   </section>
 
-  <!-- 3. PAYMENT -->
+  <!-- 3. PAYMENT METHODS -->
   <section class="sec">
     <div class="sec-head">
-      <h2 class="sec-title"><span class="en">Payment <em>method</em></span><span class="zh">付款<em>方式</em></span></h2>
-      <a href="#" class="sec-edit"><span class="en-inline">+ Add backup</span><span class="zh-inline">+ 添加备用</span></a>
+      <h2 class="sec-title"><span class="en">Payment <em>methods</em></span><span class="zh">付款<em>方式</em></span></h2>
     </div>
-    <div class="card">
-      <div class="pm-row">
-        <div class="pm-icon">WIRE</div>
-        <div class="pm-info">
-          <div class="pm-name">
-            <span class="en-inline">BEA HKD wire · auto-debit</span>
-            <span class="zh-inline">东亚港币 · 自动扣款</span>
-            <span class="default">DEFAULT</span>
-          </div>
-          <div class="pm-meta">
-            <span class="en-inline">Authorized Jul 2024 · 5-day pre-debit notice</span>
-            <span class="zh-inline">2024/7 授权 · 提前 5 天通知</span>
-            <span class="num">···BEA-3942</span>
-          </div>
-        </div>
-        <a href="#" class="pr-action"><span class="en-inline">Edit</span><span class="zh-inline">编辑</span></a>
-      </div>
-      <div class="pm-row">
-        <div class="pm-icon card">CARD</div>
-        <div class="pm-info">
-          <div class="pm-name">HSBC Premier Mastercard</div>
-          <div class="pm-meta">
-            <span class="en-inline">For invoices &lt; $1,000 · expires 09/27</span>
-            <span class="zh-inline">用于 $1,000 以下发票 · 09/27 到期</span>
-            <span class="num">····5512</span>
-          </div>
-        </div>
-        <a href="#" class="pr-action" style="color:var(--silver);"><span class="en-inline">Remove</span><span class="zh-inline">移除</span></a>
-      </div>
-    </div>
+    <div class="card" data-rebuild="billing.paymentMethods"></div>
   </section>
 
-  <!-- 4. PROJECTS (collapsed) -->
+  <!-- 4. CUSTOM PROJECTS (collapsed by default) -->
   <section class="sec">
     <details class="projects">
       <summary>
         <span class="en-inline">Custom project work</span>
         <span class="zh-inline">定制项目</span>
-        <span class="pj-hint">
-          <span class="en-inline">· 2 closed · YTD $25,200</span>
-          <span class="zh-inline">· 2 个已结案 · 年内 $25,200</span>
-        </span>
+        <span class="pj-hint" data-bind="billing.projectsHint">—</span>
       </summary>
-      <div class="pj-row">
-        <div>
-          <div class="pj-name"><span class="en-inline">SPY Wheel · walk-forward optimization</span><span class="zh-inline">SPY Wheel · 滚动前向优化</span></div>
-          <div class="pj-meta"><span class="en-inline">Mar 2026 · 22 pp deliverable · closed</span><span class="zh-inline">2026/3 · 22 页交付物 · 已结案</span></div>
-        </div>
-        <div class="pj-amt">$22,000</div>
-        <a href="#" class="pj-link"><span class="en-inline">SOW</span><span class="zh-inline">查看 SOW</span></a>
-      </div>
-      <div class="pj-row">
-        <div>
-          <div class="pj-name"><span class="en-inline">2025 Tax handover &amp; reconciliation</span><span class="zh-inline">2025 税务交接与对账</span></div>
-          <div class="pj-meta"><span class="en-inline">Dec 2025 · accountant deliverable · closed</span><span class="zh-inline">2025/12 · 会计师交付 · 已结案</span></div>
-        </div>
-        <div class="pj-amt">$3,200</div>
-        <a href="#" class="pj-link"><span class="en-inline">SOW</span><span class="zh-inline">查看 SOW</span></a>
-      </div>
-      <div class="scope-cta">
-        <span class="scope-cta-text">
-          <span class="en-inline">New project? Initial scoping is complimentary.</span>
-          <span class="zh-inline">想推进新项目？初步范围沟通免费。</span>
-        </span>
-        <a href="#" class="scope-cta-link"><span class="en-inline">Start scoping ›</span><span class="zh-inline">发起沟通 ›</span></a>
-      </div>
+      <div data-rebuild="billing.projects"></div>
     </details>
   </section>
 
@@ -1099,6 +976,624 @@
   })();
 })();
 </script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+ * SQ-BILLING-V1
+ * Live wire-up for the Billing page.
+ *
+ * Fires 4 parallel reads:
+ *   GET /api/v1/account/billing/plan          → current engagement + next-bill date (auto-computed)
+ *   GET /api/v1/account/billing/invoices      → all invoices, newest first
+ *   GET /api/v1/account/billing/payment-methods
+ *   GET /api/v1/account/billing/projects      → custom projects + metadata
+ *
+ * Renders 4 sections:
+ *   1. Current plan card + "Next bill … in N days" strip + inline
+ *      "Preview invoice" expander (fetches /preview-invoice on click)
+ *   2. Recent invoices (3 newest by default + "Show all" expands the rest)
+ *   3. Payment methods (default first, then backups)
+ *   4. Custom project work (collapsible <details> with milestones +
+ *      deliverables rendered from metadata)
+ *
+ * No edit flows in this MVP — everything is read-only display.
+ * ───────────────────────────────────────────────────────────────────────── */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const FAILED_EN = 'Not loaded';
+  const FAILED_ZH = '未读取';
+  const _zh = () => document.body.classList.contains('lang-zh');
+  const _failedTxt = () => _zh() ? FAILED_ZH : FAILED_EN;
+  const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
+  }[c]));
+  const bi = (v) => {
+    if (v == null) return '';
+    if (typeof v === 'string') return v;
+    return _zh() ? (v.zh ?? v.en ?? '') : (v.en ?? v.zh ?? '');
+  };
+
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MONTHS_LONG_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MONTHS_ZH = ['1 月','2 月','3 月','4 月','5 月','6 月','7 月','8 月','9 月','10 月','11 月','12 月'];
+
+  function fmtUsd(amount) {
+    if (amount == null || !isFinite(amount)) return '—';
+    return '$' + Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return _zh()
+      ? `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`
+      : `${d.getUTCDate()} ${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  }
+  function fmtMonthYear(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return _zh()
+      ? `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}`
+      : `${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  }
+  function fmtLongDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return _zh()
+      ? `${d.getUTCFullYear()} 年 ${d.getUTCMonth() + 1} 月 ${d.getUTCDate()} 日`
+      : `${d.getUTCDate()} ${MONTHS_LONG_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  }
+
+  const setBindHtml = (k, html) => document.querySelectorAll(`[data-bind="${k}"]`).forEach((el) => { el.innerHTML = html; });
+  const setRebuild = (k, html) => { const el = document.querySelector(`[data-rebuild="${k}"]`); if (el) el.innerHTML = html; };
+  function _blankAllBindings() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = '—'; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => { el.innerHTML = ''; });
+  }
+  function _markFailed(label) {
+    const txt = _failedTxt();
+    // Mark only the failed section if a label is supplied; else mark everything.
+    const sel = label ? `[data-rebuild="${label}"]` : '[data-rebuild]';
+    document.querySelectorAll(sel).forEach((el) => {
+      el.innerHTML = `<div class="rebuild-failed">${escapeHtml(txt)}</div>`;
+    });
+  }
+
+  // ─── Networking ─────────────────────────────────────────────────────
+  async function getJson(path) {
+    const res = await fetch(API_BASE + path, {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status} ${path} :: ${body.slice(0, 200)}`);
+    }
+    return res.json();
+  }
+
+  // ─── 1. Current plan + Next bill + Preview invoice ─────────────────
+  const TIER_LABELS = {
+    retainer:   { en: 'Retainer · monthly advisory',  zh: '月度顾问 · 持续合作' },
+    diagnostic: { en: 'Diagnostic · one-time review', zh: '诊断 · 一次性服务' },
+    build:      { en: 'Build · ongoing engagement',   zh: '深度合作 · 持续' },
+  };
+  function renderPlan(data) {
+    if (!data.currentPlan) {
+      setRebuild('billing.plan', `<div class="rebuild-failed"><span class="en-inline">No active plan</span><span class="zh-inline">暂无活跃计划</span></div>`);
+      return;
+    }
+    const plan = data.currentPlan;
+    const nb = data.nextBill;
+    const tier = TIER_LABELS[plan.tier] || { en: plan.tier, zh: plan.tier };
+
+    const daysAwayLabelEn = nb.daysAway === 0 ? 'today'
+                           : nb.daysAway === 1 ? 'tomorrow'
+                           : `in ${nb.daysAway} days`;
+    const daysAwayLabelZh = nb.daysAway === 0 ? '今天到期'
+                           : nb.daysAway === 1 ? '明天到期'
+                           : `${nb.daysAway} 天后`;
+
+    setRebuild('billing.plan', `
+      <div class="plan-row">
+        <div class="pr-info">
+          <div class="pr-name">
+            <span class="en">${escapeHtml(tier.en.split(' · ')[0])} · <em>${escapeHtml(tier.en.split(' · ')[1] || '')}</em></span>
+            <span class="zh">${escapeHtml(tier.zh.split(' · ')[0])} · <em>${escapeHtml(tier.zh.split(' · ')[1] || '')}</em></span>
+          </div>
+          <div class="pr-meta">
+            <span class="en-inline">Active since ${escapeHtml(fmtLongDate(plan.startedAt))} · renews annually · ${plan.noticeDays}-day notice to terminate</span>
+            <span class="zh-inline">自 ${escapeHtml(fmtLongDate(plan.startedAt))}起 · 每年续约 · ${plan.noticeDays} 天通知即可解约</span>
+          </div>
+        </div>
+        <div class="pr-price">
+          <span class="currency">$</span>${escapeHtml(Number(plan.monthlyFeeUsd).toLocaleString('en-US'))}
+          <span class="cycle"><span class="en-inline">/ month</span><span class="zh-inline">/ 月</span></span>
+        </div>
+      </div>
+      <div class="next-bill">
+        <span class="nb-text">
+          <span class="en-inline">Next bill <strong>${escapeHtml(fmtUsd(nb.amountUsd))}</strong> on <strong>${escapeHtml(fmtLongDate(nb.dueOn))}</strong></span>
+          <span class="zh-inline">下次扣款 <strong>${escapeHtml(fmtUsd(nb.amountUsd))}</strong> · <strong>${escapeHtml(fmtDate(nb.dueOn))}</strong></span>
+          <span class="nb-ts"><span class="en-inline">${escapeHtml(daysAwayLabelEn)}</span><span class="zh-inline">${escapeHtml(daysAwayLabelZh)}</span></span>
+        </span>
+        <a href="#" class="nb-link" id="preview-invoice-toggle"><span class="en-inline">Preview invoice ›</span><span class="zh-inline">预览发票 ›</span></a>
+      </div>
+      <div class="preview-box" id="preview-invoice-box" hidden></div>
+    `);
+    // Lazy-load preview on click; cache so repeat clicks don't re-fetch.
+    let cached = null;
+    document.getElementById('preview-invoice-toggle')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const box = document.getElementById('preview-invoice-box');
+      if (!box) return;
+      // Toggle
+      if (!box.hidden) { box.hidden = true; return; }
+      box.hidden = false;
+      box.innerHTML = `<div class="preview-loading"><span class="en-inline">Loading preview…</span><span class="zh-inline">正在加载预览…</span></div>`;
+      try {
+        if (!cached) cached = await getJson('/account/billing/preview-invoice');
+        const p = cached.preview;
+        const rows = (p.lineItems || []).map((li) => `
+          <div class="prev-line">
+            <div class="prev-line-info">
+              <div class="prev-line-name">${escapeHtml(bi(li.label))}</div>
+              ${li.note ? `<div class="prev-line-note">${escapeHtml(bi(li.note))}</div>` : ''}
+            </div>
+            <div class="prev-line-amt">${escapeHtml(fmtUsd(li.amountUsd))}</div>
+          </div>`).join('');
+        box.innerHTML = `
+          <div class="prev-head">
+            <span class="en-inline">Invoice preview · due ${escapeHtml(fmtLongDate(p.dueOn))}</span>
+            <span class="zh-inline">发票预览 · ${escapeHtml(fmtDate(p.dueOn))}到期</span>
+          </div>
+          ${rows || `<div class="rebuild-failed"><span class="en-inline">No line items</span><span class="zh-inline">暂无明细</span></div>`}
+          <div class="prev-total">
+            <span class="en-inline">Total</span><span class="zh-inline">合计</span>
+            <strong>${escapeHtml(fmtUsd(p.totalUsd))}</strong>
+          </div>`;
+      } catch (err) {
+        console.warn('[billing] preview failed:', err.message || err);
+        box.innerHTML = `<div class="rebuild-failed">${escapeHtml(_failedTxt())}</div>`;
+      }
+    });
+  }
+
+  // ─── 2. Invoices ────────────────────────────────────────────────────
+  function renderInvoiceRow(inv) {
+    const statusClass = inv.status === 'paid' ? '' : inv.status === 'overdue' ? ' overdue' : ' pending';
+    const statusEn = inv.status === 'paid' ? 'PAID' : inv.status === 'overdue' ? 'OVERDUE' : inv.status === 'void' ? 'VOID' : 'PENDING';
+    const statusZh = inv.status === 'paid' ? '已付' : inv.status === 'overdue' ? '逾期' : inv.status === 'void' ? '作废' : '待付';
+    const kindLabel = inv.kind === 'retainer' ? { en: 'Retainer', zh: '月度顾问' }
+                    : inv.kind === 'project'  ? { en: 'Project',  zh: '项目' }
+                    :                           { en: 'Ad-hoc',   zh: '其它' };
+    const periodLabel = inv.periodStart ? fmtMonthYear(inv.periodStart) : fmtMonthYear(inv.issuedAt);
+    const isProject = inv.kind === 'project';
+    return `
+      <div class="inv-row">
+        <div class="inv-info">
+          <div class="inv-name">
+            <span>${escapeHtml(periodLabel)}${escapeHtml(_zh() ? ' · ' + kindLabel.zh : ' · ' + kindLabel.en)}</span>
+            ${isProject ? `<span class="inv-tag">${escapeHtml(_zh() ? '项目' : 'PROJECT')}</span>` : ''}
+            ${inv.description ? `<div class="inv-desc">${escapeHtml(inv.description)}</div>` : ''}
+          </div>
+          <div class="inv-meta">${escapeHtml(inv.invoiceNumber)} · ${escapeHtml(fmtDate(inv.issuedAt))}</div>
+        </div>
+        <div class="inv-amt">${escapeHtml(fmtUsd(inv.amountUsd))}</div>
+        <span class="inv-status${statusClass}"><span class="en-inline">${statusEn}</span><span class="zh-inline">${statusZh}</span></span>
+        <a href="#" class="inv-action" title="Download (placeholder)" onclick="event.preventDefault()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </a>
+      </div>`;
+  }
+
+  function renderInvoices(data) {
+    const all = Array.isArray(data.invoices) ? data.invoices : [];
+    if (all.length === 0) {
+      setRebuild('billing.invoices', `<div class="rebuild-failed"><span class="en-inline">No invoices on file</span><span class="zh-inline">暂无发票</span></div>`);
+      return;
+    }
+    const recent = all.slice(0, 3);
+    const rest = all.slice(3);
+
+    // YTD: sum invoices issued in the current calendar year
+    const thisYear = new Date().getUTCFullYear();
+    const ytdAmount = all
+      .filter((i) => i.status === 'paid' && i.issuedAt && new Date(i.issuedAt).getUTCFullYear() === thisYear)
+      .reduce((sum, i) => sum + Number(i.amountUsd || 0), 0);
+    const paidCount = all.filter((i) => i.status === 'paid').length;
+    const allPaid = paidCount === all.length;
+
+    const footHtmlEn = `${all.length} invoices · ${allPaid ? 'all paid' : `${paidCount} paid`} · YTD ${fmtUsd(ytdAmount)}`;
+    const footHtmlZh = `共 ${all.length} 张 · ${allPaid ? '全部已付' : `已付 ${paidCount}`} · 年内 ${fmtUsd(ytdAmount)}`;
+
+    const hiddenHtml = rest.map(renderInvoiceRow).join('');
+    setRebuild('billing.invoices', `
+      ${recent.map(renderInvoiceRow).join('')}
+      ${rest.length > 0
+        ? `<details class="inv-more"><summary>
+            <span class="en-inline">+ ${rest.length} earlier invoice${rest.length === 1 ? '' : 's'}</span>
+            <span class="zh-inline">+ ${rest.length} 张更早发票</span>
+          </summary>${hiddenHtml}</details>`
+        : ''}
+      <div class="inv-foot">
+        <span class="inv-foot-text">
+          <span class="en-inline">${escapeHtml(footHtmlEn)}</span>
+          <span class="zh-inline">${escapeHtml(footHtmlZh)}</span>
+        </span>
+      </div>
+    `);
+  }
+
+  // ─── 3. Payment methods ─────────────────────────────────────────────
+  function renderPaymentMethods(data) {
+    const methods = Array.isArray(data.paymentMethods) ? data.paymentMethods : [];
+    if (methods.length === 0) {
+      setRebuild('billing.paymentMethods', `<div class="rebuild-failed"><span class="en-inline">No payment methods on file</span><span class="zh-inline">暂无付款方式</span></div>`);
+      return;
+    }
+    const html = methods.map((pm) => {
+      const iconClass = pm.methodType === 'card' ? ' card' : '';
+      const iconText = (pm.methodType || 'WIRE').toUpperCase();
+      const isDefault = pm.isDefault
+        ? `<span class="default"><span class="en-inline">DEFAULT</span><span class="zh-inline">默认</span></span>`
+        : '';
+      const meta = [];
+      if (pm.authorizedAt) {
+        meta.push({
+          en: `Authorized ${fmtMonthYear(pm.authorizedAt)}`,
+          zh: `${fmtMonthYear(pm.authorizedAt)} 授权`,
+        });
+      }
+      if (pm.bankName) {
+        meta.push({ en: pm.bankName, zh: pm.bankName });
+      }
+      return `
+        <div class="pm-row">
+          <div class="pm-icon${iconClass}">${escapeHtml(iconText)}</div>
+          <div class="pm-info">
+            <div class="pm-name">
+              ${escapeHtml(pm.displayLabel || '—')}
+              ${isDefault}
+            </div>
+            <div class="pm-meta">
+              ${meta.map((m) => `<span class="en-inline">${escapeHtml(m.en)}</span><span class="zh-inline">${escapeHtml(m.zh)}</span>`).join('<span class="bullet"> · </span>')}
+              ${pm.lastFour ? `<span class="num">···${escapeHtml(pm.lastFour)}</span>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    setRebuild('billing.paymentMethods', html);
+  }
+
+  // ─── 4. Custom projects ─────────────────────────────────────────────
+  function renderProjects(data) {
+    const projects = Array.isArray(data.projects) ? data.projects : [];
+
+    // Hint summary line: "N completed · YTD $X"
+    const completed = projects.filter((p) => p.status === 'completed');
+    const thisYear = new Date().getUTCFullYear();
+    const ytdFee = completed
+      .filter((p) => p.closedAt && new Date(p.closedAt).getUTCFullYear() === thisYear)
+      .reduce((sum, p) => sum + (p.feePaidUsd || 0), 0);
+    const hintEn = `· ${completed.length} completed · YTD ${fmtUsd(ytdFee)}`;
+    const hintZh = `· ${completed.length} 个已结案 · 年内 ${fmtUsd(ytdFee)}`;
+    setBindHtml('billing.projectsHint', `<span class="en-inline">${escapeHtml(hintEn)}</span><span class="zh-inline">${escapeHtml(hintZh)}</span>`);
+
+    if (projects.length === 0) {
+      setRebuild('billing.projects', `<div class="rebuild-failed"><span class="en-inline">No projects on file</span><span class="zh-inline">暂无项目</span></div>`);
+      return;
+    }
+
+    const html = projects.map((p) => {
+      const md = p.metadata || {};
+      const summary = md.summary ? bi(md.summary) : null;
+      const milestones = Array.isArray(md.milestones) ? md.milestones : [];
+      const deliverables = Array.isArray(md.deliverables) ? md.deliverables : [];
+
+      // Status pill
+      const statusLabel = p.status === 'completed' ? { en: 'completed', zh: '已结案' }
+                       : p.status === 'cancelled' ? { en: 'cancelled', zh: '已取消' }
+                       :                            { en: 'active',    zh: '进行中' };
+
+      const milestoneHtml = milestones.length > 0 ? `
+        <div class="pj-block">
+          <div class="pj-block-label"><span class="en-inline">Milestones</span><span class="zh-inline">里程碑</span></div>
+          <ol class="pj-milestones">
+            ${milestones.map((m) => `
+              <li class="${m.completedAt ? 'done' : 'pending'}">
+                <span class="ms-label">${escapeHtml(bi(m.label))}</span>
+                <span class="ms-date">${m.completedAt ? '✓ ' + escapeHtml(fmtDate(m.completedAt)) : (m.dueAt ? escapeHtml(fmtDate(m.dueAt)) : '—')}</span>
+              </li>`).join('')}
+          </ol>
+        </div>` : '';
+
+      const deliverableHtml = deliverables.length > 0 ? `
+        <div class="pj-block">
+          <div class="pj-block-label"><span class="en-inline">Deliverables</span><span class="zh-inline">交付物</span></div>
+          <ul class="pj-deliverables">
+            ${deliverables.map((d) => `
+              <li>
+                <span class="dl-kind">${escapeHtml(d.kind || 'other')}</span>
+                <span class="dl-label">${escapeHtml(bi(d.label))}</span>
+                ${d.notes ? `<div class="dl-note">${escapeHtml(bi(d.notes))}</div>` : ''}
+              </li>`).join('')}
+          </ul>
+        </div>` : '';
+
+      return `
+        <div class="pj-row">
+          <div class="pj-row-head">
+            <div>
+              <div class="pj-name">${escapeHtml(p.name)}</div>
+              <div class="pj-meta">
+                <span class="en-inline">${escapeHtml(fmtMonthYear(p.startedAt))}–${escapeHtml(p.closedAt ? fmtMonthYear(p.closedAt) : (p.deliveredAt ? fmtMonthYear(p.deliveredAt) : '—'))} · ${escapeHtml(statusLabel.en)}</span>
+                <span class="zh-inline">${escapeHtml(fmtMonthYear(p.startedAt))}–${escapeHtml(p.closedAt ? fmtMonthYear(p.closedAt) : (p.deliveredAt ? fmtMonthYear(p.deliveredAt) : '—'))} · ${escapeHtml(statusLabel.zh)}</span>
+              </div>
+            </div>
+            <div class="pj-amt">${escapeHtml(fmtUsd(p.feeTotalUsd))}</div>
+          </div>
+          ${summary ? `<p class="pj-summary">${escapeHtml(summary)}</p>` : ''}
+          ${milestoneHtml}
+          ${deliverableHtml}
+        </div>`;
+    }).join('');
+    setRebuild('billing.projects', html);
+  }
+
+  // ─── boot ───────────────────────────────────────────────────────────
+  async function boot() {
+    _blankAllBindings();
+    const safe = (label, fn) => fn().catch((err) => {
+      console.warn(`[billing] ${label} failed:`, err.message || err);
+      _markFailed(label);
+    });
+    await Promise.all([
+      safe('billing.plan',           async () => renderPlan(await getJson('/account/billing/plan'))),
+      safe('billing.invoices',       async () => renderInvoices(await getJson('/account/billing/invoices'))),
+      safe('billing.paymentMethods', async () => renderPaymentMethods(await getJson('/account/billing/payment-methods'))),
+      safe('billing.projects',       async () => renderProjects(await getJson('/account/billing/projects'))),
+    ]);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
+<style>
+  .rebuild-failed {
+    text-align: center;
+    padding: 1.1rem 0;
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); }
+
+  /* Invoice description (added 2026-05) */
+  .inv-name .inv-desc {
+    font-family: var(--sans-en);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    font-weight: 300;
+    margin-top: 0.18rem;
+  }
+  body.lang-zh .inv-name .inv-desc { font-family: var(--sans-zh); }
+
+  /* "Show all" expander */
+  details.inv-more {
+    border-top: 1px solid var(--rule);
+  }
+  details.inv-more > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.85rem 1.1rem;
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    transition: color 0.2s, background 0.2s;
+  }
+  body.lang-zh details.inv-more > summary { font-family: var(--sans-zh); }
+  details.inv-more > summary::-webkit-details-marker { display: none; }
+  details.inv-more > summary::after {
+    content: '';
+    margin-left: 0.4rem;
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-right: 1.4px solid currentColor;
+    border-bottom: 1.4px solid currentColor;
+    transform: rotate(45deg);
+    vertical-align: 2px;
+    transition: transform 0.2s;
+  }
+  details.inv-more[open] > summary::after { transform: rotate(225deg); }
+  details.inv-more > summary:hover { color: var(--royal); background: rgba(35,71,212,0.025); }
+
+  /* Preview invoice expander */
+  .preview-box {
+    margin-top: 0.75rem;
+    border-top: 1px dashed var(--rule);
+    padding: 0.85rem 0 0;
+  }
+  .preview-loading {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    padding: 0.4rem 0;
+  }
+  body.lang-zh .preview-loading { font-family: var(--sans-zh); }
+  .prev-head {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.55rem;
+  }
+  body.lang-zh .prev-head { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .prev-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--rule);
+    gap: 0.85rem;
+  }
+  .prev-line:last-of-type { border-bottom: none; }
+  .prev-line-name {
+    font-family: var(--sans-en);
+    font-size: 0.86rem;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  body.lang-zh .prev-line-name { font-family: var(--sans-zh); }
+  .prev-line-note {
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: var(--silver);
+    margin-top: 0.15rem;
+  }
+  body.lang-zh .prev-line-note { font-family: var(--sans-zh); }
+  .prev-line-amt {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .prev-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 0.6rem;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--rule-strong);
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+  body.lang-zh .prev-total { font-family: var(--sans-zh); }
+  .prev-total strong {
+    font-family: var(--serif-en);
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  body.lang-zh .prev-total strong { font-family: var(--serif-zh); font-style: normal; }
+
+  /* Project row expansion (added 2026-05) */
+  .pj-row { padding: 1rem 1.1rem; border-bottom: 1px solid var(--rule); }
+  .pj-row:last-child { border-bottom: none; }
+  .pj-row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  .pj-summary {
+    font-family: var(--sans-en);
+    font-size: 0.82rem;
+    color: var(--ink-mid);
+    line-height: 1.55;
+    max-width: 60ch;
+    margin: 0.35rem 0 0.85rem;
+  }
+  body.lang-zh .pj-summary { font-family: var(--sans-zh); line-height: 1.7; }
+  .pj-block { margin-top: 0.6rem; }
+  .pj-block-label {
+    font-family: var(--sans-en);
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 0.4rem;
+  }
+  body.lang-zh .pj-block-label { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+
+  .pj-milestones {
+    margin: 0;
+    padding-left: 1.2rem;
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-mid);
+  }
+  body.lang-zh .pj-milestones { font-family: var(--sans-zh); }
+  .pj-milestones li {
+    margin-bottom: 0.3rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.85rem;
+    line-height: 1.4;
+  }
+  .pj-milestones li.done .ms-date { color: var(--gain); font-weight: 500; }
+  .pj-milestones li.pending .ms-date { color: var(--silver); }
+  .ms-date {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  .pj-deliverables {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pj-deliverables li {
+    padding: 0.4rem 0;
+    border-top: 1px solid var(--rule);
+    font-family: var(--sans-en);
+    font-size: 0.82rem;
+    color: var(--ink);
+  }
+  body.lang-zh .pj-deliverables li { font-family: var(--sans-zh); }
+  .pj-deliverables li:first-child { border-top: none; }
+  .dl-kind {
+    font-family: var(--sans-en);
+    font-size: 0.56rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background: rgba(35,71,212,0.08);
+    color: var(--royal);
+    padding: 0.14rem 0.45rem;
+    border-radius: 2px;
+    margin-right: 0.55rem;
+    font-weight: 500;
+    vertical-align: middle;
+  }
+  body.lang-zh .dl-kind { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .dl-note {
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    margin-top: 0.25rem;
+    line-height: 1.5;
+  }
+  body.lang-zh .dl-note { font-family: var(--sans-zh); }
+
+  /* Invoice status overdue/pending variants */
+  .inv-status.overdue { background: rgba(196,82,82,0.12); color: var(--loss); }
+  .inv-status.pending { background: rgba(200,168,75,0.15); color: var(--gold); }
+</style>
 
 </body>
 </html>

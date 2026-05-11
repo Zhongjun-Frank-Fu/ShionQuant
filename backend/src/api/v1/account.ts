@@ -31,8 +31,12 @@ import {
   apiTokens,
   authFactors,
   beneficiaries,
+  customProjects,
   db,
+  engagements,
+  invoices,
   loginEvents,
+  paymentMethods,
   profiles,
   recoveryCodes,
   sessions,
@@ -1477,32 +1481,245 @@ app.get("/security/login-history", authMiddleware, async (c) => {
 })
 
 // ╔═══════════════════════════════════════════════════════════════════════════╗
-// ║  BILLING (still M3+ stubs)                                                 ║
+// ║  BILLING                                                                   ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
+//
+// Five read-only endpoints. None are MFA-gated — billing data is sensitive
+// but the user has already authenticated, and the Billing page is a
+// dashboard view (no money-movement actions live here yet). When/if we
+// add PATCH endpoints for editing payment methods or cancelling
+// engagements, those will be mfa-gated separately.
 
+/**
+ * GET /api/v1/account/billing/plan
+ *
+ * Returns the active engagement + the auto-computed "next bill" preview:
+ *   - currentPlan: { tier, monthlyFeeUsd, startedAt, noticeDays, … }
+ *   - nextBill:    { dueOn, amountUsd, daysAway }
+ *
+ * The next-bill date is computed in code (not stored): we take the
+ * engagement's `started_at` and roll forward in monthly steps until we
+ * find the first month-1 after today. Same amount each month.
+ */
 app.get("/billing/plan", async (c) => {
-  requireClient(c)
-  throw notImplemented("GET /api/v1/account/billing/plan")
+  const client = requireClient(c)
+
+  const engagement = await db.query.engagements.findFirst({
+    where: and(eq(engagements.clientId, client.id), eq(engagements.isActive, true)),
+  })
+  if (!engagement) {
+    return c.json({
+      ok: true,
+      currentPlan: null,
+      nextBill: null,
+    })
+  }
+
+  // Next-bill = first day of next month (or month after, if we're past the
+  // 1st today). Assumes monthly cycle (the only one we support today).
+  const today = new Date()
+  const nextBillDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 1))
+  const daysAway = Math.ceil((nextBillDate.getTime() - today.getTime()) / (24 * 60 * 60_000))
+  const amountUsd = engagement.monthlyFeeUsd ? Number(engagement.monthlyFeeUsd) : 0
+
+  return c.json({
+    ok: true,
+    currentPlan: {
+      id: engagement.id,
+      tier: engagement.tier,
+      monthlyFeeUsd: amountUsd,
+      startedAt: engagement.startedAt,
+      endsAt: engagement.endsAt,
+      noticeDays: engagement.noticeDays,
+      masterDocId: engagement.masterDocId,
+      isActive: engagement.isActive,
+    },
+    nextBill: {
+      dueOn: nextBillDate.toISOString().slice(0, 10),
+      amountUsd,
+      daysAway,
+    },
+  })
 })
 
+/**
+ * GET /api/v1/account/billing/invoices
+ *
+ * Lists every invoice for this client, newest first. The frontend
+ * computes per-page slicing + YTD totals client-side; this stays simple.
+ */
 app.get("/billing/invoices", async (c) => {
-  requireClient(c)
-  throw notImplemented("GET /api/v1/account/billing/invoices")
+  const client = requireClient(c)
+  const rows = await db
+    .select()
+    .from(invoices)
+    .where(eq(invoices.clientId, client.id))
+    .orderBy(desc(invoices.issuedAt))
+    .limit(500)
+  return c.json({
+    ok: true,
+    invoices: rows.map(shapeInvoice),
+  })
 })
 
+/**
+ * GET /api/v1/account/billing/invoices/:id
+ *
+ * Single invoice for a detail view / preview.
+ */
 app.get("/billing/invoices/:id", async (c) => {
-  requireClient(c)
-  throw notImplemented("GET /api/v1/account/billing/invoices/:id")
+  const client = requireClient(c)
+  const id = c.req.param("id")
+  const row = await db.query.invoices.findFirst({
+    where: and(eq(invoices.id, id), eq(invoices.clientId, client.id)),
+  })
+  if (!row) throw notFound("Invoice not found")
+  return c.json({ ok: true, invoice: shapeInvoice(row) })
 })
 
+/**
+ * GET /api/v1/account/billing/preview-invoice
+ *
+ * Returns a synthesized preview of the next month's invoice — line items
+ * for the active retainer + any active custom projects whose fee hasn't
+ * been fully billed yet. NOT persisted; recomputed on every call.
+ */
+app.get("/billing/preview-invoice", async (c) => {
+  const client = requireClient(c)
+
+  const engagement = await db.query.engagements.findFirst({
+    where: and(eq(engagements.clientId, client.id), eq(engagements.isActive, true)),
+  })
+  // Next month-1 (same as /billing/plan)
+  const today = new Date()
+  const dueOn = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 1))
+    .toISOString()
+    .slice(0, 10)
+
+  const lineItems: Array<{ label: { en: string; zh: string }; amountUsd: number; note?: { en: string; zh: string } }> = []
+  let subtotal = 0
+  if (engagement?.monthlyFeeUsd) {
+    const amount = Number(engagement.monthlyFeeUsd)
+    lineItems.push({
+      label: { en: "Retainer — monthly advisory", zh: "月度顾问服务" },
+      amountUsd: amount,
+      note: { en: "Next billing cycle", zh: "下一计费周期" },
+    })
+    subtotal += amount
+  }
+
+  // Active custom projects whose fee_paid_usd < fee_total_usd → potential
+  // next-cycle line items. Cap at 5 to keep the preview readable.
+  const activeProjects = await db
+    .select()
+    .from(customProjects)
+    .where(and(eq(customProjects.clientId, client.id), eq(customProjects.status, "active")))
+    .limit(5)
+  for (const p of activeProjects) {
+    const total = p.feeTotalUsd ? Number(p.feeTotalUsd) : 0
+    const paid = p.feePaidUsd ? Number(p.feePaidUsd) : 0
+    const due = Math.max(0, total - paid)
+    if (due > 0) {
+      lineItems.push({
+        label: { en: p.name, zh: p.name },
+        amountUsd: due,
+        note: { en: "Custom project · current outstanding", zh: "定制项目 · 当前应付" },
+      })
+      subtotal += due
+    }
+  }
+
+  return c.json({
+    ok: true,
+    preview: {
+      dueOn,
+      currency: "USD",
+      lineItems,
+      subtotalUsd: subtotal,
+      totalUsd: subtotal,
+    },
+  })
+})
+
+/**
+ * GET /api/v1/account/billing/payment-methods
+ *
+ * Default first, then backups. Tokens / full card numbers are never
+ * exposed — only the masked last-four + display label.
+ */
 app.get("/billing/payment-methods", async (c) => {
-  requireClient(c)
-  throw notImplemented("GET /api/v1/account/billing/payment-methods")
+  const client = requireClient(c)
+  const rows = await db
+    .select()
+    .from(paymentMethods)
+    .where(and(eq(paymentMethods.clientId, client.id), eq(paymentMethods.isActive, true)))
+    .orderBy(desc(paymentMethods.isDefault), asc(paymentMethods.createdAt))
+  return c.json({
+    ok: true,
+    paymentMethods: rows.map((p) => ({
+      id: p.id,
+      methodType: p.methodType,
+      displayLabel: p.displayLabel,
+      lastFour: p.lastFour,
+      bankName: p.bankName,
+      isDefault: p.isDefault,
+      authorizedAt: p.authorizedAt,
+      createdAt: p.createdAt,
+    })),
+  })
 })
 
+/**
+ * GET /api/v1/account/billing/projects
+ *
+ * All custom projects for this client (active + closed). Returns the
+ * structured `metadata` (milestones, deliverables, etc.) alongside the
+ * basic billing fields so the Billing page can expand each row.
+ */
 app.get("/billing/projects", async (c) => {
-  requireClient(c)
-  throw notImplemented("GET /api/v1/account/billing/projects")
+  const client = requireClient(c)
+  const rows = await db
+    .select()
+    .from(customProjects)
+    .where(eq(customProjects.clientId, client.id))
+    .orderBy(desc(customProjects.createdAt))
+  return c.json({
+    ok: true,
+    projects: rows.map((p) => ({
+      id: p.id,
+      name: p.name,
+      projectType: p.projectType,
+      feeTotalUsd: p.feeTotalUsd ? Number(p.feeTotalUsd) : null,
+      feePaidUsd: p.feePaidUsd ? Number(p.feePaidUsd) : 0,
+      status: p.status,
+      sowDocumentId: p.sowDocumentId,
+      deliverableReportId: p.deliverableReportId,
+      startedAt: p.startedAt,
+      deliveredAt: p.deliveredAt,
+      closedAt: p.closedAt,
+      metadata: p.metadata,
+      createdAt: p.createdAt,
+    })),
+  })
 })
+
+function shapeInvoice(r: typeof invoices.$inferSelect) {
+  return {
+    id: r.id,
+    invoiceNumber: r.invoiceNumber,
+    kind: r.kind,
+    periodStart: r.periodStart,
+    periodEnd: r.periodEnd,
+    description: r.description,
+    amountUsd: r.amountUsd ? Number(r.amountUsd) : 0,
+    status: r.status,
+    issuedAt: r.issuedAt,
+    dueAt: r.dueAt,
+    paidAt: r.paidAt,
+    paymentMethodId: r.paymentMethodId,
+    pdfDocumentId: r.pdfDocumentId,
+    externalRef: r.externalRef,
+  }
+}
 
 export default app

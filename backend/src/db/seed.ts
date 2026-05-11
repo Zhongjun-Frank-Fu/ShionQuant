@@ -42,15 +42,19 @@ import {
   calendarSubscriptions,
   cashBalances,
   clients,
+  customProjects,
   customResearchRequests,
   dailyNav,
   db,
   documents,
+  engagements,
   eventReminders,
   events,
+  invoices,
   meetingBookings,
   messageThreads,
   messages,
+  paymentMethods,
   positions,
   profiles,
   recoveryCodes,
@@ -104,6 +108,9 @@ async function main() {
     //   - reports.client_id           (NO ACTION — firm history preserved)
     //   - documents.client_id         (RESTRICT — regulatory)
     //   - sessions.client_id          (NO ACTION — live logins from CLI tests)
+    //   - engagements.client_id       (RESTRICT — billing audit)
+    //   - invoices.client_id          (RESTRICT — billing audit)
+    //   - custom_projects.client_id   (RESTRICT — billing audit)
     const ownedClients = await db
       .select({ id: clients.id })
       .from(clients)
@@ -115,6 +122,13 @@ async function main() {
     if (ownedClientIds.length > 0) {
       await db.delete(reports).where(inArray(reports.clientId, ownedClientIds))
       await db.delete(documents).where(inArray(documents.clientId, ownedClientIds))
+      // Billing tables — invoices reference payment_methods + engagements, so
+      // they must go first. After invoices, the remaining four can be deleted
+      // in any order.
+      await db.delete(invoices).where(inArray(invoices.clientId, ownedClientIds))
+      await db.delete(engagements).where(inArray(engagements.clientId, ownedClientIds))
+      await db.delete(customProjects).where(inArray(customProjects.clientId, ownedClientIds))
+      await db.delete(paymentMethods).where(inArray(paymentMethods.clientId, ownedClientIds))
     }
     await db.delete(clients).where(eq(clients.userId, existingUser.id))
     await db.delete(users).where(eq(users.id, existingUser.id))
@@ -2410,6 +2424,188 @@ async function main() {
   console.log(
     `  ✓ confirmed meeting booked for ${meetingAt.toISOString()} (60min, video)`,
   )
+
+  // ─── 24. Billing fixtures (M8) ────────────────────────────────────────────
+  // One active retainer engagement, two payment methods (default + backup),
+  // a year's worth of monthly invoices (all paid) + two custom-project
+  // invoices, and two completed custom projects with structured metadata.
+
+  // Engagement (active retainer, started Jul 2024)
+  const [engagement] = await db
+    .insert(engagements)
+    .values({
+      clientId: client!.id,
+      tier: "retainer",
+      monthlyFeeUsd: "4500",
+      startedAt: "2024-07-01",
+      endsAt: null,
+      noticeDays: 60,
+      isActive: true,
+    })
+    .returning({ id: engagements.id })
+
+  // Payment methods (BEA HKD wire default + HSBC card backup)
+  const [pmWire] = await db
+    .insert(paymentMethods)
+    .values({
+      clientId: client!.id,
+      methodType: "wire",
+      displayLabel: "BEA HKD wire · auto-debit",
+      lastFour: "3942",
+      bankName: "Bank of East Asia (HK)",
+      isDefault: true,
+      isActive: true,
+      authorizedAt: new Date("2024-07-01"),
+    })
+    .returning({ id: paymentMethods.id })
+  await db.insert(paymentMethods).values({
+    clientId: client!.id,
+    methodType: "card",
+    displayLabel: "HSBC Premier Mastercard",
+    lastFour: "5512",
+    bankName: "HSBC",
+    isDefault: false,
+    isActive: true,
+    authorizedAt: new Date("2024-09-12"),
+  })
+
+  // Invoices: 10 monthly retainer ($4,500 each) + 2 project invoices.
+  // Generated from Jul 2025 → Apr 2026 to give 10 months of history.
+  const todayUtc = new Date()
+  const monthlyInvoices: Array<typeof invoices.$inferInsert> = []
+  for (let offset = 9; offset >= 0; offset--) {
+    const issued = new Date(Date.UTC(todayUtc.getUTCFullYear(), todayUtc.getUTCMonth() - offset, 1))
+    const periodStart = issued.toISOString().slice(0, 10)
+    const periodEnd = new Date(Date.UTC(issued.getUTCFullYear(), issued.getUTCMonth() + 1, 0))
+      .toISOString()
+      .slice(0, 10)
+    const dueAt = new Date(Date.UTC(issued.getUTCFullYear(), issued.getUTCMonth(), 15))
+      .toISOString()
+      .slice(0, 10)
+    const paidAt = new Date(Date.UTC(issued.getUTCFullYear(), issued.getUTCMonth(), 8))
+      .toISOString()
+      .slice(0, 10)
+    const monthLabel = issued.toLocaleString("en-US", { month: "short", year: "numeric", timeZone: "UTC" })
+    monthlyInvoices.push({
+      clientId: client!.id,
+      invoiceNumber: `SQ-${issued.getUTCFullYear()}-${String(1000 + (todayUtc.getUTCMonth() - offset + 12)).padStart(4, "0")}`,
+      kind: "retainer",
+      periodStart,
+      periodEnd,
+      description: `${monthLabel} · Retainer (monthly advisory)`,
+      amountUsd: "4500.0000",
+      status: "paid",
+      issuedAt: periodStart,
+      dueAt,
+      paidAt,
+      paymentMethodId: pmWire!.id,
+    })
+  }
+  // Two project-specific invoices
+  monthlyInvoices.push({
+    clientId: client!.id,
+    invoiceNumber: "SQ-2026-0038",
+    kind: "project",
+    periodStart: "2026-03-01",
+    periodEnd: "2026-03-31",
+    description: "SPY Wheel Optimization · walk-forward research deliverable",
+    amountUsd: "22000.0000",
+    status: "paid",
+    issuedAt: "2026-03-14",
+    dueAt: "2026-03-28",
+    paidAt: "2026-03-20",
+    paymentMethodId: pmWire!.id,
+  })
+  monthlyInvoices.push({
+    clientId: client!.id,
+    invoiceNumber: "SQ-2025-1208",
+    kind: "project",
+    periodStart: "2025-12-01",
+    periodEnd: "2025-12-31",
+    description: "2025 Tax handover & reconciliation",
+    amountUsd: "3200.0000",
+    status: "paid",
+    issuedAt: "2025-12-08",
+    dueAt: "2025-12-20",
+    paidAt: "2025-12-12",
+    paymentMethodId: pmWire!.id,
+  })
+  await db.insert(invoices).values(monthlyInvoices)
+  console.log(`  ✓ ${monthlyInvoices.length} invoices (10 retainer + 2 project, all paid)`)
+
+  // Custom projects — two closed ones with structured metadata. The
+  // CustomProjectMetadata shape: { summary, milestones[], deliverables[], notes }
+  await db.insert(customProjects).values([
+    {
+      clientId: client!.id,
+      name: "SPY Wheel · walk-forward optimization",
+      projectType: "backtest",
+      feeTotalUsd: "22000",
+      feePaidUsd: "22000",
+      status: "completed",
+      startedAt: "2026-01-15",
+      deliveredAt: "2026-03-14",
+      closedAt: "2026-03-20",
+      metadata: {
+        summary: {
+          en: "Walk-forward optimization of strike-selection delta and roll timing on the SPY wheel, 2019–2026 sample.",
+          zh: "SPY Wheel 策略：在 2019–2026 样本上对行权 Delta 与展期时点做滚动前向优化。",
+        },
+        milestones: [
+          { id: "ms-1", label: { en: "Kickoff + data ingest", zh: "立项 + 数据接入" }, completedAt: "2026-01-22" },
+          { id: "ms-2", label: { en: "Baseline backtest", zh: "基准回测" }, completedAt: "2026-02-10" },
+          { id: "ms-3", label: { en: "Walk-forward grid search", zh: "滚动前向网格搜索" }, completedAt: "2026-02-28" },
+          { id: "ms-4", label: { en: "Deliverable report", zh: "交付报告" }, completedAt: "2026-03-14" },
+        ],
+        deliverables: [
+          {
+            kind: "report",
+            label: { en: "Walk-forward research report (22 pp)", zh: "滚动前向研究报告（22 页）" },
+            notes: { en: "Annualized excess +2.1% at 14% lower vol vs baseline.", zh: "相比基准年化超额 +2.1%，波动率下降 14%。" },
+          },
+          {
+            kind: "code",
+            label: { en: "Backtest harness · Python", zh: "回测代码 · Python" },
+            notes: { en: "Snapshot in the SOW; production version lives in the internal repo.", zh: "SOW 中包含静态版本；生产版本在内部仓库。" },
+          },
+        ],
+      },
+    },
+    {
+      clientId: client!.id,
+      name: "2025 Tax handover & reconciliation",
+      projectType: "taxopt",
+      feeTotalUsd: "3200",
+      feePaidUsd: "3200",
+      status: "completed",
+      startedAt: "2025-11-15",
+      deliveredAt: "2025-12-08",
+      closedAt: "2025-12-12",
+      metadata: {
+        summary: {
+          en: "End-of-year reconciliation + handover package for your accountant (Yip, Kar-Ming).",
+          zh: "年度对账与移交资料包（提供给您的会计师 Yip, Kar-Ming）。",
+        },
+        milestones: [
+          { id: "ms-1", label: { en: "Pull cost basis + dividends", zh: "成本基础与分红梳理" }, completedAt: "2025-11-22" },
+          { id: "ms-2", label: { en: "Reconcile vs IBKR statements", zh: "对账 IBKR 报表" }, completedAt: "2025-11-30" },
+          { id: "ms-3", label: { en: "Accountant handover package", zh: "会计师交接包" }, completedAt: "2025-12-08" },
+        ],
+        deliverables: [
+          {
+            kind: "spreadsheet",
+            label: { en: "Schedule D worksheet (8 sheets)", zh: "Schedule D 工作表（8 张）" },
+            notes: { en: "Per-position realized/unrealized cuts + wash-sale flags.", zh: "按仓位的已/未实现拆分 + wash-sale 标记。" },
+          },
+          {
+            kind: "memo",
+            label: { en: "1099 reconciliation memo", zh: "1099 对账备忘" },
+          },
+        ],
+      },
+    },
+  ])
+  console.log("  ✓ 2 custom projects (both completed, with milestones + deliverables)")
 
   // ─── Final summary ────────────────────────────────────────────────────────
   console.log("")

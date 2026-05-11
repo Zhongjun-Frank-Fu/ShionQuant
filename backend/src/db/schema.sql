@@ -796,6 +796,9 @@ create table custom_projects (
   started_at      date,
   delivered_at    date,
   closed_at       date,
+  -- Structured project payload. See schema.ts → CustomProjectMetadata:
+  --   { summary, milestones[], deliverables[], notes }
+  metadata        jsonb,
   created_at      timestamptz not null default now(),
 
   check (status in ('active', 'completed', 'cancelled'))
