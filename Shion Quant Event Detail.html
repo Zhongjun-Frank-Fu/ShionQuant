@@ -764,79 +764,71 @@
     <span class="en-inline">Schedules</span><span class="zh-inline">日程安排</span>
   </a>
   <span class="chev">›</span>
-  <a href="Shion Quant Schedules.html">
-    <span class="en-inline">May 2026</span><span class="zh-inline">2026 年 5 月</span>
-  </a>
+  <a href="Shion Quant Schedules.html" data-bind="breadcrumb.monthYear">May 2026</a>
   <span class="chev">›</span>
-  <span class="current">NVDA · Q1 Earnings</span>
+  <span class="current" data-bind="breadcrumb.eventName">—</span>
 </div>
 
 <!-- ── EVENT HEADER ── -->
 <header class="event-header">
   <div class="eh-date">
-    <span class="ed-day">01</span>
-    <span class="ed-month"><span class="en-inline">May 2026</span><span class="zh-inline">5 月 2026</span></span>
-    <span class="ed-weekday"><span class="en-inline">Thursday</span><span class="zh-inline">星期四</span></span>
+    <span class="ed-day" data-bind="header.day">—</span>
+    <span class="ed-month"><span class="en-inline" data-bind="header.monthEn">—</span><span class="zh-inline" data-bind="header.monthZh">—</span></span>
+    <span class="ed-weekday"><span class="en-inline" data-bind="header.weekdayEn">—</span><span class="zh-inline" data-bind="header.weekdayZh">—</span></span>
   </div>
   <div class="eh-body">
-    <div class="eh-tags">
-      <span class="eh-tag critical"><span class="en-inline">Critical</span><span class="zh-inline">重点</span></span>
-      <span class="eh-tag type"><span class="en-inline">Earnings</span><span class="zh-inline">财报</span></span>
-      <span class="eh-tag time"><span class="en-inline">After close · ~16:20 ET</span><span class="zh-inline">盘后 · 约 16:20 ET</span></span>
-    </div>
+    <div class="eh-tags" data-rebuild="header.tags"></div>
     <h1 class="eh-title">
-      <span class="en"><span class="ticker">NVDA</span>NVIDIA · Q1 <em>FY2026 Earnings</em></span>
-      <span class="zh"><span class="ticker">NVDA</span>NVIDIA · 2026 财年 Q1 <em>财报发布</em></span>
+      <span class="en" data-bind="header.titleEn">—</span>
+      <span class="zh" data-bind="header.titleZh">—</span>
     </h1>
     <p class="eh-sub">
-      <span class="en-inline">Largest single-name equity exposure (18.0% portfolio weight, +31.8% unrealized). Concentration trigger active. A cash-secured put 580P expiring 16 May provides ~3.7% downside cushion below the current mark.</span>
-      <span class="zh-inline">单一股票最大敞口（占组合 18.0%，浮盈 +31.8%）。集中度预警生效中。已开仓 580P 现金担保 put（5/16 到期），提供较现价约 3.7% 的下行缓冲。</span>
+      <span class="en-inline" data-bind="header.descEn">—</span>
+      <span class="zh-inline" data-bind="header.descZh">—</span>
     </p>
   </div>
-  <div class="eh-actions">
-    <a href="#" class="ha-btn primary">
-      <span class="en-inline">Hedge Review</span><span class="zh-inline">对冲复核</span>
-    </a>
-    <a href="#" class="ha-btn">
-      <span class="en-inline">Set Alert</span><span class="zh-inline">设置提醒</span>
-    </a>
-  </div>
+  <div class="eh-actions" data-rebuild="header.actions"></div>
 </header>
 
 <!-- ── COUNTDOWN STRIP ── -->
+<!-- MVP: live "Time to Event" + "Position Weight" populated from the linked
+     position when present. Remaining two cards (Implied Move / Active Hedge)
+     pull from event.metadata, which is still TBD — currently fall back to
+     "Not loaded / 未读取". -->
 <section class="summary-strip">
   <div class="summary-block">
     <p class="sb-label"><span class="en-inline">Time to Event</span><span class="zh-inline">距离开始</span></p>
-    <div class="sb-value"><em>4</em><span class="unit">d</span> <em>21</em><span class="unit">h</span></div>
+    <div class="sb-value">
+      <em data-bind="countdown.days">—</em><span class="unit">d</span>
+      <em data-bind="countdown.hours">—</em><span class="unit">h</span>
+    </div>
     <p class="sb-meta">
-      <span class="en-inline">~16:20 ET · 1 May 2026</span>
-      <span class="zh-inline">约 16:20 ET · 5/1</span>
+      <span class="en-inline" data-bind="countdown.metaEn">—</span>
+      <span class="zh-inline" data-bind="countdown.metaZh">—</span>
     </p>
   </div>
   <div class="summary-block">
     <p class="sb-label"><span class="en-inline">Position Weight</span><span class="zh-inline">仓位权重</span></p>
-    <div class="sb-value"><em class="warn">18.04</em><span class="unit">%</span></div>
+    <div class="sb-value"><em data-bind="position.weightPct">—</em><span class="unit">%</span></div>
     <p class="sb-meta">
-      <span class="en-inline">800 sh @ $642.18 = $513,744</span>
-      <span class="zh-inline">800 股 @ $642.18 = $513,744</span>
-      <span class="sb-pill warn">OVER 15%</span>
+      <span class="en-inline" data-bind="position.metaEn">—</span>
+      <span class="zh-inline" data-bind="position.metaZh">—</span>
     </p>
   </div>
   <div class="summary-block">
     <p class="sb-label"><span class="en-inline">Implied Move</span><span class="zh-inline">预期波幅</span></p>
-    <div class="sb-value">±<em>8.4</em><span class="unit">%</span></div>
+    <div class="sb-value">±<em data-bind="implied.movePct">—</em><span class="unit">%</span></div>
     <p class="sb-meta">
-      <span class="en-inline">IV crush expected post-print · ATM straddle</span>
-      <span class="zh-inline">财报后 IV 预计回落 · 平值跨式</span>
+      <span class="en-inline" data-bind="implied.metaEn">—</span>
+      <span class="zh-inline" data-bind="implied.metaZh">—</span>
     </p>
   </div>
   <div class="summary-block">
     <p class="sb-label"><span class="en-inline">Active Hedge</span><span class="zh-inline">现有对冲</span></p>
-    <div class="sb-value"><em>Yes</em></div>
+    <div class="sb-value"><em data-bind="hedge.state">—</em></div>
     <p class="sb-meta">
-      <span class="en-inline">580P × 3 contracts · 16 May exp.</span>
-      <span class="zh-inline">580P × 3 张 · 5/16 到期</span>
-      <span class="sb-pill">CSP</span>
+      <span class="en-inline" data-bind="hedge.metaEn">—</span>
+      <span class="zh-inline" data-bind="hedge.metaZh">—</span>
     </p>
   </div>
 </section>
@@ -1511,6 +1503,260 @@
   });
 })();
 </script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+ * SQ-EVENT-DETAIL-V1
+ *
+ * Reads ?id=<uuid> from the URL, fetches that event via GET
+ * /api/v1/schedules/events/:id, and populates:
+ *   - breadcrumb (month/year + event name)
+ *   - header (date / tags / title / description / action buttons)
+ *   - countdown strip (Time-to-Event live; Position Weight from
+ *     event.position if present; Implied Move + Active Hedge stay "Not
+ *     loaded" until event.metadata schema lands)
+ *
+ * Bigger sections (Position Context, Consensus & Implied, Historical
+ * Reaction, Recommended Actions) are NOT yet wired — they depend on a
+ * structured event.metadata schema we haven't finalized. They render as
+ * "Not loaded / 未读取" so anyone debugging can see they're explicitly
+ * unhandled (vs accidentally left as demo data).
+ * ───────────────────────────────────────────────────────────────────────── */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const FAILED_EN = 'Not loaded';
+  const FAILED_ZH = '未读取';
+  const _zh = () => document.body.classList.contains('lang-zh');
+  const _failedTxt = () => _zh() ? FAILED_ZH : FAILED_EN;
+  const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
+  }[c]));
+
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MONTHS_LONG_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MONTHS_ZH = ['1 月','2 月','3 月','4 月','5 月','6 月','7 月','8 月','9 月','10 月','11 月','12 月'];
+  const WEEKDAYS_LONG_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const WEEKDAYS_LONG_ZH = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+
+  const setBind = (key, val) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => { el.textContent = val; });
+  };
+  const setBindHtml = (key, html) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => { el.innerHTML = html; });
+  };
+  const setRebuild = (key, html) => {
+    const el = document.querySelector(`[data-rebuild="${key}"]`);
+    if (el) el.innerHTML = html;
+  };
+
+  function _blankAllBindings() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = '—'; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => { el.innerHTML = ''; });
+  }
+  function _markFailed() {
+    const txt = _failedTxt();
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = txt; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => {
+      el.innerHTML = `<div class="rebuild-failed">${escapeHtml(txt)}</div>`;
+    });
+  }
+
+  async function fetchEvent(id) {
+    const res = await fetch(`${API_BASE}/schedules/events/${encodeURIComponent(id)}`, {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      const err = new Error(`HTTP ${res.status} :: ${body.slice(0, 200)}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+
+  const TYPE_LABELS = {
+    earnings:           { en: 'Earnings',     zh: '财报' },
+    macro:              { en: 'Macro',        zh: '宏观' },
+    advisor_call:       { en: 'Advisor',      zh: '顾问' },
+    option_expiry:      { en: 'Options',      zh: '期权到期' },
+    bond_coupon:        { en: 'Coupon',       zh: '付息' },
+    dividend:           { en: 'Dividend',     zh: '分红' },
+    report_delivery:    { en: 'Report',       zh: '报告' },
+    rebalance:          { en: 'Rebalance',    zh: '再平衡' },
+    compliance_renewal: { en: 'Compliance',   zh: '合规' },
+    personal:           { en: 'Personal',     zh: '个人' },
+  };
+
+  function renderHeader(event) {
+    const d = new Date(event.startsAt);
+    const dow = d.getUTCDay();
+    document.title = `${event.title} · Shion Quant`;
+
+    // Breadcrumb
+    setBind('breadcrumb.monthYear', `${MONTHS_LONG_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`);
+    setBind('breadcrumb.eventName', event.title);
+
+    // Header date block
+    setBind('header.day', String(d.getUTCDate()).padStart(2, '0'));
+    setBind('header.monthEn', `${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`);
+    setBind('header.monthZh', `${MONTHS_ZH[d.getUTCMonth()]} ${d.getUTCFullYear()}`);
+    setBind('header.weekdayEn', WEEKDAYS_LONG_EN[dow]);
+    setBind('header.weekdayZh', WEEKDAYS_LONG_ZH[dow]);
+
+    // Tags row
+    const lbl = TYPE_LABELS[event.eventType] || { en: event.eventType, zh: event.eventType };
+    const time = `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC`;
+    const tags = [];
+    if (event.isCritical) {
+      tags.push(`<span class="eh-tag critical"><span class="en-inline">Critical</span><span class="zh-inline">重点</span></span>`);
+    }
+    tags.push(`<span class="eh-tag type"><span class="en-inline">${escapeHtml(lbl.en)}</span><span class="zh-inline">${escapeHtml(lbl.zh)}</span></span>`);
+    tags.push(`<span class="eh-tag time"><span class="en-inline">${escapeHtml(time)}</span><span class="zh-inline">${escapeHtml(time)}</span></span>`);
+    setRebuild('header.tags', tags.join(''));
+
+    // Title (with ticker badge if present)
+    const titleHtml = (event.ticker
+      ? `<span class="ticker">${escapeHtml(event.ticker)}</span>`
+      : '') + escapeHtml(event.title);
+    setBindHtml('header.titleEn', titleHtml);
+    setBindHtml('header.titleZh', titleHtml);
+
+    // Description
+    if (event.description) {
+      setBind('header.descEn', event.description);
+      setBind('header.descZh', event.description);
+    } else {
+      setBind('header.descEn', '(No description on file.)');
+      setBind('header.descZh', '（暂无描述）');
+    }
+
+    // Header actions — render two buttons matching the card-action style
+    // from Schedules. Advisor calls get Confirm/Reschedule; reports get
+    // View Report; everything else gets a generic Open + Set Alert pair.
+    let actions = '';
+    if (event.eventType === 'advisor_call') {
+      actions = `
+        <a href="#" class="ha-btn primary"><span class="en-inline">Confirm</span><span class="zh-inline">确认参加</span></a>
+        <a href="#" class="ha-btn"><span class="en-inline">Reschedule</span><span class="zh-inline">改期</span></a>`;
+    } else if (event.eventType === 'report_delivery' || event.eventType === 'rebalance') {
+      actions = `<a href="#" class="ha-btn primary"><span class="en-inline">View Report</span><span class="zh-inline">查看报告</span></a>`;
+    } else {
+      actions = `
+        <a href="#" class="ha-btn primary"><span class="en-inline">View Position</span><span class="zh-inline">查看仓位</span></a>
+        <a href="#" class="ha-btn"><span class="en-inline">Set Alert</span><span class="zh-inline">设置提醒</span></a>`;
+    }
+    setRebuild('header.actions', actions);
+  }
+
+  function renderCountdown(event) {
+    const d = new Date(event.startsAt);
+    const diffMs = d.getTime() - Date.now();
+    if (diffMs < 0) {
+      setBind('countdown.days', '0');
+      setBind('countdown.hours', '0');
+      setBind('countdown.metaEn', 'Event has passed');
+      setBind('countdown.metaZh', '事件已发生');
+    } else {
+      const days = Math.floor(diffMs / (24 * 60 * 60_000));
+      const hours = Math.floor((diffMs % (24 * 60 * 60_000)) / (60 * 60_000));
+      setBind('countdown.days', String(days));
+      setBind('countdown.hours', String(hours));
+      const time = `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC`;
+      const dateStr = `${d.getUTCDate()} ${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+      setBind('countdown.metaEn', `${time} · ${dateStr}`);
+      setBind('countdown.metaZh', `${time} · ${dateStr}`);
+    }
+  }
+
+  function renderPosition(payload) {
+    const pos = payload.position;
+    if (!pos) {
+      setBind('position.weightPct', '—');
+      setBind('position.metaEn', 'No directly linked position');
+      setBind('position.metaZh', '暂无直接关联仓位');
+      return;
+    }
+    // weightPct isn't in the position payload; compute roughly from
+    // marketValue against a flat reference if available, else leave "—".
+    setBind('position.weightPct', '—');
+    const mv = Number(pos.marketValue);
+    const qty = Number(pos.quantity);
+    const mark = Number(pos.markPrice);
+    const metaEn = isFinite(mv) && isFinite(mark)
+      ? `${qty} units @ $${mark.toFixed(2)} = $${Math.round(mv).toLocaleString('en-US')}`
+      : pos.symbol;
+    const metaZh = isFinite(mv) && isFinite(mark)
+      ? `${qty} 单位 @ $${mark.toFixed(2)} = $${Math.round(mv).toLocaleString('en-US')}`
+      : pos.symbol;
+    setBind('position.metaEn', metaEn);
+    setBind('position.metaZh', metaZh);
+  }
+
+  function renderImpliedAndHedge() {
+    // Not yet stored in event.metadata. Leave as placeholders that explicitly
+    // say "未读取" so the unfilled state is visible during the wire-up phase.
+    const txt = _failedTxt();
+    setBind('implied.movePct', '—');
+    setBind('implied.metaEn', txt);
+    setBind('implied.metaZh', txt);
+    setBind('hedge.state', '—');
+    setBind('hedge.metaEn', txt);
+    setBind('hedge.metaZh', txt);
+  }
+
+  async function boot() {
+    _blankAllBindings();
+    const url = new URL(window.location.href);
+    const id = url.searchParams.get('id');
+    if (!id) {
+      _markFailed();
+      console.warn('[event-detail] no ?id= in URL — cannot fetch event');
+      return;
+    }
+    try {
+      const data = await fetchEvent(id);
+      const event = data.event;
+      renderHeader(event);
+      renderCountdown(event);
+      renderPosition(data);
+      renderImpliedAndHedge();
+    } catch (err) {
+      console.warn('[event-detail] fetch failed:', err.message || err);
+      _markFailed();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
+<style>
+  .rebuild-failed {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); letter-spacing: 0.06em; }
+</style>
 
 </body>
 </html>

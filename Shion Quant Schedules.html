@@ -778,8 +778,8 @@
       <span class="zh-inline">投资日程</span>
       <span class="dot"></span>
       <span class="accent">
-        <span class="en-inline">11 events in the next 30 days</span>
-        <span class="zh-inline">未来 30 天 11 项事件</span>
+        <span class="en-inline" data-bind="header.subEn">11 events in the next 30 days</span>
+        <span class="zh-inline" data-bind="header.subZh">未来 30 天 11 项事件</span>
       </span>
     </div>
     <h1 class="greeting">
@@ -809,67 +809,67 @@
 <section class="summary-strip">
   <div class="summary-block">
     <p class="sb-label"><span class="en-inline">This Week</span><span class="zh-inline">本周</span></p>
-    <div class="sb-value"><em>4</em><span class="unit"><span class="en-inline">events</span><span class="zh-inline">项</span></span></div>
+    <div class="sb-value"><em data-bind="summary.thisWeek">4</em><span class="unit"><span class="en-inline">events</span><span class="zh-inline">项</span></span></div>
     <p class="sb-meta">
-      <span class="en-inline">Includes Fed Day &amp; 2 earnings releases</span>
-      <span class="zh-inline">含 Fed 决议日与 2 次财报发布</span>
+      <span class="en-inline" data-bind="summary.thisWeekSubEn">Includes Fed Day &amp; 2 earnings releases</span>
+      <span class="zh-inline" data-bind="summary.thisWeekSubZh">含 Fed 决议日与 2 次财报发布</span>
     </p>
   </div>
   <div class="summary-block">
     <p class="sb-label"><span class="en-inline">Next 30 Days</span><span class="zh-inline">未来 30 天</span></p>
-    <div class="sb-value"><em>11</em><span class="unit"><span class="en-inline">events</span><span class="zh-inline">项</span></span></div>
+    <div class="sb-value"><em data-bind="summary.next30">11</em><span class="unit"><span class="en-inline">events</span><span class="zh-inline">项</span></span></div>
     <p class="sb-meta">
-      <span class="en-inline">3 options expiries · 1 coupon</span>
-      <span class="zh-inline">3 项期权到期 · 1 项付息</span>
+      <span class="en-inline" data-bind="summary.next30SubEn">3 options expiries · 1 coupon</span>
+      <span class="zh-inline" data-bind="summary.next30SubZh">3 项期权到期 · 1 项付息</span>
     </p>
   </div>
   <div class="summary-block">
     <p class="sb-label"><span class="en-inline">Critical Window</span><span class="zh-inline">重点观察</span></p>
-    <div class="sb-value"><em>2</em><span class="unit"><span class="en-inline">events</span><span class="zh-inline">项</span></span></div>
+    <div class="sb-value"><em data-bind="summary.critical">2</em><span class="unit"><span class="en-inline">events</span><span class="zh-inline">项</span></span></div>
     <p class="sb-meta">
       <span class="en-inline">High portfolio sensitivity</span>
       <span class="zh-inline">组合敏感度高</span>
-      <span class="pill">FOMC · NVDA</span>
+      <span class="pill" data-bind="summary.criticalPill">FOMC · NVDA</span>
     </p>
   </div>
   <div class="summary-block">
     <p class="sb-label"><span class="en-inline">Last Reviewed</span><span class="zh-inline">上次复核</span></p>
-    <div class="sb-value"><em>3</em><span class="unit"><span class="en-inline">days ago</span><span class="zh-inline">天前</span></span></div>
+    <div class="sb-value"><em data-bind="summary.lastReviewed">3</em><span class="unit"><span class="en-inline">days ago</span><span class="zh-inline">天前</span></span></div>
     <p class="sb-meta">
-      <span class="en-inline">Calendar synced 22 Apr · 16:14 ET</span>
-      <span class="zh-inline">日历同步于 4 月 22 日 16:14 ET</span>
+      <span class="en-inline" data-bind="summary.lastReviewedSubEn">Calendar synced 22 Apr · 16:14 ET</span>
+      <span class="zh-inline" data-bind="summary.lastReviewedSubZh">日历同步于 4 月 22 日 16:14 ET</span>
     </p>
   </div>
 </section>
 
 <!-- ── FILTER BAR ── -->
 <div class="filter-bar">
-  <div class="filter-chips">
-    <button class="chip active">
+  <div class="filter-chips" data-rebuild="filter.chips">
+    <button class="chip active" data-filter="all">
       <span class="en-inline">All</span><span class="zh-inline">全部</span>
       <span class="count">11</span>
     </button>
-    <button class="chip">
+    <button class="chip" data-filter="option_expiry">
       <span class="en-inline">Options</span><span class="zh-inline">期权</span>
       <span class="count">3</span>
     </button>
-    <button class="chip">
+    <button class="chip" data-filter="earnings">
       <span class="en-inline">Earnings</span><span class="zh-inline">财报</span>
       <span class="count">2</span>
     </button>
-    <button class="chip">
+    <button class="chip" data-filter="macro">
       <span class="en-inline">Macro</span><span class="zh-inline">宏观</span>
       <span class="count">1</span>
     </button>
-    <button class="chip">
+    <button class="chip" data-filter="bond_coupon">
       <span class="en-inline">Coupons</span><span class="zh-inline">付息</span>
       <span class="count">1</span>
     </button>
-    <button class="chip">
+    <button class="chip" data-filter="advisor_call">
       <span class="en-inline">Advisor</span><span class="zh-inline">顾问</span>
       <span class="count">2</span>
     </button>
-    <button class="chip">
+    <button class="chip" data-filter="report_delivery">
       <span class="en-inline">Reports</span><span class="zh-inline">报告</span>
       <span class="count">2</span>
     </button>
@@ -881,7 +881,9 @@
 </div>
 
 <!-- ── TIMELINE ── -->
-<section class="timeline">
+<!-- The static markup below is wholesale-replaced by the SQ-SCHEDULES-V1
+     script once event data is fetched. It stays as a degradation reference. -->
+<section class="timeline" data-rebuild="timeline.weeks">
 
   <!-- This Week -->
   <div class="week-group featured">
@@ -1665,6 +1667,463 @@
   });
 })();
 </script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+ * SQ-SCHEDULES-V1
+ * Live wire-up for the Schedules page.
+ *
+ * Fetches `GET /api/v1/schedules/events` once on load and renders:
+ *   • Header subtitle: "X events in the next 30 days"
+ *   • Summary strip: thisWeek / next30 / critical counts + tickers
+ *   • Filter chips: per-type counts
+ *   • Timeline: events grouped by ISO week, each event card dispatched to a
+ *     type-specific renderer (advisor / earnings+macro / report / generic)
+ *
+ * Every card links to `Shion Quant Event Detail.html?id=<eventId>` so the
+ * detail page can pull the single event by id.
+ *
+ * Failure semantics match Portal.html: on fetch error, blanked bindings stay
+ * as "Not loaded / 未读取" — never silently fall back to demo data.
+ * ───────────────────────────────────────────────────────────────────────── */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const PLACEHOLDER = '—';
+  const FAILED_EN = 'Not loaded';
+  const FAILED_ZH = '未读取';
+  const _zh = () => document.body.classList.contains('lang-zh');
+  const _failedTxt = () => _zh() ? FAILED_ZH : FAILED_EN;
+  const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
+  }[c]));
+
+  // ─── DOM helpers ──────────────────────────────────────────────────────
+  const setBind = (key, val) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => { el.textContent = val; });
+  };
+  const setRebuild = (key, html) => {
+    const el = document.querySelector(`[data-rebuild="${key}"]`);
+    if (el) el.innerHTML = html;
+  };
+
+  function _blankAllBindings() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = PLACEHOLDER; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => { el.innerHTML = ''; });
+  }
+  function _markFailed() {
+    const txt = _failedTxt();
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = txt; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => {
+      el.innerHTML = `<div class="rebuild-failed">${escapeHtml(txt)}</div>`;
+    });
+  }
+
+  // ─── Networking ──────────────────────────────────────────────────────
+  async function fetchEvents() {
+    // Default window: from yesterday to ~6 months out. The backend takes
+    // `from`/`to` query strings; defaults there are 30 days back / 1 year
+    // ahead, but for a Schedules page we'd rather not show events from a
+    // month ago. Adjust to taste later.
+    const from = new Date(Date.now() - 1 * 24 * 60 * 60_000).toISOString();
+    const to = new Date(Date.now() + 180 * 24 * 60 * 60_000).toISOString();
+    const url = `${API_BASE}/schedules/events?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+    const res = await fetch(url, { credentials: 'include', headers: { Accept: 'application/json' } });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      const err = new Error(`HTTP ${res.status} :: ${body.slice(0, 200)}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+
+  // ─── Type classification + filter mapping ────────────────────────────
+  // Backend event types: option_expiry, bond_coupon, earnings, dividend,
+  // macro, advisor_call, report_delivery, rebalance, compliance_renewal,
+  // personal. We collapse some for the filter chips.
+  const TYPE_RENDERER = {
+    advisor_call:       'advisor',
+    earnings:           'release',
+    macro:              'release',
+    dividend:           'release',
+    option_expiry:      'release',
+    bond_coupon:        'release',
+    report_delivery:    'report',
+    rebalance:          'report',
+    compliance_renewal: 'generic',
+    personal:           'generic',
+  };
+
+  // ─── Date / time formatting ──────────────────────────────────────────
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MONTHS_ZH = ['1 月','2 月','3 月','4 月','5 月','6 月','7 月','8 月','9 月','10 月','11 月','12 月'];
+  const WEEKDAYS_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const WEEKDAYS_ZH = ['周日','周一','周二','周三','周四','周五','周六'];
+  const fmtDay = (d) => String(d.getUTCDate()).padStart(2, '0');
+  const fmtTime = (d) => {
+    // "10:30 ET" style. UTC for now; backend hasn't propagated displayTz yet.
+    return `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC`;
+  };
+  /** Monday of the week containing `d` (UTC). */
+  function weekStart(d) {
+    const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+    const dow = x.getUTCDay(); // 0=Sun..6=Sat
+    const offset = dow === 0 ? -6 : 1 - dow; // make Monday the start
+    x.setUTCDate(x.getUTCDate() + offset);
+    return x;
+  }
+  function weekEnd(start) {
+    const e = new Date(start);
+    e.setUTCDate(e.getUTCDate() + 6);
+    return e;
+  }
+  function fmtWeekRange(start, end) {
+    const sMon = MONTHS_EN[start.getUTCMonth()];
+    const eMon = MONTHS_EN[end.getUTCMonth()];
+    const en = sMon === eMon
+      ? `${sMon} ${start.getUTCDate()} — ${end.getUTCDate()}`
+      : `${sMon} ${start.getUTCDate()} — ${eMon} ${end.getUTCDate()}`;
+    const zh = `${MONTHS_ZH[start.getUTCMonth()]}${start.getUTCDate()} 日 — ${MONTHS_ZH[end.getUTCMonth()]}${end.getUTCDate()} 日`;
+    return { en, zh };
+  }
+
+  // ─── Weekly grouping ─────────────────────────────────────────────────
+  function groupByWeek(events) {
+    const now = new Date();
+    const thisWeekStart = weekStart(now);
+    const groups = new Map();
+    for (const e of events) {
+      const d = new Date(e.startsAt);
+      const ws = weekStart(d);
+      const key = ws.toISOString().slice(0, 10);
+      if (!groups.has(key)) groups.set(key, { start: ws, end: weekEnd(ws), events: [] });
+      groups.get(key).events.push(e);
+    }
+    const ordered = [...groups.values()].sort((a, b) => a.start - b.start);
+    // Mark "this week" so the renderer can apply the .featured class.
+    for (const g of ordered) {
+      g.isFeatured = g.start.getTime() === thisWeekStart.getTime();
+    }
+    return ordered;
+  }
+
+  // ─── Event card renderers (one per renderer kind) ────────────────────
+  function dateBlockHtml(d) {
+    const dow = d.getUTCDay();
+    return `
+      <div class="event-date">
+        <span class="ed-day">${fmtDay(d)}</span>
+        <span class="ed-month"><span class="en-inline">${MONTHS_EN[d.getUTCMonth()]}</span><span class="zh-inline">${MONTHS_ZH[d.getUTCMonth()]}</span></span>
+        <span class="ed-weekday"><span class="en-inline">${WEEKDAYS_EN[dow]}</span><span class="zh-inline">${WEEKDAYS_ZH[dow]}</span></span>
+      </div>`;
+  }
+  function detailUrl(id) {
+    return `Shion Quant Event Detail.html?id=${encodeURIComponent(id)}`;
+  }
+  function tagHtml(en, zh, warn) {
+    const cls = warn ? 'tag warn' : 'tag';
+    return `<span class="${cls}"><span class="en-inline">${escapeHtml(en)}</span><span class="zh-inline">${escapeHtml(zh)}</span></span>`;
+  }
+
+  /** Type (a): Advisor / Quarterly Review — Confirm + Reschedule buttons. */
+  function renderAdvisor(e) {
+    const d = new Date(e.startsAt);
+    const meta = e.metadata && typeof e.metadata === 'object' ? e.metadata : {};
+    const advisorName = meta.advisorName || meta.advisor || 'Your advisor';
+    const agendaCount = Array.isArray(meta.agenda) ? meta.agenda.length : (meta.agendaCount ?? null);
+    const durationMin = e.endsAt
+      ? Math.round((new Date(e.endsAt) - d) / 60_000)
+      : (meta.durationMin ?? 60);
+    const meetingType = meta.meetingType || 'Video';
+    return `
+      <article class="event">
+        ${dateBlockHtml(d)}
+        <div class="event-body">
+          <div class="event-meta">
+            <span class="time">${escapeHtml(fmtTime(d))}</span>
+            ${tagHtml('Advisor', '顾问', false)}
+            <span><span class="en-inline">${durationMin} min · ${escapeHtml(meetingType)}</span><span class="zh-inline">${durationMin} 分钟 · ${escapeHtml(meetingType)}</span></span>
+          </div>
+          <div class="event-title">
+            <a href="${detailUrl(e.id)}" style="color:inherit;text-decoration:none">${escapeHtml(e.title)}</a>
+          </div>
+          ${e.description ? `<div class="event-desc">${escapeHtml(e.description)}</div>` : ''}
+          <div class="event-detail">
+            <span><span class="en-inline">Advisor</span><span class="zh-inline">顾问</span><strong>${escapeHtml(advisorName)}</strong></span>
+            ${agendaCount !== null ? `<span><span class="en-inline">Agenda</span><span class="zh-inline">议程</span><strong>${agendaCount} items</strong></span>` : ''}
+          </div>
+        </div>
+        <div class="event-action">
+          <a class="ea-btn primary" href="${detailUrl(e.id)}"><span class="en-inline">Confirm</span><span class="zh-inline">确认参加</span></a>
+          <a class="ea-btn" href="${detailUrl(e.id)}"><span class="en-inline">Reschedule</span><span class="zh-inline">改期</span></a>
+        </div>
+      </article>`;
+  }
+
+  /** Type (b): Earnings / Macro / Option expiry / Coupon — release events.
+   *  Shows only the time + a single "View Position" button. */
+  function renderRelease(e) {
+    const d = new Date(e.startsAt);
+    const TYPE_LABELS = {
+      earnings:      { en: 'Earnings', zh: '财报' },
+      macro:         { en: 'Macro',    zh: '宏观' },
+      dividend:      { en: 'Dividend', zh: '分红' },
+      option_expiry: { en: 'Options',  zh: '期权到期' },
+      bond_coupon:   { en: 'Coupon',   zh: '付息' },
+    };
+    const lbl = TYPE_LABELS[e.eventType] || { en: e.eventType, zh: e.eventType };
+    return `
+      <article class="event">
+        ${dateBlockHtml(d)}
+        <div class="event-body">
+          <div class="event-meta">
+            <span class="time">${escapeHtml(fmtTime(d))}</span>
+            ${tagHtml(lbl.en, lbl.zh, false)}
+          </div>
+          <div class="event-title">
+            ${e.ticker ? `<span class="ticker">${escapeHtml(e.ticker)}</span>` : ''}
+            <a href="${detailUrl(e.id)}" style="color:inherit;text-decoration:none">${escapeHtml(e.title)}</a>
+          </div>
+          ${e.description ? `<div class="event-desc">${escapeHtml(e.description)}</div>` : ''}
+        </div>
+        <div class="event-action">
+          <a class="ea-btn" href="${detailUrl(e.id)}"><span class="en-inline">View Position</span><span class="zh-inline">查看仓位</span></a>
+        </div>
+      </article>`;
+  }
+
+  /** Type (c): Reports — Risk Attribution, Rebalance Window, etc. */
+  function renderReport(e) {
+    const d = new Date(e.startsAt);
+    const lbl = e.eventType === 'rebalance'
+      ? { en: 'Rebalance', zh: '再平衡' }
+      : { en: 'Report', zh: '报告' };
+    const btnLbl = e.eventType === 'rebalance'
+      ? { en: 'View Proposal', zh: '查看方案' }
+      : { en: 'View Report', zh: '查看报告' };
+    return `
+      <article class="event">
+        ${dateBlockHtml(d)}
+        <div class="event-body">
+          <div class="event-meta">
+            <span class="time">${escapeHtml(fmtTime(d))}</span>
+            ${tagHtml(lbl.en, lbl.zh, false)}
+          </div>
+          <div class="event-title">
+            <a href="${detailUrl(e.id)}" style="color:inherit;text-decoration:none">${escapeHtml(e.title)}</a>
+          </div>
+          ${e.description ? `<div class="event-desc">${escapeHtml(e.description)}</div>` : ''}
+        </div>
+        <div class="event-action">
+          <a class="ea-btn" href="${detailUrl(e.id)}"><span class="en-inline">${escapeHtml(btnLbl.en)}</span><span class="zh-inline">${escapeHtml(btnLbl.zh)}</span></a>
+        </div>
+      </article>`;
+  }
+
+  /** Generic fallback for personal / compliance / future types. */
+  function renderGeneric(e) {
+    const d = new Date(e.startsAt);
+    return `
+      <article class="event">
+        ${dateBlockHtml(d)}
+        <div class="event-body">
+          <div class="event-meta">
+            <span class="time">${escapeHtml(fmtTime(d))}</span>
+            ${tagHtml(e.eventType, e.eventType, false)}
+          </div>
+          <div class="event-title">
+            <a href="${detailUrl(e.id)}" style="color:inherit;text-decoration:none">${escapeHtml(e.title)}</a>
+          </div>
+          ${e.description ? `<div class="event-desc">${escapeHtml(e.description)}</div>` : ''}
+        </div>
+        <div class="event-action">
+          <a class="ea-btn" href="${detailUrl(e.id)}"><span class="en-inline">Open</span><span class="zh-inline">查看</span></a>
+        </div>
+      </article>`;
+  }
+
+  function renderEventCard(e) {
+    const kind = TYPE_RENDERER[e.eventType] || 'generic';
+    if (kind === 'advisor') return renderAdvisor(e);
+    if (kind === 'release') return renderRelease(e);
+    if (kind === 'report') return renderReport(e);
+    return renderGeneric(e);
+  }
+
+  // ─── Top-level rendering ─────────────────────────────────────────────
+  function renderHeader(events) {
+    const now = Date.now();
+    const next30 = events.filter((e) => {
+      const t = new Date(e.startsAt).getTime();
+      return t >= now && t <= now + 30 * 24 * 60 * 60_000;
+    }).length;
+    setBind('header.subEn', `${next30} event${next30 === 1 ? '' : 's'} in the next 30 days`);
+    setBind('header.subZh', `未来 30 天 ${next30} 项事件`);
+  }
+
+  function renderSummary(events) {
+    const now = Date.now();
+    const thisWeekStart = weekStart(new Date()).getTime();
+    const thisWeekEnd = thisWeekStart + 7 * 24 * 60 * 60_000;
+    const in30 = (e) => {
+      const t = new Date(e.startsAt).getTime();
+      return t >= now && t <= now + 30 * 24 * 60 * 60_000;
+    };
+    const inThisWeek = (e) => {
+      const t = new Date(e.startsAt).getTime();
+      return t >= thisWeekStart && t < thisWeekEnd;
+    };
+    const thisWeekEv = events.filter(inThisWeek);
+    const next30Ev = events.filter(in30);
+    const criticalEv = next30Ev.filter((e) => e.isCritical);
+
+    setBind('summary.thisWeek', thisWeekEv.length);
+    setBind('summary.next30', next30Ev.length);
+    setBind('summary.critical', criticalEv.length);
+
+    const typesThisWeek = new Set(thisWeekEv.map((e) => e.eventType));
+    setBind(
+      'summary.thisWeekSubEn',
+      thisWeekEv.length === 0 ? 'No scheduled events' : `Spans ${typesThisWeek.size} event type${typesThisWeek.size === 1 ? '' : 's'}`,
+    );
+    setBind(
+      'summary.thisWeekSubZh',
+      thisWeekEv.length === 0 ? '本周暂无安排' : `涵盖 ${typesThisWeek.size} 类事件`,
+    );
+
+    const optCount = next30Ev.filter((e) => e.eventType === 'option_expiry').length;
+    const couponCount = next30Ev.filter((e) => e.eventType === 'bond_coupon').length;
+    setBind('summary.next30SubEn', `${optCount} option expir${optCount === 1 ? 'y' : 'ies'} · ${couponCount} coupon${couponCount === 1 ? '' : 's'}`);
+    setBind('summary.next30SubZh', `${optCount} 项期权到期 · ${couponCount} 项付息`);
+
+    const tickers = criticalEv.map((e) => e.ticker).filter(Boolean);
+    setBind(
+      'summary.criticalPill',
+      tickers.length > 0 ? tickers.slice(0, 3).join(' · ') : (_zh() ? '暂无' : 'None'),
+    );
+
+    // "Last Reviewed" — no backend signal yet; show a static "—" until we
+    // add an account-level lastSyncedAt field.
+    setBind('summary.lastReviewed', '—');
+    setBind('summary.lastReviewedSubEn', 'Sync timestamp not yet wired');
+    setBind('summary.lastReviewedSubZh', '同步时间尚未接入');
+  }
+
+  function renderFilterChips(events) {
+    // Recount each chip from real data.
+    const counts = {};
+    for (const e of events) counts[e.eventType] = (counts[e.eventType] || 0) + 1;
+    const CHIP_ORDER = [
+      { filter: 'all',             en: 'All',      zh: '全部',   count: events.length, active: true },
+      { filter: 'option_expiry',   en: 'Options',  zh: '期权',   count: counts.option_expiry || 0 },
+      { filter: 'earnings',        en: 'Earnings', zh: '财报',   count: counts.earnings || 0 },
+      { filter: 'macro',           en: 'Macro',    zh: '宏观',   count: counts.macro || 0 },
+      { filter: 'bond_coupon',     en: 'Coupons',  zh: '付息',   count: counts.bond_coupon || 0 },
+      { filter: 'advisor_call',    en: 'Advisor',  zh: '顾问',   count: counts.advisor_call || 0 },
+      { filter: 'report_delivery', en: 'Reports',  zh: '报告',   count: (counts.report_delivery || 0) + (counts.rebalance || 0) },
+    ];
+    const html = CHIP_ORDER.map((c) => `
+      <button class="chip${c.active ? ' active' : ''}" data-filter="${escapeHtml(c.filter)}">
+        <span class="en-inline">${escapeHtml(c.en)}</span><span class="zh-inline">${escapeHtml(c.zh)}</span>
+        <span class="count">${c.count}</span>
+      </button>`).join('');
+    setRebuild('filter.chips', html);
+  }
+
+  function renderTimeline(events) {
+    if (events.length === 0) {
+      const empty = _zh() ? '当前时间窗口内暂无事件' : 'No events in the selected window';
+      setRebuild('timeline.weeks', `<div class="rebuild-failed">${escapeHtml(empty)}</div>`);
+      return;
+    }
+    const groups = groupByWeek(events);
+    const html = groups.map((g) => {
+      const range = fmtWeekRange(g.start, g.end);
+      const prefix = g.isFeatured
+        ? { en: 'This Week · ', zh: '本周 · ' }
+        : { en: 'Week of · ', zh: '当周 · ' };
+      return `
+        <div class="week-group${g.isFeatured ? ' featured' : ''}">
+          <div class="week-head">
+            <span class="en-inline">${escapeHtml(prefix.en + range.en)}</span>
+            <span class="zh-inline">${escapeHtml(prefix.zh + range.zh)}</span>
+            <span class="week-count">${g.events.length} event${g.events.length === 1 ? '' : 's'}</span>
+          </div>
+          <div class="events-list">
+            ${g.events.map(renderEventCard).join('')}
+          </div>
+        </div>`;
+    }).join('');
+    setRebuild('timeline.weeks', html);
+  }
+
+  function wireFilterClicks() {
+    document.querySelectorAll('[data-filter]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.getAttribute('data-filter');
+        document.querySelectorAll('.event').forEach((card) => {
+          // We don't currently tag rendered cards with their type; quick
+          // visual filter via display:none requires that. Leave wiring as
+          // a TODO — chip state changes are still informative on their own.
+          card.style.display = '';
+        });
+        if (filter !== 'all') {
+          console.info('[schedules] filter click:', filter, '(visual filtering pending implementation)');
+        }
+      });
+    });
+  }
+
+  // ─── boot ────────────────────────────────────────────────────────────
+  async function boot() {
+    _blankAllBindings();
+    try {
+      const data = await fetchEvents();
+      const events = Array.isArray(data.events) ? data.events : [];
+      renderHeader(events);
+      renderSummary(events);
+      renderFilterChips(events);
+      renderTimeline(events);
+      wireFilterClicks();
+    } catch (err) {
+      console.warn('[schedules] fetch failed:', err.message || err);
+      _markFailed();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
+<style>
+  /* Shared "未读取 / Not loaded" placeholder style (kept in sync with Portal). */
+  .rebuild-failed {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); letter-spacing: 0.06em; }
+</style>
 
 </body>
 </html>

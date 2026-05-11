@@ -28,7 +28,7 @@ const DEST = resolve(__dirname, "../public")
 
 // File extensions we want to ship with the Worker. Add more here if you
 // introduce CSS/JS/image assets at the repo root later.
-const STATIC_EXTENSIONS = [".html"]
+const STATIC_EXTENSIONS = [".html", ".svg", ".ico", ".png", ".webmanifest"]
 
 // 1. Wipe the destination so removed files at root don't linger.
 if (existsSync(DEST)) rmSync(DEST, { recursive: true, force: true })
