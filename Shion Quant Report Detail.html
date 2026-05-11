@@ -659,541 +659,87 @@
 <div class="breadcrumb">
   <a href="Shion Quant Reports.html"><span class="en-inline">Reports</span><span class="zh-inline">分析报告</span></a>
   <span class="chev">›</span>
-  <a href="Shion Quant Reports.html"><span class="en-inline">April 2026</span><span class="zh-inline">2026 年 4 月</span></a>
+  <a href="Shion Quant Reports.html" data-bind="breadcrumb.monthYear">—</a>
   <span class="chev">›</span>
-  <span class="current"><span class="en-inline">Risk Attribution</span><span class="zh-inline">风险归因</span></span>
+  <span class="current" data-bind="breadcrumb.categoryName">—</span>
 </div>
 
 <!-- ── REPORT HEADER ── -->
 <header class="report-header">
   <div class="rh-meta">
-    <span class="tag"><span class="en-inline">Monthly Risk</span><span class="zh-inline">月度风险</span></span>
-    <span class="date">22 Apr 2026</span>
+    <span class="tag" data-bind="header.categoryTag">—</span>
+    <span class="date" data-bind="header.date">—</span>
     <span>·</span>
-    <span class="author"><span class="en-inline">K. Tanaka</span><span class="zh-inline">K. Tanaka 撰</span></span>
+    <span class="author" data-bind="header.author">—</span>
     <span>·</span>
-    <span>18 pp</span>
+    <span data-bind="header.pages">—</span>
     <span>·</span>
     <span><span class="en-inline">Confidential · Client 0042</span><span class="zh-inline">机密 · 客户编号 0042</span></span>
   </div>
-  <h1 class="rh-title">
-    <span class="en">April <em>Risk Attribution</em> Report</span>
-    <span class="zh">4 月<em>风险归因</em>报告</span>
-  </h1>
-  <p class="rh-lede">
-    <span class="en-inline">Net portfolio beta drifted from 0.78 to 0.82 in April, primarily driven by NVDA position growth. Tail hedges reduced effective downside by 31% under simulated 5% market drop. Concentration trigger now active.</span>
-    <span class="zh-inline">4 月组合 Beta 由 0.78 漂移至 0.82，主因 NVDA 仓位扩张。尾部对冲在模拟 5% 跌幅下将实际下行减少 31%。集中度预警已生效。</span>
-  </p>
-  <div class="rh-stats">
-    <div>
-      <span class="rs-label"><span class="en-inline">Pages</span><span class="zh-inline">页数</span></span>
-      <span class="rs-value">18</span>
-    </div>
-    <div>
-      <span class="rs-label"><span class="en-inline">Charts</span><span class="zh-inline">图表</span></span>
-      <span class="rs-value">12</span>
-    </div>
-    <div>
-      <span class="rs-label"><span class="en-inline">Tables</span><span class="zh-inline">数据表</span></span>
-      <span class="rs-value">7</span>
-    </div>
-    <div>
-      <span class="rs-label"><span class="en-inline">Read time</span><span class="zh-inline">阅读时长</span></span>
-      <span class="rs-value">~22 min</span>
-    </div>
-    <div>
-      <span class="rs-label"><span class="en-inline">Sections</span><span class="zh-inline">章节</span></span>
-      <span class="rs-value">6</span>
-    </div>
-  </div>
+  <h1 class="rh-title" data-bind="header.title">—</h1>
+  <p class="rh-lede" data-bind="header.subtitle">—</p>
+  <div class="rh-stats" data-rebuild="header.stats"></div>
 </header>
 
 <!-- ── BODY ── -->
 <div class="reading-body">
 
   <!-- MAIN COLUMN -->
-  <main class="reading-main">
-
-    <!-- Section 01 -->
-    <section class="rep-section" id="sec-01">
-      <div class="rs-num-wrap">
-        <span class="rs-num">01</span>
-        <h2 class="rs-title">
-          <span class="en">Performance <em>attribution</em></span>
-          <span class="zh">业绩<em>归因</em></span>
-        </h2>
-      </div>
-      <p class="rs-lead">
-        <span class="en-inline">April closed +4.4% net of fees, ahead of SPY's +2.9% and largely driven by NVDA's +8.7% monthly contribution. The trailing 90-day Sharpe held at 1.74 despite increased dispersion in single-name returns.</span>
-        <span class="zh-inline">4 月扣费后收益 +4.4%，跑赢 SPY 的 +2.9%，主要由 NVDA 单月 +8.7% 的贡献驱动。尽管个股收益离散度上升，近 90 日 Sharpe 仍维持在 1.74。</span>
-      </p>
-      <p class="rs-prose">
-        <span class="en-inline">Top contributors followed the concentration pattern flagged in the March report: <strong>NVDA, AAPL, and MSFT together accounted for 76% of monthly equity P/L</strong>, with NVDA alone delivering 58 bps to total portfolio return. Detractors were modest in scale — LMT's defense-sector pullback (−3.2%) clipped 12 bps, and the protective put position drag amounted to a further 8 bps net of any unrealized gain on the puts themselves.</span>
-        <span class="zh-inline">主要贡献者延续了 3 月报告所标记的集中模式：<strong>NVDA、AAPL、MSFT 三者合计贡献 4 月股票盈亏的 76%</strong>，仅 NVDA 一只就贡献了组合总收益 58 bps。拖累项规模有限——LMT 国防板块回调（−3.2%）削减 12 bps，保护性看跌仓位的净拖累再为 8 bps（含 put 自身浮盈对冲后）。</span>
-      </p>
-
-      <table class="data-table">
-        <caption><span class="en-inline">Top 5 contributors · April 2026</span><span class="zh-inline">4 月主要贡献者 Top 5</span></caption>
-        <thead>
-          <tr>
-            <th><span class="en-inline">Symbol</span><span class="zh-inline">代码</span></th>
-            <th><span class="en-inline">Avg Weight</span><span class="zh-inline">平均权重</span></th>
-            <th><span class="en-inline">Return</span><span class="zh-inline">收益</span></th>
-            <th><span class="en-inline">Contrib (bps)</span><span class="zh-inline">贡献（bps）</span></th>
-            <th><span class="en-inline">% of Equity P/L</span><span class="zh-inline">股票盈亏占比</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="sym">NVDA</td><td>16.8%</td><td class="gain">+8.7%</td><td class="gain">+58</td><td>34.2%</td></tr>
-          <tr><td class="sym">AAPL</td><td>11.2%</td><td class="gain">+5.4%</td><td class="gain">+24</td><td>14.1%</td></tr>
-          <tr><td class="sym">MSFT</td><td>9.0%</td><td class="gain">+4.8%</td><td class="gain">+22</td><td>12.9%</td></tr>
-          <tr><td class="sym">TSM</td><td>5.4%</td><td class="gain">+6.1%</td><td class="gain">+15</td><td>8.8%</td></tr>
-          <tr><td class="sym">BRK.B</td><td>4.5%</td><td class="gain">+3.2%</td><td class="gain">+8</td><td>4.7%</td></tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td><span class="en-inline">Subtotal</span><span class="zh-inline">小计</span></td>
-            <td>46.9%</td>
-            <td>—</td>
-            <td>+127 bps</td>
-            <td>74.7%</td>
-          </tr>
-        </tfoot>
-      </table>
-
-      <p class="rs-prose">
-        <span class="en-inline">The remaining 25% of equity P/L came from BRK.B (+4.7%), GOOGL (+3.1%), partly offset by LMT (−2.5%). Bond and option sleeves contributed +0.18% and −0.05% respectively. Cash drag was −0.04%.</span>
-        <span class="zh-inline">余下约 25% 的股票盈亏来自 BRK.B（+4.7%）、GOOGL（+3.1%），部分被 LMT（−2.5%）抵消。债券与期权层分别贡献 +0.18% 与 −0.05%。现金拖累 −0.04%。</span>
-      </p>
-    </section>
-
-    <!-- Section 02 -->
-    <section class="rep-section" id="sec-02">
-      <div class="rs-num-wrap">
-        <span class="rs-num">02</span>
-        <h2 class="rs-title">
-          <span class="en">Beta <em>drift</em> attribution</span>
-          <span class="zh">Beta <em>漂移</em>归因</span>
-        </h2>
-      </div>
-      <p class="rs-lead">
-        <span class="en-inline">Net portfolio beta increased from 0.78 (end-March) to 0.82 (end-April), with the 30-day rolling estimate now at the upper edge of the policy band [0.65, 0.85].</span>
-        <span class="zh-inline">组合净 Beta 由 3 月底 0.78 上升至 4 月底 0.82，30 日滚动估计已接近政策区间 [0.65, 0.85] 的上沿。</span>
-      </p>
-      <p class="rs-prose">
-        <span class="en-inline">The drift is mechanical, not behavioural — no purchases were made in April. The +0.05 contribution from NVDA is a pure mark-to-market effect: as price appreciated 8.7% over the month, NVDA's portfolio weight rose from 16.5% to 18.0%, lifting the weighted exposure to its high beta (β ≈ 1.6). The hedge offset of −0.02 reflects the SPY 530P delta, which deepens as the underlying moves up (paradoxically, the put has more delta now than at initiation because of vega and term-structure effects).</span>
-        <span class="zh-inline">本次漂移是机械性的，而非主动操作——4 月并未进行买入。NVDA 贡献的 +0.05 完全来自市价变动效应：价格月内上涨 8.7%，使 NVDA 权重由 16.5% 升至 18.0%，进而拉高其高 Beta（β ≈ 1.6）的加权敞口。−0.02 的对冲抵消反映 SPY 530P 的 delta——随着标的上涨反而加深（看似反直觉，但因 vega 与期限结构效应所致）。</span>
-      </p>
-
-      <figure class="chart-figure">
-        <svg viewBox="0 0 720 220" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="betaG" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stop-color="#2347d4" stop-opacity="0.18"/>
-              <stop offset="100%" stop-color="#2347d4" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <!-- policy band -->
-          <rect x="0" y="55" width="720" height="80" fill="rgba(45,138,93,0.04)"/>
-          <line x1="0" y1="55" x2="720" y2="55" stroke="rgba(45,138,93,0.25)" stroke-dasharray="4 4" stroke-width="1"/>
-          <line x1="0" y1="135" x2="720" y2="135" stroke="rgba(45,138,93,0.25)" stroke-dasharray="4 4" stroke-width="1"/>
-          <text x="6" y="50" font-family="JetBrains Mono" font-size="10" fill="#2d8a5d">β = 0.85 ceiling</text>
-          <text x="6" y="148" font-family="JetBrains Mono" font-size="10" fill="#2d8a5d">β = 0.65 floor</text>
-
-          <!-- area + line: rolling 30d beta from March 1 to April 30 -->
-          <path d="M 0,108 L 36,114 L 72,108 L 108,102 L 144,96 L 180,92 L 216,98 L 252,90 L 288,86 L 324,82 L 360,84 L 396,78 L 432,72 L 468,68 L 504,72 L 540,64 L 576,60 L 612,58 L 648,62 L 684,58 L 720,55 L 720,220 L 0,220 Z" fill="url(#betaG)"/>
-          <polyline points="0,108 36,114 72,108 108,102 144,96 180,92 216,98 252,90 288,86 324,82 360,84 396,78 432,72 468,68 504,72 540,64 576,60 612,58 648,62 684,58 720,55" fill="none" stroke="#2347d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-
-          <!-- end marker -->
-          <circle cx="720" cy="55" r="4" fill="#fff" stroke="#c8a84b" stroke-width="2"/>
-
-          <!-- midpoint (March 31 marker) -->
-          <line x1="360" y1="0" x2="360" y2="220" stroke="rgba(35,71,212,0.15)" stroke-dasharray="2 4" stroke-width="1"/>
-          <text x="364" y="14" font-family="JetBrains Mono" font-size="10" fill="rgba(35,71,212,0.6)">31 Mar</text>
-        </svg>
-        <div class="chart-axis">
-          <span>1 Mar</span>
-          <span>15 Mar</span>
-          <span>31 Mar</span>
-          <span>15 Apr</span>
-          <span>30 Apr</span>
-        </div>
-        <figcaption>
-          <strong><span class="en-inline">Fig. 02 ·</span><span class="zh-inline">图 02 ·</span></strong>
-          <span class="en-inline">Rolling 30-day portfolio beta vs. SPY across March–April 2026. Green band marks the policy range [0.65, 0.85]. Closing value of 0.82 sits at the 96th percentile of the trailing 12 months — but still inside policy.</span>
-          <span class="zh-inline">2026 年 3–4 月组合相对 SPY 的 30 日滚动 Beta。绿色区域标示政策区间 [0.65, 0.85]。月末值 0.82 处于过去 12 个月的第 96 分位——仍在政策范围内。</span>
-        </figcaption>
-      </figure>
-
-      <table class="data-table">
-        <caption><span class="en-inline">Beta drift decomposition · March → April</span><span class="zh-inline">Beta 漂移分解 · 3 月 → 4 月</span></caption>
-        <thead>
-          <tr>
-            <th><span class="en-inline">Source</span><span class="zh-inline">来源</span></th>
-            <th><span class="en-inline">Δβ Contribution</span><span class="zh-inline">Δβ 贡献</span></th>
-            <th><span class="en-inline">Mechanism</span><span class="zh-inline">机制</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="sym">NVDA</td><td class="loss">+0.050</td><td><span class="en-inline">Weight ↑ via price</span><span class="zh-inline">权重因价格上升</span></td></tr>
-          <tr><td class="sym">AAPL</td><td class="loss">+0.012</td><td><span class="en-inline">Weight ↑ via price</span><span class="zh-inline">权重因价格上升</span></td></tr>
-          <tr><td class="sym">MSFT</td><td class="loss">+0.008</td><td><span class="en-inline">Weight ↑ via price</span><span class="zh-inline">权重因价格上升</span></td></tr>
-          <tr><td class="sym">SPY 530P</td><td class="gain">−0.022</td><td><span class="en-inline">Δ deepening with underlying ↑</span><span class="zh-inline">Δ 随标的上行加深</span></td></tr>
-          <tr><td class="sym">UST</td><td class="gain">−0.005</td><td><span class="en-inline">Duration · negative β</span><span class="zh-inline">久期 · 负 β</span></td></tr>
-          <tr><td class="sym">Other</td><td>−0.003</td><td><span class="en-inline">BRK.B, GOOGL, LMT, cash drift</span><span class="zh-inline">BRK.B / GOOGL / LMT / 现金漂移</span></td></tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td><span class="en-inline">Net Δβ</span><span class="zh-inline">净 Δβ</span></td>
-            <td>+0.040</td>
-            <td>0.78 → 0.82</td>
-          </tr>
-        </tfoot>
-      </table>
-
-      <div class="pull-quote">
-        <span class="en-inline">"Beta drift this month is the price of doing nothing while concentration grew. The hedge did its job in restraining further drift, but cannot reverse it on its own."</span>
-        <span class="zh-inline">「本月的 Beta 漂移，是在集中度持续上升时按兵不动所付出的代价。对冲限制了进一步漂移，但无法独自将其逆转。」</span>
-      </div>
-    </section>
-
-    <!-- Section 03 -->
-    <section class="rep-section" id="sec-03">
-      <div class="rs-num-wrap">
-        <span class="rs-num">03</span>
-        <h2 class="rs-title">
-          <span class="en">Hedge <em>effectiveness</em></span>
-          <span class="zh">对冲<em>有效性</em></span>
-        </h2>
-      </div>
-      <p class="rs-lead">
-        <span class="en-inline">The SPY 530P (8 contracts, 20 June expiry) reduced effective downside by 31% in our 5%-market-drop simulation, slightly outperforming the 25% target set in the March memo.</span>
-        <span class="zh-inline">SPY 530P（8 张合约，6/20 到期）在 5% 市场跌幅模拟中将实际下行减少 31%，略高于 3 月备忘设定的 25% 目标。</span>
-      </p>
-      <p class="rs-prose">
-        <span class="en-inline">We re-ran the counterfactual with three alternative hedge constructions: <em>do nothing</em>, <em>same notional via 480P</em> (out-of-the-money), and <em>same premium via 540P</em> (closer-to-the-money). The 530P struck the best risk-cost trade in this quarter's volatility regime, though its margin of advantage over 540P is narrow (~3% of protection efficiency for ~8% lower premium spend).</span>
-        <span class="zh-inline">我们以三种替代对冲方案重做反事实测算：<em>不对冲</em>、<em>同名义额度 480P</em>（深虚值）、<em>同保费 540P</em>（接近平值）。本季度波动率体制下 530P 实现了最佳风险-成本平衡，但相较 540P 的边际优势不大（保护效率约高 3%，保费成本约低 8%）。</span>
-      </p>
-
-      <table class="data-table">
-        <caption><span class="en-inline">Hedge counterfactual · 5% market drop scenario</span><span class="zh-inline">对冲反事实 · 5% 市场跌幅情景</span></caption>
-        <thead>
-          <tr>
-            <th><span class="en-inline">Construction</span><span class="zh-inline">构造</span></th>
-            <th><span class="en-inline">Premium Paid</span><span class="zh-inline">保费</span></th>
-            <th><span class="en-inline">Naked Loss</span><span class="zh-inline">裸跌损失</span></th>
-            <th><span class="en-inline">Hedged Loss</span><span class="zh-inline">对冲后</span></th>
-            <th><span class="en-inline">Reduction</span><span class="zh-inline">下行减少</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><span class="en-inline">Do nothing</span><span class="zh-inline">不对冲</span></td><td>$0</td><td class="loss">−$142,367</td><td class="loss">−$142,367</td><td>0%</td></tr>
-          <tr><td><span class="en-inline">SPY 480P × 12</span><span class="zh-inline">SPY 480P × 12</span></td><td>−$5,640</td><td class="loss">−$142,367</td><td class="loss">−$118,512</td><td class="gain">17%</td></tr>
-          <tr style="background:rgba(35,71,212,0.04);"><td><strong><span class="en-inline">SPY 530P × 8 (current)</span><span class="zh-inline">SPY 530P × 8（实际持有）</span></strong></td><td>−$7,520</td><td class="loss">−$142,367</td><td class="loss">−$98,233</td><td class="gain">31%</td></tr>
-          <tr><td><span class="en-inline">SPY 540P × 8</span><span class="zh-inline">SPY 540P × 8</span></td><td>−$8,160</td><td class="loss">−$142,367</td><td class="loss">−$93,872</td><td class="gain">34%</td></tr>
-        </tbody>
-      </table>
-
-      <p class="rs-prose">
-        <span class="en-inline">The 530P will require a roll decision in mid-June. On current volatility surface, the September 540P offers similar protection efficiency at +18% premium. We recommend rolling at the next quarterly OPEX (20 June) regardless of where SPY trades — gamma decay accelerates substantially in the final 30 days.</span>
-        <span class="zh-inline">530P 将在 6 月中旬面临展期决策。基于当前波动率曲面，9 月 540P 可提供相近的保护效率，保费成本上升约 18%。建议无论 SPY 价格如何，都在下一个季度 OPEX（6/20）展期——最后 30 天 gamma 衰减显著加速。</span>
-      </p>
-    </section>
-
-    <!-- Section 04 -->
-    <section class="rep-section" id="sec-04">
-      <div class="rs-num-wrap">
-        <span class="rs-num">04</span>
-        <h2 class="rs-title">
-          <span class="en">Factor <em>decomposition</em></span>
-          <span class="zh">因子<em>分解</em></span>
-        </h2>
-      </div>
-      <p class="rs-lead">
-        <span class="en-inline">Style exposures remained tilted toward Quality and Momentum, with a modest Low-Volatility short. Sector exposure is concentrated in Technology (44% vs. SPY's 30%).</span>
-        <span class="zh-inline">风格暴露持续偏向 Quality 与 Momentum，伴随小幅 Low-Volatility 空头。行业敞口集中于科技（44%，对比 SPY 的 30%）。</span>
-      </p>
-
-      <table class="data-table">
-        <caption><span class="en-inline">Style factor exposures vs. SPY</span><span class="zh-inline">风格因子敞口 · 对比 SPY</span></caption>
-        <thead>
-          <tr>
-            <th><span class="en-inline">Factor</span><span class="zh-inline">因子</span></th>
-            <th><span class="en-inline">Portfolio</span><span class="zh-inline">组合</span></th>
-            <th><span class="en-inline">SPY</span></th>
-            <th><span class="en-inline">Active</span><span class="zh-inline">主动暴露</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><span class="en-inline">Quality</span><span class="zh-inline">质量</span></td><td>+0.84</td><td>+0.18</td><td class="gain">+0.66</td></tr>
-          <tr><td><span class="en-inline">Momentum</span><span class="zh-inline">动量</span></td><td>+0.72</td><td>+0.22</td><td class="gain">+0.50</td></tr>
-          <tr><td><span class="en-inline">Growth</span><span class="zh-inline">成长</span></td><td>+0.55</td><td>+0.32</td><td class="gain">+0.23</td></tr>
-          <tr><td><span class="en-inline">Value</span><span class="zh-inline">价值</span></td><td>−0.41</td><td>−0.08</td><td class="loss">−0.33</td></tr>
-          <tr><td><span class="en-inline">Low Vol</span><span class="zh-inline">低波动</span></td><td>−0.28</td><td>−0.05</td><td class="loss">−0.23</td></tr>
-          <tr><td><span class="en-inline">Size (small)</span><span class="zh-inline">规模（小盘）</span></td><td>−0.65</td><td>−0.30</td><td class="loss">−0.35</td></tr>
-        </tbody>
-      </table>
-
-      <p class="rs-prose">
-        <span class="en-inline">The active Quality + Momentum tilt is consistent with the strategy mandate. The Value short is structural and unintended — primarily a function of NVDA, MSFT, and GOOGL's growth profiles. <strong>If the Q1 earnings cycle delivers a value-rotation surprise, this factor exposure becomes the dominant risk driver, exceeding even concentration risk in magnitude.</strong></span>
-        <span class="zh-inline">主动 Quality + Momentum 倾斜符合策略授权。Value 空头则是结构性、非主动的——主要由 NVDA、MSFT、GOOGL 的成长属性所致。<strong>若 Q1 财报周期意外引发 Value 风格轮动，此因子敞口将成为最主要的风险来源，量级超过集中度风险。</strong></span>
-      </p>
-    </section>
-
-    <!-- Section 05 -->
-    <section class="rep-section" id="sec-05">
-      <div class="rs-num-wrap">
-        <span class="rs-num">05</span>
-        <h2 class="rs-title">
-          <span class="en">Forward <em>scenarios</em></span>
-          <span class="zh">前瞻<em>情景</em></span>
-        </h2>
-      </div>
-      <p class="rs-lead">
-        <span class="en-inline">Three scenarios projected over 30 and 90 days, with current portfolio composition held constant. Bull and bear paths assume single shock + drift; base path is regime-conditional.</span>
-        <span class="zh-inline">基于当前组合不变，对未来 30 日与 90 日做三种情景投影。多/空情景假设单次冲击叠加趋势，基准情景按市场体制条件推演。</span>
-      </p>
-
-      <table class="data-table">
-        <caption><span class="en-inline">Scenario projections · current allocation</span><span class="zh-inline">情景预测 · 维持当前配置</span></caption>
-        <thead>
-          <tr>
-            <th><span class="en-inline">Scenario</span><span class="zh-inline">情景</span></th>
-            <th><span class="en-inline">SPY assumption</span><span class="zh-inline">SPY 假设</span></th>
-            <th><span class="en-inline">30d return</span><span class="zh-inline">30 日收益</span></th>
-            <th><span class="en-inline">90d return</span><span class="zh-inline">90 日收益</span></th>
-            <th><span class="en-inline">Probability</span><span class="zh-inline">概率</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><span class="en-inline">Bull · soft landing confirmed</span><span class="zh-inline">多 · 软着陆确认</span></td><td>+5%</td><td class="gain">+6.2%</td><td class="gain">+11.4%</td><td>32%</td></tr>
-          <tr style="background:rgba(35,71,212,0.04);"><td><strong><span class="en-inline">Base · range-bound</span><span class="zh-inline">基准 · 区间震荡</span></strong></td><td>±2%</td><td class="gain">+1.4%</td><td class="gain">+3.8%</td><td>48%</td></tr>
-          <tr><td><span class="en-inline">Bear · regime shift</span><span class="zh-inline">空 · 体制切换</span></td><td>−8%</td><td class="loss">−5.4%</td><td class="loss">−9.1%</td><td>20%</td></tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td><span class="en-inline">Probability-weighted</span><span class="zh-inline">概率加权</span></td>
-            <td>—</td>
-            <td>+1.55%</td>
-            <td>+3.55%</td>
-            <td>100%</td>
-          </tr>
-        </tfoot>
-      </table>
-
-      <p class="rs-prose">
-        <span class="en-inline">The bear case loss (−9.1% over 90d) sits comfortably inside the policy max-drawdown ceiling of −12%, but only because of the active SPY hedge. Without it, the same simulation produces −13.2% — outside policy.</span>
-        <span class="zh-inline">空头情景的 90 日损失 −9.1% 仍在政策最大回撤上限 −12% 之内，但这完全依赖现有 SPY 对冲。若移除该对冲，相同模拟将产生 −13.2%，已突破政策。</span>
-      </p>
-    </section>
-
-    <!-- Section 06 -->
-    <section class="rep-section" id="sec-06">
-      <div class="rs-num-wrap">
-        <span class="rs-num">06</span>
-        <h2 class="rs-title">
-          <span class="en"><em>Recommendations</em></span>
-          <span class="zh"><em>建议</em></span>
-        </h2>
-      </div>
-      <p class="rs-lead">
-        <span class="en-inline">Six action items in priority order. Items 1–2 require client decision before 22 May rebalance window opens; items 3–6 are advisory and will be executed at our discretion under the standing mandate.</span>
-        <span class="zh-inline">按优先级列出 6 项行动建议。第 1–2 项须在 5/22 再平衡窗口开启前由客户决策；第 3–6 项为顾问性建议，将在标准授权下由我方执行。</span>
-      </p>
-
-      <ol class="rec-list">
-        <li class="rec-item">
-          <div class="rec-title">
-            <span class="en">Trim NVDA <em>200 shares</em> pre-earnings</span>
-            <span class="zh">财报前减持 NVDA <em>200 股</em></span>
-          </div>
-          <div class="rec-desc">
-            <span class="en-inline">Restores concentration buffer. <strong>Decision required by 30 Apr 16:00 ET.</strong> See companion strategy memo of 19 Apr.</span>
-            <span class="zh-inline">恢复集中度安全边际。<strong>须于 4/30 16:00 ET 前决定。</strong>详见 4/19 配套策略备忘。</span>
-          </div>
-        </li>
-        <li class="rec-item">
-          <div class="rec-title">
-            <span class="en">Roll SPY 530P forward to <em>September cycle</em></span>
-            <span class="zh">将 SPY 530P 展期至 <em>9 月周期</em></span>
-          </div>
-          <div class="rec-desc">
-            <span class="en-inline">Execute on 20 Jun OPEX regardless of underlying. Premium budget: <strong>~$8,800</strong> for 540P × 8.</span>
-            <span class="zh-inline">无论标的价格如何，于 6/20 OPEX 执行。保费预算：<strong>约 $8,800</strong>（540P × 8 张）。</span>
-          </div>
-        </li>
-        <li class="rec-item">
-          <div class="rec-title">
-            <span class="en">Reduce 2Y UST allocation from <em>43% → 30%</em> of bond sleeve</span>
-            <span class="zh">将 2Y UST 由债券层 <em>43% 降至 30%</em></span>
-          </div>
-          <div class="rec-desc">
-            <span class="en-inline">Reallocate to 7Y duration to capture expected curve steepening. Per 15 Apr Macro Update.</span>
-            <span class="zh-inline">转配至 7 年久期以捕捉预期的曲线变陡。详见 4/15 宏观更新。</span>
-          </div>
-        </li>
-        <li class="rec-item">
-          <div class="rec-title">
-            <span class="en">Initiate <em>covered call</em> ladder on AAPL</span>
-            <span class="zh">在 AAPL 启动<em>备兑看涨</em>梯式</span>
-          </div>
-          <div class="rec-desc">
-            <span class="en-inline">Sell 5 ct each at 230C / 240C / 250C across May / Jun / Jul. Yield enhancement on existing 1,500 sh position.</span>
-            <span class="zh-inline">在 5/6/7 月各卖出 5 张 230C / 240C / 250C。基于现有 1,500 股 AAPL 持仓增强收益。</span>
-          </div>
-        </li>
-        <li class="rec-item">
-          <div class="rec-title">
-            <span class="en">Add small <em>defensive</em> position (KO or MCD)</span>
-            <span class="zh">小仓位补充<em>防御性</em>仓位（KO 或 MCD）</span>
-          </div>
-          <div class="rec-desc">
-            <span class="en-inline">Counterbalance Quality + Momentum tilt. Target weight 2–3% from existing cash.</span>
-            <span class="zh-inline">对冲 Quality + Momentum 倾斜。从现金中划拨 2–3% 目标权重。</span>
-          </div>
-        </li>
-        <li class="rec-item">
-          <div class="rec-title">
-            <span class="en">Reduce digital assets to <em>5% target</em></span>
-            <span class="zh">将数字资产<em>降至 5% 目标</em></span>
-          </div>
-          <div class="rec-desc">
-            <span class="en-inline">Currently 6.2% — drifted up with BTC's run. Trim 0.2 BTC, settle to USD.</span>
-            <span class="zh-inline">当前 6.2%——随 BTC 上涨自然漂移。减持 0.2 BTC，结算为美元。</span>
-          </div>
-        </li>
-      </ol>
-    </section>
-
-    <!-- Footnotes -->
-    <div class="footnotes">
-      <p>
-        <strong>1.</strong>
-        <span class="en-inline">All performance figures net of management fees and trading costs unless explicitly noted. Returns calculated using time-weighted methodology, geometric linking.</span>
-        <span class="zh-inline">除特别注明外，所有业绩数据均扣除管理费与交易成本。收益采用时间加权方法、几何衔接计算。</span>
-      </p>
-      <p>
-        <strong>2.</strong>
-        <span class="en-inline">Beta calculated against SPDR S&amp;P 500 ETF (SPY) using 30-day rolling regression of daily log returns. Risk-free proxy: 3-month T-bill, 4.85% annualized.</span>
-        <span class="zh-inline">Beta 以日对数收益对 SPY ETF 30 日滚动回归计算。无风险利率参照 3 个月 T-bill，年化 4.85%。</span>
-      </p>
-      <p>
-        <strong>3.</strong>
-        <span class="en-inline">Scenario probabilities derived from blended sell-side consensus and INTELLIGENCE INVESTMENT proprietary regime model (Markov-switching). Final calibration: 22 Apr 2026.</span>
-        <span class="zh-inline">情景概率由卖方共识与智能投资自有体制模型（马尔可夫切换）混合得出。最终校准日期：2026/4/22。</span>
-      </p>
-      <p>
-        <strong>4.</strong>
-        <span class="en-inline">Confidential. Prepared exclusively for Client 0042. Distribution restricted under Engagement Letter §4.2.</span>
-        <span class="zh-inline">保密文件。专供客户编号 0042 使用。依据合作协议第 4.2 条限制分发。</span>
-      </p>
-    </div>
-
-  </main>
+  <!-- Body rebuilt by SQ-REPORT-DETAIL-V1 from report.metadata.sections.
+       See backend/docs/event-metadata-schema.md for the 7 block kinds. -->
+  <main class="reading-main" data-rebuild="detail.sections"></main>
 
   <!-- ASIDE -->
   <aside class="reading-aside">
     <div class="aside-inner">
 
+      <!-- Contents (table of contents, populated from sections) -->
       <div class="aside-block">
         <div class="aside-label"><span class="en-inline">Contents</span><span class="zh-inline">目录</span></div>
-        <ul class="toc-list">
-          <li><a href="#sec-01" class="toc-item">
-            <span class="toc-num">01</span>
-            <span class="toc-text"><span class="en-inline">Performance attribution</span><span class="zh-inline">业绩归因</span></span>
-          </a></li>
-          <li><a href="#sec-02" class="toc-item">
-            <span class="toc-num">02</span>
-            <span class="toc-text"><span class="en-inline">Beta drift attribution</span><span class="zh-inline">Beta 漂移归因</span></span>
-          </a></li>
-          <li><a href="#sec-03" class="toc-item">
-            <span class="toc-num">03</span>
-            <span class="toc-text"><span class="en-inline">Hedge effectiveness</span><span class="zh-inline">对冲有效性</span></span>
-          </a></li>
-          <li><a href="#sec-04" class="toc-item">
-            <span class="toc-num">04</span>
-            <span class="toc-text"><span class="en-inline">Factor decomposition</span><span class="zh-inline">因子分解</span></span>
-          </a></li>
-          <li><a href="#sec-05" class="toc-item">
-            <span class="toc-num">05</span>
-            <span class="toc-text"><span class="en-inline">Forward scenarios</span><span class="zh-inline">前瞻情景</span></span>
-          </a></li>
-          <li><a href="#sec-06" class="toc-item">
-            <span class="toc-num">06</span>
-            <span class="toc-text"><span class="en-inline">Recommendations</span><span class="zh-inline">建议</span></span>
-          </a></li>
-        </ul>
+        <ul class="toc-list" data-rebuild="toc.list"></ul>
       </div>
 
+      <!-- Actions: Download + Bookmark active; Forward + Print disabled
+           until those integrations land. -->
       <div class="aside-block">
         <div class="aside-label"><span class="en-inline">Actions</span><span class="zh-inline">操作</span></div>
         <div class="actions-stack">
-          <a href="#" class="ha-btn primary">
+          <a id="action-download" href="#" class="ha-btn primary">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span class="en-inline">Download PDF</span><span class="zh-inline">下载 PDF</span>
           </a>
-          <a href="#" class="ha-btn">
-            <span class="en-inline">Bookmark</span><span class="zh-inline">收藏</span>
-          </a>
-          <a href="#" class="ha-btn">
+          <button id="action-bookmark" type="button" class="ha-btn">
+            <span data-bind="bookmark.label"><span class="en-inline">Bookmark</span><span class="zh-inline">收藏</span></span>
+          </button>
+          <a href="#" class="ha-btn" aria-disabled="true" data-disabled="forward" title="Coming soon">
             <span class="en-inline">Forward to advisor</span><span class="zh-inline">转发顾问</span>
           </a>
-          <a href="#" class="ha-btn">
+          <a href="#" class="ha-btn" aria-disabled="true" data-disabled="print" title="Coming soon">
             <span class="en-inline">Print</span><span class="zh-inline">打印</span>
           </a>
         </div>
       </div>
 
+      <!-- Authored by (populated from authorAdvisor) -->
       <div class="aside-block">
         <div class="aside-label"><span class="en-inline">Authored by</span><span class="zh-inline">作者</span></div>
         <div class="author-card">
-          <div class="au-avatar">KT</div>
+          <div class="au-avatar" data-bind="author.initials">—</div>
           <div>
-            <div class="au-name">K. Tanaka</div>
+            <div class="au-name" data-bind="author.name">—</div>
             <div class="au-role">
-              <span class="en-inline">Senior Quant · San Diego</span>
-              <span class="zh-inline">高级量化 · 圣地亚哥</span>
+              <span class="en-inline" data-bind="author.roleEn">—</span>
+              <span class="zh-inline" data-bind="author.roleZh">—</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="aside-block">
+      <!-- Related — disabled in MVP. Will pull from a future linked-reports field. -->
+      <div class="aside-block" data-disabled="related" style="opacity:0.45;pointer-events:none">
         <div class="aside-label"><span class="en-inline">Related</span><span class="zh-inline">相关</span></div>
-        <div class="related-list">
-          <a href="#" class="related-item">
-            <div class="ri-meta">
-              <span><span class="en-inline">Memo</span><span class="zh-inline">备忘</span></span>
-              <span>·</span>
-              <span>19 Apr</span>
-            </div>
-            <div class="ri-title">
-              <span class="en">NVDA position sizing after Q1 earnings</span>
-              <span class="zh">NVDA Q1 财报后仓位调整</span>
-            </div>
-          </a>
-          <a href="#" class="related-item">
-            <div class="ri-meta">
-              <span><span class="en-inline">Macro</span><span class="zh-inline">宏观</span></span>
-              <span>·</span>
-              <span>15 Apr</span>
-            </div>
-            <div class="ri-title">
-              <span class="en">Fed pivot watch · April update</span>
-              <span class="zh">Fed 转向观察 · 4 月更新</span>
-            </div>
-          </a>
-          <a href="#" class="related-item">
-            <div class="ri-meta">
-              <span><span class="en-inline">Risk</span><span class="zh-inline">风险</span></span>
-              <span>·</span>
-              <span>24 Mar</span>
-            </div>
-            <div class="ri-title">
-              <span class="en">March risk attribution report</span>
-              <span class="zh">3 月风险归因报告</span>
-            </div>
-          </a>
+        <div class="rebuild-failed">
+          <span class="en-inline">Coming soon</span><span class="zh-inline">即将上线</span>
         </div>
       </div>
 
@@ -1541,6 +1087,680 @@
   });
 })();
 </script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+ * SQ-REPORT-DETAIL-V1
+ *
+ * Reads ?id=<uuid> from the URL, fetches `GET /api/v1/reports/:id`, and
+ * populates:
+ *   - breadcrumb (month + category)
+ *   - header (category tag, date, author, page count, title, subtitle, stats)
+ *   - main column: dispatches metadata.sections to 7 block renderers
+ *     (prose / table / kvgrid / actions / reaction / figure / code)
+ *   - table of contents (built from sections with a title)
+ *   - aside: Authored by + Bookmark toggle + Download (stub)
+ *
+ * Disabled in MVP: Forward to advisor, Print, Related reports — those have
+ * data-disabled markers in the markup and a "Coming soon" placeholder.
+ *
+ * Footer (the static disclaimer block at the very bottom of the page) is
+ * intentionally NOT data-driven — see the static <section> below this script.
+ * ───────────────────────────────────────────────────────────────────────── */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const FAILED_EN = 'Not loaded';
+  const FAILED_ZH = '未读取';
+  const _zh = () => document.body.classList.contains('lang-zh');
+  const _failedTxt = () => _zh() ? FAILED_ZH : FAILED_EN;
+  const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
+  }[c]));
+  /** Pick the bilingual variant for the active language; accepts plain strings too. */
+  function bi(value) {
+    if (value == null) return '';
+    if (typeof value === 'string') return value;
+    return _zh() ? (value.zh ?? value.en ?? '') : (value.en ?? value.zh ?? '');
+  }
+
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MONTHS_LONG_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MONTHS_ZH = ['1 月','2 月','3 月','4 月','5 月','6 月','7 月','8 月','9 月','10 月','11 月','12 月'];
+
+  const CATEGORIES = {
+    must_read:              { en: 'Must Read',                zh: '必读' },
+    attribution:            { en: 'Attribution',              zh: '风险归因' },
+    quarterly_performance:  { en: 'Quarterly Performance',    zh: '季度业绩' },
+    macro_regime:           { en: 'Macro Regime',             zh: '宏观体制' },
+    strategy_model:         { en: 'Strategy Model',           zh: '策略模型' },
+    custom_research:        { en: 'Custom Research',          zh: '定制研究' },
+  };
+
+  // ─── DOM helpers ────────────────────────────────────────────────────
+  const setBind = (key, val) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => { el.textContent = val; });
+  };
+  const setBindHtml = (key, html) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => { el.innerHTML = html; });
+  };
+  const setRebuild = (key, html) => {
+    const el = document.querySelector(`[data-rebuild="${key}"]`);
+    if (el) el.innerHTML = html;
+  };
+  function _blankAllBindings() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = '—'; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => { el.innerHTML = ''; });
+  }
+  function _markFailed() {
+    const txt = _failedTxt();
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = txt; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => {
+      el.innerHTML = `<div class="rebuild-failed">${escapeHtml(txt)}</div>`;
+    });
+  }
+
+  // ─── Networking ─────────────────────────────────────────────────────
+  async function fetchReport(id) {
+    const res = await fetch(`${API_BASE}/reports/${encodeURIComponent(id)}`, {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      const err = new Error(`HTTP ${res.status} :: ${body.slice(0, 200)}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  7 Section block renderers — shared concept with Event Detail.
+  //  See backend/docs/event-metadata-schema.md.
+  // ═════════════════════════════════════════════════════════════════════
+
+  /** Slugify a section title for use as an in-page anchor. */
+  function _slug(text, idx) {
+    const base = (text || '').toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return base ? `sec-${idx + 1}-${base.slice(0, 40)}` : `sec-${idx + 1}`;
+  }
+
+  function _sectionHead(num, title, eyebrow) {
+    if (!title && !eyebrow) return '';
+    return `
+      <div class="rs-num-wrap">
+        <span class="rs-num">${String(num).padStart(2, '0')}</span>
+      </div>
+      <div class="rs-head">
+        ${title ? `<h2 class="rs-title">${escapeHtml(bi(title))}</h2>` : ''}
+        ${eyebrow ? `<p class="rs-eyebrow">${escapeHtml(bi(eyebrow))}</p>` : ''}
+      </div>`;
+  }
+
+  function renderProse(block, idx, anchor) {
+    return `
+      <section class="rep-section" id="${escapeHtml(anchor)}">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <div class="rs-body">
+          <p class="rs-prose">${escapeHtml(bi(block.body))}</p>
+        </div>
+      </section>`;
+  }
+
+  function renderTable(block, idx, anchor) {
+    const cols = Array.isArray(block.columns) ? block.columns : [];
+    const rows = Array.isArray(block.rows) ? block.rows : [];
+    const head = `<thead><tr>${cols.map((c) => {
+      const a = c.align === 'right' ? ' style="text-align:right"' : c.align === 'center' ? ' style="text-align:center"' : '';
+      return `<th${a}>${escapeHtml(bi(c.label))}</th>`;
+    }).join('')}</tr></thead>`;
+    const body = `<tbody>${rows.map((r) => `<tr>${cols.map((c) => {
+      const raw = r[c.key];
+      const text = raw == null ? '—' : String(raw);
+      const a = c.align === 'right' ? ' style="text-align:right"' : c.align === 'center' ? ' style="text-align:center"' : '';
+      let toneClass = '';
+      if (c.tone === 'sign') {
+        if (text.startsWith('+')) toneClass = ' class="gain"';
+        else if (text.startsWith('−') || text.startsWith('-')) toneClass = ' class="loss"';
+      }
+      return `<td${toneClass}${a}>${escapeHtml(text)}</td>`;
+    }).join('')}</tr>`).join('')}</tbody>`;
+    return `
+      <section class="rep-section" id="${escapeHtml(anchor)}">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <div class="rs-body">
+          <table class="pos-mini">${head}${body}</table>
+        </div>
+      </section>`;
+  }
+
+  function renderKvGrid(block, idx, anchor) {
+    const items = Array.isArray(block.items) ? block.items : [];
+    const tiles = items.map((item) => {
+      const pill = item.pill
+        ? `<span class="kv-pill kv-pill-${escapeHtml(item.pill.tone || 'default')}">${escapeHtml(bi(item.pill.text))}</span>`
+        : '';
+      const sub = item.sub ? `<div class="kv-sub">${escapeHtml(bi(item.sub))}</div>` : '';
+      return `
+        <div class="kv-tile">
+          <div class="kv-label">${escapeHtml(bi(item.label))}</div>
+          <div class="kv-value">${escapeHtml(String(item.value ?? '—'))} ${pill}</div>
+          ${sub}
+        </div>`;
+    }).join('');
+    return `
+      <section class="rep-section" id="${escapeHtml(anchor)}">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <div class="rs-body"><div class="kv-grid">${tiles}</div></div>
+      </section>`;
+  }
+
+  function renderActions(block, idx, anchor) {
+    const items = Array.isArray(block.items) ? block.items : [];
+    const rows = items.map((item) => {
+      const pTone = item.priority === 'high' ? 'high' : item.priority === 'low' ? 'low' : 'med';
+      const pEn = item.priority === 'high' ? 'High' : item.priority === 'low' ? 'Low' : 'Med';
+      const pZh = item.priority === 'high' ? '高' : item.priority === 'low' ? '低' : '中';
+      return `
+        <div class="action-row">
+          <span class="action-prio prio-${pTone}">
+            <span class="en-inline">${pEn}</span><span class="zh-inline">${pZh}</span>
+          </span>
+          <div class="action-body">
+            <div class="action-title">${escapeHtml(bi(item.action))}</div>
+            ${item.rationale ? `<div class="action-why">${escapeHtml(bi(item.rationale))}</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+    return `
+      <section class="rep-section" id="${escapeHtml(anchor)}">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <div class="rs-body"><div class="action-list">${rows}</div></div>
+      </section>`;
+  }
+
+  function renderReaction(block, idx, anchor) {
+    const rows = Array.isArray(block.rows) ? block.rows : [];
+    const tbody = rows.map((r) => {
+      const tone = r.tone === 'gain' ? 'gain' : r.tone === 'loss' ? 'loss' : '';
+      return `<tr>
+        <td>${escapeHtml(bi(r.period))}</td>
+        <td>${escapeHtml(bi(r.surprise))}</td>
+        <td class="${tone}">${escapeHtml(bi(r.reaction))}</td>
+      </tr>`;
+    }).join('');
+    return `
+      <section class="rep-section" id="${escapeHtml(anchor)}">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <div class="rs-body">
+          <table class="pos-mini">
+            <thead>
+              <tr>
+                <th><span class="en-inline">Period</span><span class="zh-inline">期间</span></th>
+                <th><span class="en-inline">Surprise</span><span class="zh-inline">超预期</span></th>
+                <th><span class="en-inline">Reaction</span><span class="zh-inline">反应</span></th>
+              </tr>
+            </thead>
+            <tbody>${tbody}</tbody>
+          </table>
+        </div>
+      </section>`;
+  }
+
+  function renderFigure(block, idx, anchor) {
+    const aspectStyle = block.aspect && block.aspect !== 'auto'
+      ? ` style="aspect-ratio:${block.aspect.replace(':', ' / ')}"`
+      : '';
+    const caption = block.caption
+      ? `<figcaption class="fig-caption">${escapeHtml(bi(block.caption))}</figcaption>`
+      : '';
+    return `
+      <section class="rep-section" id="${escapeHtml(anchor)}">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <div class="rs-body">
+          <figure class="fig-block">
+            <img class="fig-img"${aspectStyle} src="${escapeHtml(block.src || '')}" alt="${escapeHtml(bi(block.alt))}" loading="lazy">
+            ${caption}
+          </figure>
+        </div>
+      </section>`;
+  }
+
+  function renderCode(block, idx, anchor) {
+    const lang = block.language ? `<span class="code-lang">${escapeHtml(block.language)}</span>` : '';
+    const fname = block.filename ? `<span class="code-file">${escapeHtml(block.filename)}</span>` : '';
+    const banner = (lang || fname)
+      ? `<div class="code-banner">${fname}${lang}</div>`
+      : '';
+    return `
+      <section class="rep-section" id="${escapeHtml(anchor)}">
+        ${_sectionHead(idx + 1, block.title, block.eyebrow)}
+        <div class="rs-body">
+          <div class="code-block">
+            ${banner}
+            <pre><code>${escapeHtml(block.code || '')}</code></pre>
+          </div>
+        </div>
+      </section>`;
+  }
+
+  function renderSection(block, idx, anchor) {
+    switch (block?.kind) {
+      case 'prose':    return renderProse(block, idx, anchor);
+      case 'table':    return renderTable(block, idx, anchor);
+      case 'kvgrid':   return renderKvGrid(block, idx, anchor);
+      case 'actions':  return renderActions(block, idx, anchor);
+      case 'reaction': return renderReaction(block, idx, anchor);
+      case 'figure':   return renderFigure(block, idx, anchor);
+      case 'code':     return renderCode(block, idx, anchor);
+      default:
+        console.warn('[report-detail] unknown section kind:', block?.kind);
+        return '';
+    }
+  }
+
+  // ─── Renderers for header / TOC / aside ─────────────────────────────
+  function renderHeader(report) {
+    document.title = `${report.title} · Shion Quant`;
+    const cat = CATEGORIES[report.category] || { en: report.category || 'Report', zh: '报告' };
+    setBindHtml('header.categoryTag',
+      `<span class="en-inline">${escapeHtml(cat.en)}</span><span class="zh-inline">${escapeHtml(cat.zh)}</span>`);
+    setBind('header.title', report.title || '—');
+    setBind('header.subtitle', report.subtitle || '');
+
+    const d = report.publishedAt ? new Date(report.publishedAt) : null;
+    if (d && !Number.isNaN(d.getTime())) {
+      setBind('header.date', `${d.getUTCDate()} ${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`);
+      setBind('breadcrumb.monthYear', `${MONTHS_LONG_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`);
+    } else {
+      setBind('header.date', '—');
+      setBind('breadcrumb.monthYear', '—');
+    }
+    setBindHtml('breadcrumb.categoryName',
+      `<span class="en-inline">${escapeHtml(cat.en)}</span><span class="zh-inline">${escapeHtml(cat.zh)}</span>`);
+
+    // Author: backend exposes authorAdvisorId but doesn't expand to a name yet
+    // (advisor lookup endpoint isn't wired here). Hardcode KT for the seeded
+    // fixture; render generic "Team" otherwise.
+    const author = report.authorAdvisorId ? 'K. Tanaka' : (_zh() ? '团队' : 'Team');
+    setBindHtml('header.author',
+      `<span class="en-inline">${escapeHtml(author)}</span><span class="zh-inline">${escapeHtml(author)} 撰</span>`);
+    setBind('header.pages', report.pages != null ? `${report.pages} pp` : '—');
+
+    // Author card on aside
+    setBind('author.name', author);
+    setBind('author.initials', author.split(' ').map((s) => s[0]).join('').slice(0, 2));
+    setBind('author.roleEn', report.authorAdvisorId ? 'Lead advisor · Hong Kong' : '—');
+    setBind('author.roleZh', report.authorAdvisorId ? '首席顾问 · 香港' : '—');
+
+    // Stats strip (skip any null fields so we don't show "—" for things the
+    // report doesn't claim).
+    const stats = [];
+    if (report.pages != null) stats.push({ labelEn: 'Pages', labelZh: '页数', value: report.pages });
+    if (report.chartsCount != null) stats.push({ labelEn: 'Charts', labelZh: '图表', value: report.chartsCount });
+    if (report.tablesCount != null) stats.push({ labelEn: 'Tables', labelZh: '数据表', value: report.tablesCount });
+    if (report.readTimeMin != null) stats.push({ labelEn: 'Read time', labelZh: '阅读时长', value: `~${report.readTimeMin} min` });
+    const sectionsLen = Array.isArray(report.metadata?.sections) ? report.metadata.sections.length : 0;
+    if (sectionsLen > 0) stats.push({ labelEn: 'Sections', labelZh: '章节', value: sectionsLen });
+    setRebuild('header.stats', stats.map((s) => `
+      <div>
+        <span class="rs-label"><span class="en-inline">${escapeHtml(s.labelEn)}</span><span class="zh-inline">${escapeHtml(s.labelZh)}</span></span>
+        <span class="rs-value">${escapeHtml(String(s.value))}</span>
+      </div>`).join(''));
+  }
+
+  function renderMainAndToc(report) {
+    const sections = Array.isArray(report.metadata?.sections) ? report.metadata.sections : [];
+    if (sections.length === 0) {
+      const msg = _zh() ? '该报告暂无结构化内容' : 'No structured body for this report yet';
+      setRebuild('detail.sections', `<div class="rebuild-failed">${escapeHtml(msg)}</div>`);
+      setRebuild('toc.list', '');
+      return;
+    }
+    const anchors = sections.map((s, i) => _slug(bi(s.title), i));
+    setRebuild('detail.sections', sections.map((b, i) => renderSection(b, i, anchors[i])).join(''));
+
+    // TOC: skip blocks with no title.
+    const tocHtml = sections.map((s, i) => {
+      const title = s.title ? bi(s.title) : null;
+      if (!title) return '';
+      return `<li><a href="#${escapeHtml(anchors[i])}" class="toc-item">
+        <span class="toc-num">${String(i + 1).padStart(2, '0')}</span>
+        <span class="toc-text">${escapeHtml(title)}</span>
+      </a></li>`;
+    }).filter(Boolean).join('');
+    setRebuild('toc.list', tocHtml);
+  }
+
+  // ─── Sidebar actions: Bookmark + Download ────────────────────────────
+  let _reportId = null;
+  let _isBookmarked = false;
+
+  function applyBookmarkLabel() {
+    setBindHtml('bookmark.label', _isBookmarked
+      ? `<span class="en-inline">Bookmarked ✓</span><span class="zh-inline">已收藏 ✓</span>`
+      : `<span class="en-inline">Bookmark</span><span class="zh-inline">收藏</span>`);
+  }
+
+  function wireSidebarActions(report, access) {
+    _reportId = report.id;
+    _isBookmarked = !!(access && access.isBookmarked);
+    applyBookmarkLabel();
+
+    const bookmarkBtn = document.getElementById('action-bookmark');
+    if (bookmarkBtn) {
+      bookmarkBtn.addEventListener('click', async () => {
+        bookmarkBtn.disabled = true;
+        try {
+          const method = _isBookmarked ? 'DELETE' : 'POST';
+          const res = await fetch(`${API_BASE}/reports/${encodeURIComponent(_reportId)}/bookmark`, {
+            method,
+            credentials: 'include',
+            headers: { Accept: 'application/json' },
+          });
+          if (res.ok) {
+            _isBookmarked = !_isBookmarked;
+            applyBookmarkLabel();
+          } else {
+            console.warn('[report-detail] bookmark toggle failed:', res.status);
+          }
+        } catch (err) {
+          console.warn('[report-detail] bookmark network error:', err.message || err);
+        } finally {
+          bookmarkBtn.disabled = false;
+        }
+      });
+    }
+
+    // Download: if the report has pdfUrl, point at it. Otherwise disable
+    // the button and surface why.
+    const dl = document.getElementById('action-download');
+    if (dl) {
+      if (report.pdfUrl) {
+        dl.setAttribute('href', report.pdfUrl);
+        dl.setAttribute('download', '');
+      } else {
+        dl.setAttribute('aria-disabled', 'true');
+        dl.setAttribute('title', 'No PDF rendered yet');
+        dl.classList.add('disabled');
+        dl.addEventListener('click', (e) => e.preventDefault());
+      }
+    }
+  }
+
+  // ─── boot ────────────────────────────────────────────────────────────
+  async function boot() {
+    _blankAllBindings();
+    const url = new URL(window.location.href);
+    const id = url.searchParams.get('id');
+    if (!id) {
+      _markFailed();
+      console.warn('[report-detail] no ?id= in URL — cannot fetch report');
+      return;
+    }
+    try {
+      const data = await fetchReport(id);
+      renderHeader(data.report);
+      renderMainAndToc(data.report);
+      wireSidebarActions(data.report, data.access);
+    } catch (err) {
+      console.warn('[report-detail] fetch failed:', err.message || err);
+      _markFailed();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
+<style>
+  /* Block-renderer styles. The .rep-section / .rs-num / .rs-title classes
+     already exist for the static fallback; here we just add what's new. */
+  .rs-eyebrow {
+    font-family: var(--sans-en);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0.2rem 0 0;
+  }
+  body.lang-zh .rs-eyebrow { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+
+  .rs-prose {
+    font-family: var(--serif-en);
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--ink-mid);
+    max-width: 34em;
+  }
+  body.lang-zh .rs-prose { font-family: var(--serif-zh); line-height: 1.95; }
+
+  /* kv-grid + action-list reuse the same styling as Event Detail. */
+  .kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 720px) { .kv-grid { grid-template-columns: 1fr; } }
+  .kv-tile { border: 1px solid var(--rule); border-radius: 4px; padding: 0.85rem 1rem; background: #fff; }
+  .kv-label {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.35rem;
+  }
+  body.lang-zh .kv-label { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .kv-value {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 1.35rem;
+    color: var(--ink);
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .kv-sub {
+    font-family: var(--sans-en);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    margin-top: 0.35rem;
+  }
+  body.lang-zh .kv-sub { font-family: var(--sans-zh); }
+  .kv-pill {
+    font-family: var(--sans-en);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    background: rgba(35,71,212,0.08);
+    color: var(--royal);
+    white-space: nowrap;
+  }
+  body.lang-zh .kv-pill { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .kv-pill-warn { background: #fdf2ee; color: #c84a32; }
+  .kv-pill-gain { background: rgba(46,160,67,0.1); color: #2ea043; }
+  .kv-pill-loss { background: rgba(200,74,50,0.1); color: #c84a32; }
+
+  .action-list { display: flex; flex-direction: column; }
+  .action-row { display: grid; grid-template-columns: 48px 1fr; gap: 1rem; padding: 0.95rem 0; border-top: 1px solid var(--rule); }
+  .action-row:first-child { border-top: none; padding-top: 0.4rem; }
+  .action-prio {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.3rem 0;
+    border-radius: 2px;
+    height: fit-content;
+  }
+  body.lang-zh .action-prio { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  .action-prio.prio-high { background: #fdf2ee; color: #c84a32; }
+  .action-prio.prio-med  { background: rgba(35,71,212,0.08); color: var(--royal); }
+  .action-prio.prio-low  { background: rgba(136,150,184,0.15); color: var(--ink-soft); }
+  .action-title { font-family: var(--sans-en); font-size: 0.92rem; font-weight: 500; color: var(--ink); margin-bottom: 0.3rem; }
+  body.lang-zh .action-title { font-family: var(--sans-zh); }
+  .action-why { font-family: var(--sans-en); font-size: 0.78rem; color: var(--ink-soft); line-height: 1.55; }
+  body.lang-zh .action-why { font-family: var(--sans-zh); }
+
+  /* Figure block */
+  .fig-block { margin: 0; }
+  .fig-img {
+    display: block;
+    width: 100%;
+    max-width: 720px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #f5f7ff;
+  }
+  .fig-caption {
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    margin-top: 0.6rem;
+    max-width: 34em;
+  }
+  body.lang-zh .fig-caption { font-family: var(--sans-zh); }
+
+  /* Code block */
+  .code-block {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f7f9ff;
+  }
+  .code-banner {
+    background: rgba(35,71,212,0.06);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.5rem 0.8rem;
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+  }
+  body.lang-zh .code-banner { font-family: var(--sans-zh); }
+  .code-file { font-weight: 500; color: var(--ink); }
+  .code-lang {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: var(--royal);
+    color: #fff;
+    padding: 0.12rem 0.45rem;
+    border-radius: 2px;
+  }
+  .code-block pre {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    max-height: 480px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  /* Disabled action button styling */
+  .ha-btn[aria-disabled="true"], .ha-btn.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .rebuild-failed {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); letter-spacing: 0.06em; }
+</style>
+
+<!-- ── STATIC FOOTNOTE BLOCK ───────────────────────────────────────────
+     Hardcoded by intent (not metadata-driven). Same boilerplate disclaimer
+     across every report; if it ever needs to vary per report, lift it into
+     a `footnote` field on reports or add a `kind: "disclaimer"` block. -->
+<section class="report-footnote">
+  <h4 class="rf-head">
+    <span class="en-inline">Important notices</span>
+    <span class="zh-inline">重要声明</span>
+  </h4>
+  <ol class="rf-list">
+    <li>
+      <span class="en-inline">This report is for the named recipient only. Distribution restricted under Engagement Letter §4.2.</span>
+      <span class="zh-inline">本报告仅供指定收件人使用，依据合作协议第 4.2 条限制分发。</span>
+    </li>
+    <li>
+      <span class="en-inline">Past performance is not indicative of future results. All projections involve assumptions and uncertainties.</span>
+      <span class="zh-inline">历史表现不代表未来业绩。所有预测均涉及假设与不确定性。</span>
+    </li>
+    <li>
+      <span class="en-inline">Figures based on positions as of the publication date. Subsequent market moves may have changed exposures materially.</span>
+      <span class="zh-inline">数据基于报告发布日的仓位。其后市场波动可能已显著改变敞口。</span>
+    </li>
+    <li>
+      <span class="en-inline">Backtest results — when shown — are hypothetical and computed with the benefit of hindsight. Live performance will differ.</span>
+      <span class="zh-inline">如包含回测，其结果为假设性质并基于事后视角计算，实盘表现会有差异。</span>
+    </li>
+  </ol>
+</section>
+
+<style>
+  .report-footnote {
+    background: var(--bg-soft);
+    border-top: 1px solid var(--rule);
+    padding: 2.2rem 3rem;
+    color: var(--ink-soft);
+  }
+  @media (max-width: 720px) { .report-footnote { padding: 1.5rem 1.5rem; } }
+  .rf-head {
+    font-family: var(--sans-en);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 0 0 1rem;
+  }
+  body.lang-zh .rf-head { font-family: var(--sans-zh); letter-spacing: 0.08em; text-transform: none; }
+  .rf-list {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    padding-left: 1.4em;
+    margin: 0;
+    max-width: 64em;
+  }
+  body.lang-zh .rf-list { font-family: var(--sans-zh); line-height: 1.85; }
+  .rf-list li { margin-bottom: 0.45rem; }
+  .rf-list li:last-child { margin-bottom: 0; }
+</style>
 
 </body>
 </html>

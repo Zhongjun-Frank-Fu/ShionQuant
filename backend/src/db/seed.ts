@@ -25,7 +25,7 @@ import { initEnv } from "../env.js"
 
 // Standalone Node script — manually init env before any module reads it.
 initEnv(process.env)
-import { and, eq, inArray } from "drizzle-orm"
+import { and, eq, inArray, isNull } from "drizzle-orm"
 
 import { generateRecoveryCodes, hashPassword } from "../auth/argon2.js"
 import { hashRecoveryCodes } from "../auth/recovery.js"
@@ -103,6 +103,11 @@ async function main() {
     await db.delete(clients).where(eq(clients.userId, existingUser.id))
     await db.delete(users).where(eq(users.id, existingUser.id))
   }
+  // Firm-wide reports (clientId IS NULL) accumulate across seed runs because
+  // they're not owned by any client. Previous-run advisors are deleted with
+  // ON DELETE SET NULL on report.author_advisor_id, so we can't even filter
+  // by author. In a dev-only seed it's safe to nuke the entire firm-wide set.
+  await db.delete(reports).where(isNull(reports.clientId))
   await db.delete(advisors).where(inArray(advisors.email, [ADVISOR_EMAIL]))
 
   // ─── 2. Advisor (KT) ──────────────────────────────────────────────────────
@@ -1432,65 +1437,132 @@ async function main() {
   console.log(`  ✓ ICS subscription token created`)
 
   // ─── 19. Reports library (M6 fixtures) ────────────────────────────────────
-  // Mix of firm-wide (clientId=null) and client-specific reports.
+  // Six reports across all six inbox categories. Mix of firm-wide
+  // (clientId=null) and client-specific. Each one's metadata.sections is
+  // realistic enough to exercise every block kind at least once.
+  // Inline SVGs are used as figure sources so the seed stays self-contained
+  // (no R2 dependency for screenshots).
+  const SVG_BETA_DRIFT =
+    "data:image/svg+xml;utf8," +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" font-family="Outfit, sans-serif">' +
+        '<rect width="600" height="280" fill="#f5f7ff"/>' +
+        '<text x="20" y="32" font-size="13" fill="#2a2f4a">Beta · rolling 30d · Mar — Apr 2026</text>' +
+        '<line x1="20" y1="240" x2="580" y2="240" stroke="#dbe1f3" stroke-width="1"/>' +
+        '<polyline points="20,210 80,205 140,200 200,188 260,180 320,168 380,150 440,135 500,120 560,108" ' +
+        'fill="none" stroke="#2347d4" stroke-width="2.5"/>' +
+        '<circle cx="560" cy="108" r="5" fill="#fff" stroke="#2347d4" stroke-width="2"/>' +
+        '<text x="20" y="265" font-size="11" fill="#8896b8">0.78</text>' +
+        '<text x="540" y="100" font-size="11" fill="#2347d4">0.82</text>' +
+      '</svg>',
+    )
+  const SVG_FACTOR_BARS =
+    "data:image/svg+xml;utf8," +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" font-family="Outfit, sans-serif">' +
+        '<rect width="600" height="240" fill="#f5f7ff"/>' +
+        '<text x="20" y="28" font-size="13" fill="#2a2f4a">Contribution to vol · annualized</text>' +
+        '<rect x="20" y="60" width="380" height="22" fill="#2347d4"/><text x="410" y="76" font-size="12" fill="#0d1020">Equity β · 9.6%</text>' +
+        '<rect x="20" y="92" width="96" height="22" fill="#6f8be8"/><text x="125" y="108" font-size="12" fill="#0d1020">Duration · 2.4%</text>' +
+        '<rect x="20" y="124" width="84" height="22" fill="#c8a84b"/><text x="115" y="140" font-size="12" fill="#0d1020">Idiosyncratic · 2.1%</text>' +
+        '<rect x="20" y="156" width="20" height="22" fill="#8896b8"/><text x="50" y="172" font-size="12" fill="#0d1020">FX · 0.1%</text>' +
+      '</svg>',
+    )
+  const SVG_CURVE =
+    "data:image/svg+xml;utf8," +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" font-family="Outfit, sans-serif">' +
+        '<rect width="600" height="240" fill="#f5f7ff"/>' +
+        '<text x="20" y="28" font-size="13" fill="#2a2f4a">US Treasury curve · Mar 1 vs May 5</text>' +
+        '<polyline points="40,180 120,150 200,120 280,100 360,90 440,86 520,84" fill="none" stroke="#8896b8" stroke-width="2" stroke-dasharray="4 4"/>' +
+        '<polyline points="40,170 120,148 200,128 280,114 360,108 440,106 520,104" fill="none" stroke="#2347d4" stroke-width="2.5"/>' +
+        '<text x="40" y="210" font-size="11" fill="#8896b8">3M</text>' +
+        '<text x="200" y="210" font-size="11" fill="#8896b8">2Y</text>' +
+        '<text x="360" y="210" font-size="11" fill="#8896b8">10Y</text>' +
+        '<text x="520" y="210" font-size="11" fill="#8896b8">30Y</text>' +
+        '<text x="525" y="100" font-size="11" fill="#2347d4">May 5</text>' +
+      '</svg>',
+    )
+
   await db.insert(reports).values([
+    // ─── 1. Macro Brief — must_read (most recent, firm-wide, headline view) ─
     {
       reportType: "macro",
-      title: "Macro Brief — Q2 2026",
-      subtitle: "Rates, FX, and the China credit pulse",
+      category: "must_read",
+      title: "Macro Watch — Weekly (May 5)",
+      subtitle: "Three things that matter, ranked",
       bodyFormat: "md",
-      bodyMd:
-        "# Macro Brief — Q2 2026\n\n" +
-        "## Headlines\n" +
-        "- Fed expected to hold through summer; first cut priced for September.\n" +
-        "- HKD remains pegged at the strong-side convertibility band.\n" +
-        "- Onshore CNY pressure easing as PBoC steps back from intervention.\n\n" +
-        "## What this means for HK family-office allocations\n" +
-        "Real yields in USD remain attractive vs HKD-denominated alternatives...\n",
+      bodyMd: null, // legacy field — new content lives in metadata.sections
       authorAdvisorId: advisor!.id,
-      clientId: null, // firm-wide
-      pages: 8,
-      chartsCount: 6,
-      tablesCount: 2,
-      readTimeMin: 12,
-      publishedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+      clientId: null,
+      pages: 2,
+      chartsCount: 1,
+      tablesCount: 0,
+      readTimeMin: 3,
+      publishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       isDraft: false,
+      metadata: {
+        sections: [
+          {
+            kind: "prose",
+            title: { en: "What to watch this week", zh: "本周关注" },
+            eyebrow: { en: "May 5 · Mon", zh: "5 月 5 日 · 周一" },
+            body: {
+              en: "Three macro datapoints carry real position-level implications. The Fed decision is the dominant signal — markets are pricing 70% probability of a hold with 22% odds of a cut. Your bonds + futures sleeve has $440 of combined DV01 exposure, so a surprise either way is a $11k MTM event.",
+              zh: "本周三项宏观信号对仓位影响最大。Fed 决议是主要变量——市场定价 70% 持平、22% 降息。债券 + 期货合计 DV01 $440，任一方向意外都对应约 $11k 的 MTM。",
+            },
+          },
+          {
+            kind: "kvgrid",
+            title: { en: "Market pricing", zh: "市场定价" },
+            items: [
+              {
+                label: { en: "Fed hold", zh: "Fed 持平" },
+                value: "70%",
+                pill: { text: { en: "Base", zh: "基准" } },
+              },
+              { label: { en: "Fed cut", zh: "Fed 降息" }, value: "22%" },
+              { label: { en: "Fed hike", zh: "Fed 加息" }, value: "8%" },
+              {
+                label: { en: "USD/CNY pain", zh: "USD/CNY 警戒线" },
+                value: "7.30",
+                pill: { text: { en: "Watch", zh: "关注" }, tone: "warn" },
+              },
+            ],
+          },
+          {
+            kind: "actions",
+            title: { en: "Positioning recommendations", zh: "仓位建议" },
+            items: [
+              {
+                priority: "high",
+                action: { en: "Hold the SPY 530P hedge through FOMC", zh: "保留 SPY 530P 对冲穿越 FOMC" },
+                rationale: {
+                  en: "Activates on the 8% hawkish-hike tail; minimal opportunity cost.",
+                  zh: "覆盖 8% 鹰派加息尾部风险，机会成本可控。",
+                },
+              },
+              {
+                priority: "medium",
+                action: { en: "No book changes to bonds pre-meeting", zh: "FOMC 前不动债券仓位" },
+                rationale: {
+                  en: "Curve has already digested the base case; waiting for the press-conference Q&A.",
+                  zh: "曲线已消化基准情形；等待发布会 Q&A 后再决策。",
+                },
+              },
+            ],
+          },
+        ],
+      },
     },
-    {
-      reportType: "performance",
-      title: "March 2026 Performance Brief",
-      subtitle: "Monthly P&L, attribution, and forward look",
-      bodyFormat: "md",
-      bodyMd:
-        "# March 2026 Performance\n\n" +
-        "Net return: **+2.4%** (vs SPY +1.9%, HSI +0.6%).\n\n" +
-        "## Attribution\n" +
-        "- Tencent: +1.1% contribution; HKEX: +0.6%; SPY call: +0.4%; bonds flat.\n\n" +
-        "## Risk profile\n" +
-        "Beta to SPY: 0.83. Vol annualized: 14.2%. Sharpe (3-yr): 1.42.\n",
-      authorAdvisorId: advisor!.id,
-      clientId: client!.id, // client-specific
-      pages: 4,
-      chartsCount: 3,
-      tablesCount: 1,
-      readTimeMin: 6,
-      publishedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      isDraft: false,
-    },
+    // ─── 2. Risk Attribution March 2026 — attribution ────────────────────────
     {
       reportType: "risk_attribution",
+      category: "attribution",
       title: "Risk Attribution — March 2026",
       subtitle: "Factor decomposition + scenario stress",
       bodyFormat: "md",
-      bodyMd:
-        "# Risk Attribution — March 2026\n\n" +
-        "## Factor exposures\n" +
-        "| Factor | Exposure | Contribution to vol |\n" +
-        "|--------|----------|---------------------|\n" +
-        "| Equity beta (HK + US) | 0.83 | 9.6% |\n" +
-        "| Duration (UST 10y eq.) | 1.6 yr | 2.4% |\n" +
-        "| FX (HKD/USD) | 0.04 | 0.1% |\n" +
-        "| Idiosyncratic | — | 2.1% |\n",
+      bodyMd: null,
       authorAdvisorId: advisor!.id,
       clientId: client!.id,
       pages: 6,
@@ -1499,17 +1571,195 @@ async function main() {
       readTimeMin: 10,
       publishedAt: new Date(Date.now() - 32 * 24 * 60 * 60 * 1000),
       isDraft: false,
+      metadata: {
+        sections: [
+          {
+            kind: "prose",
+            title: { en: "Where the risk lives", zh: "风险来源" },
+            body: {
+              en: "Equity beta dominates the risk budget — 9.6 of 14.2 annualized vol points come from net equity exposure (β = 0.83). Duration adds 2.4 points via the UST holding; FX risk is negligible thanks to the HKD peg.",
+              zh: "股票 Beta 占据风险预算主导——年化 14.2% 波动中 9.6% 来自股票净敞口（β = 0.83）。久期通过国债贡献 2.4%；港币联系汇率使 FX 风险可忽略。",
+            },
+          },
+          {
+            kind: "figure",
+            title: { en: "Vol contribution by factor", zh: "各因子波动贡献" },
+            src: SVG_FACTOR_BARS,
+            alt: {
+              en: "Horizontal bar chart: equity beta 9.6, duration 2.4, idiosyncratic 2.1, FX 0.1",
+              zh: "横向条形图：股票 Beta 9.6 / 久期 2.4 / 个股 2.1 / 汇率 0.1",
+            },
+            aspect: "auto",
+          },
+          {
+            kind: "table",
+            title: { en: "Factor exposure detail", zh: "因子敞口明细" },
+            columns: [
+              { key: "factor", label: { en: "Factor", zh: "因子" } },
+              { key: "exposure", label: { en: "Exposure", zh: "敞口" }, align: "right" },
+              { key: "vol", label: { en: "Vol contribution", zh: "波动贡献" }, align: "right" },
+            ],
+            rows: [
+              { factor: "Equity beta (HK + US)", exposure: "0.83", vol: "9.6%" },
+              { factor: "Duration (UST 10y eq.)", exposure: "1.6 yr", vol: "2.4%" },
+              { factor: "FX (HKD/USD)", exposure: "0.04", vol: "0.1%" },
+              { factor: "Idiosyncratic", exposure: "—", vol: "2.1%" },
+            ],
+          },
+          {
+            kind: "kvgrid",
+            title: { en: "Stress scenarios", zh: "压力情景" },
+            items: [
+              {
+                label: { en: "−5% market", zh: "市场 −5%" },
+                value: "−$118k",
+                sub: { en: "Hedge offsets ~31%", zh: "对冲缓冲约 31%" },
+              },
+              {
+                label: { en: "+50bp UST", zh: "国债 +50bp" },
+                value: "−$8k",
+                sub: { en: "Duration limited", zh: "久期已控制" },
+              },
+              {
+                label: { en: "USD/CNY 7.40", zh: "USD/CNY 至 7.40" },
+                value: "−$1.2k",
+                sub: { en: "Mostly HK exposure", zh: "主要来自港股敞口" },
+              },
+              {
+                label: { en: "VIX 30", zh: "VIX 升至 30" },
+                value: "+$4.5k",
+                sub: { en: "Long-vega via SPY 530P", zh: "SPY 530P 多 vega" },
+              },
+            ],
+          },
+        ],
+      },
     },
+    // ─── 3. March 2026 Performance — quarterly_performance ───────────────────
+    {
+      reportType: "performance",
+      category: "quarterly_performance",
+      title: "March 2026 Performance Brief",
+      subtitle: "Monthly P&L, attribution, and forward look",
+      bodyFormat: "md",
+      bodyMd: null,
+      authorAdvisorId: advisor!.id,
+      clientId: client!.id,
+      pages: 4,
+      chartsCount: 3,
+      tablesCount: 1,
+      readTimeMin: 6,
+      publishedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      isDraft: false,
+      metadata: {
+        sections: [
+          {
+            kind: "prose",
+            title: { en: "Month in one paragraph", zh: "一段话总结本月" },
+            body: {
+              en: "Net return +2.4% vs SPY +1.9% and HSI +0.6% — alpha of ~50 bps. Tencent did the heavy lifting; HKEX and the SPY long call added smaller increments. Bonds were flat. Vol annualized held at 14.2%, Sharpe (3-yr) at 1.42.",
+              zh: "本月净回报 +2.4%，超 SPY +1.9% 与 HSI +0.6%，Alpha 约 50bp。腾讯是主力贡献，HKEX 与 SPY 看涨贡献次之，债券持平。年化波动维持 14.2%，3 年 Sharpe 1.42。",
+            },
+          },
+          {
+            kind: "table",
+            title: { en: "Top contributors and detractors", zh: "贡献与拖累榜单" },
+            columns: [
+              { key: "name", label: { en: "Position", zh: "持仓" } },
+              { key: "ret", label: { en: "Return", zh: "回报" }, align: "right", tone: "sign" },
+              { key: "contrib", label: { en: "Contribution", zh: "贡献" }, align: "right", tone: "sign" },
+            ],
+            rows: [
+              { name: "0700.HK (Tencent)", ret: "+8.2%", contrib: "+1.10%" },
+              { name: "00388.HK (HKEX)", ret: "+5.1%", contrib: "+0.62%" },
+              { name: "SPY 600C (long call)", ret: "+18.4%", contrib: "+0.41%" },
+              { name: "BTC", ret: "+11.0%", contrib: "+0.32%" },
+              { name: "LMT", ret: "−1.9%", contrib: "−0.04%" },
+            ],
+          },
+          {
+            kind: "reaction",
+            title: { en: "Last 3 months at a glance", zh: "近三月一览" },
+            rows: [
+              { period: { en: "Mar 2026", zh: "2026/3" }, surprise: { en: "+2.4% net", zh: "净 +2.4%" }, reaction: { en: "Alpha +50bps vs blend", zh: "对组合 Alpha +50bp" }, tone: "gain" },
+              { period: { en: "Feb 2026", zh: "2026/2" }, surprise: { en: "+1.1% net", zh: "净 +1.1%" }, reaction: { en: "In-line", zh: "持平" }, tone: "neutral" },
+              { period: { en: "Jan 2026", zh: "2026/1" }, surprise: { en: "−0.4% net", zh: "净 −0.4%" }, reaction: { en: "Drag from option theta", zh: "受期权 theta 拖累" }, tone: "loss" },
+            ],
+          },
+          {
+            kind: "actions",
+            title: { en: "For your Q1 review", zh: "Q1 复盘要点" },
+            items: [
+              {
+                priority: "high",
+                action: { en: "Discuss Tencent trim at 20% gain trigger", zh: "讨论腾讯 20% 浮盈触发减仓" },
+                rationale: { en: "Currently +19.3% — one stop short of the agreed threshold.", zh: "当前 +19.3%，距约定阈值仅一档。" },
+              },
+              {
+                priority: "medium",
+                action: { en: "Review concentration trigger settings", zh: "复核集中度阈值设置" },
+                rationale: { en: "NVDA approaching 20% weight; current trigger fires at 15%.", zh: "NVDA 即将达 20% 权重；现有阈值 15% 触发中。" },
+              },
+            ],
+          },
+        ],
+      },
+    },
+    // ─── 4. Macro Brief Q2 — macro_regime ────────────────────────────────────
+    {
+      reportType: "macro",
+      category: "macro_regime",
+      title: "Macro Brief — Q2 2026",
+      subtitle: "Rates, FX, and the China credit pulse",
+      bodyFormat: "md",
+      bodyMd: null,
+      authorAdvisorId: advisor!.id,
+      clientId: null,
+      pages: 8,
+      chartsCount: 6,
+      tablesCount: 2,
+      readTimeMin: 12,
+      publishedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+      isDraft: false,
+      metadata: {
+        sections: [
+          {
+            kind: "prose",
+            title: { en: "Regime overview", zh: "体制概览" },
+            body: {
+              en: "Q2 sits in the late-cycle pocket: growth slowing, inflation sticky but trending lower, Fed on hold with first cut priced for September. The HKD peg is comfortably in the strong-side band. Onshore CNY pressure is easing as the PBoC steps back from intervention. Real yields in USD remain attractive vs HKD alternatives — a tailwind for the bond sleeve.",
+              zh: "Q2 处于晚周期阶段：增长放缓、通胀粘性但回落、Fed 持平且 9 月降息已定价。港币联系汇率舒适处于强方兑换保证区间。在岸 CNY 压力随 PBoC 退出干预而缓解。美元真实利率相对港币替代品仍具吸引力，对债券部分构成顺风。",
+            },
+          },
+          {
+            kind: "figure",
+            title: { en: "US Treasury curve · Mar vs May", zh: "美国国债曲线 · 3 月 vs 5 月" },
+            src: SVG_CURVE,
+            alt: { en: "Two yield curves overlaid: dashed Mar 1 vs solid May 5", zh: "两条收益率曲线对比：3 月 1 日虚线 vs 5 月 5 日实线" },
+            caption: { en: "Curve flattened ~30bp at the 10Y point; long end resists further bull-flattening absent a clearer growth signal.", zh: "曲线在 10 年期部位走平约 30bp；缺乏更明确增长信号时长端阻力较大。" },
+            aspect: "auto",
+          },
+          {
+            kind: "kvgrid",
+            title: { en: "Regime gauges", zh: "体制信号" },
+            items: [
+              { label: { en: "GDP nowcast", zh: "GDP 即时预测" }, value: "1.4%", sub: { en: "Atlanta Fed GDPNow", zh: "Atlanta Fed GDPNow" } },
+              { label: { en: "Core PCE YoY", zh: "核心 PCE 同比" }, value: "2.8%", pill: { text: { en: "Sticky", zh: "粘性" }, tone: "warn" } },
+              { label: { en: "HKD HIBOR-USD spread", zh: "HKD HIBOR-USD 利差" }, value: "+18bp", sub: { en: "Inverted earlier in Q1", zh: "Q1 曾倒挂" } },
+              { label: { en: "USD/CNY fixing", zh: "USD/CNY 中间价" }, value: "7.2435", pill: { text: { en: "Stable", zh: "稳定" }, tone: "gain" } },
+            ],
+          },
+        ],
+      },
+    },
+    // ─── 5. Treasury Ladder Refresh — strategy_model ─────────────────────────
     {
       reportType: "strategy_memo",
+      category: "strategy_model",
       title: "Strategy Memo — Treasury Ladder Refresh",
       subtitle: "Reset the 1-5 year ladder with current curve shape",
       bodyFormat: "md",
-      bodyMd:
-        "# Treasury Ladder Refresh\n\n" +
-        "Current US 4.25% Aug-34 holding has DV01 of ~$160. Curve has flattened ~30bp since entry; we recommend rolling half the position to a 2-year and keeping the rest as the long-duration anchor.\n\n" +
-        "## Proposed action\n" +
-        "Reduce US 4.25% Aug-34 from $200k face to $100k face. Buy $100k face of 2-year. Net cash: ~+$1,200.\n",
+      bodyMd: null,
       authorAdvisorId: advisor!.id,
       clientId: client!.id,
       pages: 3,
@@ -1518,26 +1768,178 @@ async function main() {
       readTimeMin: 5,
       publishedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       isDraft: false,
+      metadata: {
+        sections: [
+          {
+            kind: "prose",
+            title: { en: "Why now", zh: "为什么是现在" },
+            body: {
+              en: "The US 4.25% Aug-34 entry has carried duration well, but the curve has flattened ~30bp at the 10Y since entry. Rolling half the position into a 2-year captures the front-end carry (~4.95% YTM) while preserving long-duration insurance against a growth-led rate-cut scenario.",
+              zh: "美国 4.25% 2034-08 持仓的久期收益已经兑现，但曲线 10Y 部位较建仓时走平约 30bp。将一半仓位滚动至 2 年期可锁定前端约 4.95% YTM 的 Carry，同时保留长端在增长疲软导致降息情景下的保护。",
+            },
+          },
+          {
+            kind: "table",
+            title: { en: "Before vs after", zh: "调整前后对比" },
+            columns: [
+              { key: "metric", label: { en: "Metric", zh: "指标" } },
+              { key: "before", label: { en: "Before", zh: "调整前" }, align: "right" },
+              { key: "after", label: { en: "After", zh: "调整后" }, align: "right" },
+              { key: "delta", label: { en: "Δ", zh: "变化" }, align: "right", tone: "sign" },
+            ],
+            rows: [
+              { metric: "10-yr face", before: "$200,000", after: "$100,000", delta: "−$100,000" },
+              { metric: "2-yr face", before: "—", after: "$100,000", delta: "+$100,000" },
+              { metric: "Weighted YTM", before: "4.42%", after: "4.68%", delta: "+26bp" },
+              { metric: "Weighted duration", before: "7.8 yr", after: "4.4 yr", delta: "−3.4 yr" },
+              { metric: "DV01", before: "$160", after: "$95", delta: "−$65" },
+              { metric: "Net cash impact", before: "—", after: "—", delta: "+$1,200" },
+            ],
+          },
+          {
+            kind: "actions",
+            title: { en: "Execution plan", zh: "执行方案" },
+            items: [
+              {
+                priority: "high",
+                action: { en: "Sell $100k face of 4.25% 2034-08", zh: "卖出 $100k 面值 4.25% 2034-08" },
+                rationale: { en: "Execute at-mid via IBKR fixed-income desk; expected price ~99.8.", zh: "通过 IBKR 固定收益台按中价执行；预期价格约 99.8。" },
+              },
+              {
+                priority: "high",
+                action: { en: "Buy $100k face of 2-yr on-the-run", zh: "买入 $100k 面值 2 年期新券" },
+                rationale: { en: "Pair with sell ticket. Bid/ask <2bp at this size.", zh: "与卖单成对下单。此规模买卖价差 <2bp。" },
+              },
+              {
+                priority: "low",
+                action: { en: "Adjust auto-reinvest setting on next coupon", zh: "下一次付息后调整自动再投设置" },
+                rationale: { en: "Switch from 10Y rollover to even split.", zh: "由 10 年期续投改为平均分配。" },
+              },
+            ],
+          },
+        ],
+      },
     },
+    // ─── 6. SPY Wheel walk-forward — custom_research ─────────────────────────
     {
-      reportType: "macro",
-      title: "Macro Watch — Weekly (May 5)",
-      subtitle: "Three things that matter, ranked",
+      reportType: "custom",
+      category: "custom_research",
+      title: "SPY Wheel · Walk-Forward Backtest (2019-2026)",
+      subtitle: "Strike/timing optimization with out-of-sample validation",
       bodyFormat: "md",
-      bodyMd:
-        "# Macro Watch — May 5\n\n" +
-        "1. **FOMC** — June 17. Markets pricing 0% odds of a hike, 18% of a cut. We hold base case: hold.\n" +
-        "2. **PBoC** — RRR cut likely Q3. Watch USD/CNY 7.30 as the pain threshold.\n" +
-        "3. **Hong Kong** — Aggregate balance trending down; HKMA may need to support.\n",
+      bodyMd: null,
       authorAdvisorId: advisor!.id,
-      clientId: null,
-      pages: 2,
-      readTimeMin: 3,
-      publishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      clientId: client!.id,
+      pages: 22,
+      chartsCount: 8,
+      tablesCount: 4,
+      readTimeMin: 28,
+      publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       isDraft: false,
+      metadata: {
+        sections: [
+          {
+            kind: "prose",
+            title: { en: "What was tested", zh: "测试目标" },
+            body: {
+              en: "We walk-forward optimized two parameters on the SPY wheel — delta target for strike selection (sweep 0.10 → 0.30 in 0.02 steps) and roll timing (sweep T-1 → T-14 in 1-day steps) — using rolling 3-year training windows and 1-year out-of-sample validation across 2019-2026. The headline result: best in-sample params (Δ = 0.22, roll T-3) generalized well, producing +2.1% annualized excess return at 14% lower volatility vs the baseline (Δ = 0.16, roll T-7).",
+              zh: "我们对 SPY Wheel 策略的两个参数做滚动前向优化：行权 Delta（0.10 → 0.30，步长 0.02）与展期时点（T-1 → T-14，步长 1 日），训练窗口 3 年 + 1 年 OOS 验证，覆盖 2019-2026 全样本。结论：样本内最优参数（Δ = 0.22、T-3 展期）在 OOS 中泛化良好，相比基准（Δ = 0.16、T-7）年化超额 +2.1%、波动下降 14%。",
+            },
+          },
+          {
+            kind: "kvgrid",
+            title: { en: "Headline numbers", zh: "关键数据" },
+            items: [
+              { label: { en: "Annualized excess", zh: "年化超额" }, value: "+2.1%", pill: { text: { en: "OOS", zh: "OOS" }, tone: "gain" } },
+              { label: { en: "Vol reduction", zh: "波动下降" }, value: "−14%" },
+              { label: { en: "Sharpe", zh: "Sharpe" }, value: "1.42 → 1.71" },
+              { label: { en: "Max drawdown", zh: "最大回撤" }, value: "−9.2% → −7.1%", sub: { en: "Less skewed tail", zh: "尾部更对称" } },
+            ],
+          },
+          {
+            kind: "figure",
+            title: { en: "Equity curve · baseline vs optimized", zh: "权益曲线 · 基准 vs 优化" },
+            src: SVG_BETA_DRIFT, // re-uses the beta-drift SVG as a stand-in chart
+            alt: { en: "Two equity curves, 2019-2026, with the optimized strategy pulling ahead by ~14%", zh: "两条权益曲线，2019-2026，优化策略领先约 14%" },
+            caption: { en: "Out-of-sample windows shaded. Optimized strategy maintains advantage across 5 of 6 OOS windows.", zh: "图中阴影为 OOS 窗口。优化策略在 6 个 OOS 窗口中的 5 个保持领先。" },
+            aspect: "16:9",
+          },
+          {
+            kind: "code",
+            title: { en: "Strategy core", zh: "策略核心代码" },
+            language: "python",
+            filename: "wheel_strategy.py",
+            code: [
+              "# SPY Wheel — strike + roll timing parameterized for walk-forward search.",
+              "# Train windows: 3 years rolling. Out-of-sample: 1-year forward.",
+              "",
+              "from dataclasses import dataclass",
+              "",
+              "@dataclass",
+              "class WheelParams:",
+              "    delta_target: float = 0.22   # short-put / short-call delta",
+              "    roll_days_before_exp: int = 3",
+              "    contract_size: int = 100",
+              "",
+              "def pick_strike(chain, target_delta, side):",
+              "    # Sort by |delta - target| within the side (puts or calls)",
+              "    side_chain = chain[chain['type'] == side]",
+              "    side_chain = side_chain.assign(d_dist=(side_chain['delta'] - target_delta).abs())",
+              "    return side_chain.nsmallest(1, 'd_dist').iloc[0]",
+              "",
+              "def should_roll(today, expiry, params):",
+              "    return (expiry - today).days <= params.roll_days_before_exp",
+              "",
+              "def run_wheel(prices, chain_daily, params: WheelParams):",
+              "    pos = None",
+              "    pnl = 0.0",
+              "    for date, spot in prices.itertuples():",
+              "        if pos is None or should_roll(date, pos['expiry'], params):",
+              "            side = 'P' if pos is None or pos['side'] == 'C' else 'C'",
+              "            strike = pick_strike(chain_daily.loc[date], params.delta_target, side)",
+              "            if pos is not None:",
+              "                pnl += close_position(pos, spot)",
+              "            pos = open_position(strike, side, params.contract_size)",
+              "    return pnl",
+            ].join("\n"),
+          },
+          {
+            kind: "table",
+            title: { en: "Parameter sensitivity (OOS Sharpe)", zh: "参数敏感性（OOS Sharpe）" },
+            columns: [
+              { key: "delta", label: { en: "Δ target", zh: "目标 Δ" } },
+              { key: "t3", label: { en: "T-3 roll", zh: "T-3 展期" }, align: "right" },
+              { key: "t5", label: { en: "T-5 roll", zh: "T-5 展期" }, align: "right" },
+              { key: "t7", label: { en: "T-7 roll", zh: "T-7 展期" }, align: "right" },
+            ],
+            rows: [
+              { delta: "0.16 (baseline)", t3: "1.50", t5: "1.47", t7: "1.42" },
+              { delta: "0.20", t3: "1.66", t5: "1.61", t7: "1.55" },
+              { delta: "0.22", t3: "1.71", t5: "1.65", t7: "1.58" },
+              { delta: "0.24", t3: "1.68", t5: "1.62", t7: "1.55" },
+            ],
+          },
+          {
+            kind: "actions",
+            title: { en: "Implementation recommendations", zh: "落地建议" },
+            items: [
+              {
+                priority: "high",
+                action: { en: "Adopt Δ=0.22, roll T-3 as the new SPY wheel parameters", zh: "采用 Δ=0.22、T-3 作为新的 SPY Wheel 参数" },
+                rationale: { en: "OOS Sharpe gain is robust across param-neighborhood; no overfitting cliff.", zh: "OOS Sharpe 提升在参数邻域稳健，无过拟合悬崖。" },
+              },
+              {
+                priority: "medium",
+                action: { en: "Set up monthly param-stability monitor", zh: "建立月度参数稳定性监控" },
+                rationale: { en: "Track whether optimal Δ drifts in live trading vs the 2019-2026 backtest.", zh: "跟踪实盘最优 Δ 是否偏离 2019-2026 回测结论。" },
+              },
+            ],
+          },
+        ],
+      },
     },
   ])
-  console.log("  ✓ 5 reports (3 firm-wide macro, 2 client-specific perf+risk)")
+  console.log("  ✓ 6 reports across all 6 inbox categories (with metadata.sections)")
 
   // ─── 20. Report subscriptions (default channels) ─────────────────────────
   await db.insert(reportSubscriptions).values([

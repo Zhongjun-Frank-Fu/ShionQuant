@@ -525,6 +525,21 @@ export const calendarSubscriptions = pgTable("calendar_subscriptions", {
 // ║  REPORTS & RESEARCH                                                        ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
+/**
+ * Inbox-classification category for reports. Drives the "Tune what arrives
+ * in your inbox" toggle list on the Reports page and acts as the primary
+ * filter chip. Distinct from `reportType` (which is more granular and
+ * legacy) — a report can be `reportType: 'risk_attribution'` AND
+ * `category: 'must_read'`.
+ */
+export type ReportCategory =
+  | "must_read"
+  | "attribution"
+  | "quarterly_performance"
+  | "macro_regime"
+  | "strategy_model"
+  | "custom_research"
+
 export const reports = pgTable(
   "reports",
   {
@@ -532,10 +547,16 @@ export const reports = pgTable(
     reportType: text("report_type")
       .notNull()
       .$type<"risk_attribution" | "performance" | "strategy_memo" | "macro" | "custom">(),
+    // Inbox category (added 2026-05). Optional for now so legacy rows still
+    // load; future inserts should always set it.
+    category: text("category").$type<ReportCategory>(),
     title: text("title").notNull(),
     subtitle: text("subtitle"),
     bodyMd: text("body_md"),
     bodyFormat: text("body_format").notNull().default("md").$type<"md" | "mdx">(),
+    // Rich body (sections-based, see docs/event-metadata-schema.md). Same
+    // schema as events.metadata; `bodyMd` stays as a legacy / fallback.
+    metadata: jsonb("metadata").$type<EventMetadata>(),
     authorAdvisorId: uuid("author_advisor_id").references(() => advisors.id, {
       onDelete: "set null",
     }),

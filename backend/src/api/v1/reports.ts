@@ -367,6 +367,9 @@ function shapeReport(
   const base = {
     id: r.id,
     reportType: r.reportType,
+    // Inbox category — drives the "Tune what arrives in your inbox" toggles
+    // + Reports page filter chips. Null on legacy rows.
+    category: r.category,
     title: r.title,
     subtitle: r.subtitle,
     authorAdvisorId: r.authorAdvisorId,
@@ -381,7 +384,9 @@ function shapeReport(
     publishedAt: r.publishedAt,
     isFirmWide: r.clientId === null,
   }
+  // Detail view ships the rich body (metadata.sections + legacy bodyMd).
+  // List view doesn't, to keep the index payload small.
   return includeBody
-    ? { ...base, bodyMd: r.bodyMd, bodyFormat: r.bodyFormat }
+    ? { ...base, bodyMd: r.bodyMd, bodyFormat: r.bodyFormat, metadata: r.metadata }
     : base
 }

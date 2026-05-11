@@ -1,12 +1,18 @@
-# Event Metadata Schema (v1)
+# Rich-Content Section Schema (v1)
 
-This document defines the JSON structure stored in `events.metadata` (a
-`jsonb` column on the `events` table) and consumed by
-`Shion Quant Event Detail.html`.
+> Originally called "Event Metadata Schema" — same schema, broader use.
+> Now also drives `reports.metadata` (Report Detail page) in addition to
+> `events.metadata` (Event Detail page). Treat any `jsonb` column shaped
+> like this doc as section-driven rich content.
 
-The goal is to keep the **rich, multi-section detail page driven by data**
-rather than by per-event-type HTML templates. A future "event editor" UI
-can write to this exact same structure.
+This document defines the JSON structure stored in two `jsonb` columns:
+
+- `events.metadata` → consumed by `Shion Quant Event Detail.html`
+- `reports.metadata` → consumed by `Shion Quant Report Detail.html`
+
+The goal is to keep **rich, multi-section detail pages driven by data**
+rather than by per-page HTML templates. A future "editor" UI writes to
+this exact same structure.
 
 ---
 
@@ -183,6 +189,52 @@ Items render as a numbered list with a priority badge on the left.
 
 Renders as a 3-column table with the tone driving row-level color
 accents.
+
+### 6. `figure` — embedded image / chart / diagram
+
+```jsonc
+{
+  "kind": "figure",
+  "title":   { "en": "Beta drift attribution", "zh": "Beta 漂移归因" }, // optional
+  "eyebrow": { "en": "Section chart · v1", "zh": "章节图 · v1" },        // optional
+  "src": "https://example-bucket.com/figs/beta-drift-202604.png",
+  "alt": { "en": "Stacked bar chart of beta contribution by name",
+           "zh": "按个股拆分的 Beta 贡献堆叠柱状图" },
+  "caption": { "en": "NVDA contributed +0.05 of the +0.04 drift.",
+               "zh": "NVDA 贡献了 +0.05，远超净漂移 +0.04。" },     // optional
+  "aspect": "16:9"                                                  // optional: 16:9 | 4:3 | 1:1 | auto
+}
+```
+
+Notes:
+
+- `src` can be a `https://...` URL **or** a `data:image/...` URI for
+  inline-encoded images. The frontend doesn't transform it.
+- `alt` is required (a11y + load-failure fallback).
+- The renderer applies CSS `aspect-ratio` if `aspect` is set; otherwise
+  the image lays out at its natural dimensions.
+- Reports use this heavily; events can use it too (e.g. macro positioning
+  charts).
+
+### 7. `code` — fixed-pitch source listing
+
+```jsonc
+{
+  "kind": "code",
+  "title":    { "en": "Backtest harness", "zh": "回测代码" },   // optional
+  "language": "python",                                          // optional, informational
+  "filename": "wheel_backtest.py",                               // optional label
+  "code": "import pandas as pd\n\ndef run_wheel(spy: pd.DataFrame, ...):\n    ..."
+}
+```
+
+Notes:
+
+- MVP renders the code with `<pre><code>` and **no syntax highlighting**.
+  `language` is shown as a small badge above the listing.
+- The `code` string is preserved verbatim — embed `\n` for line breaks.
+- For very long snippets, the frontend adds vertical scroll automatically
+  (`max-height: 480px`).
 
 ---
 

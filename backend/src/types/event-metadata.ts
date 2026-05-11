@@ -87,12 +87,50 @@ export interface ReactionBlock {
   rows: ReactionRow[]
 }
 
+/**
+ * Figure block — display an inline figure (chart screenshot, diagram).
+ * Source is either an external URL or a base64 data URI. Captions are
+ * optional and bilingual.
+ */
+export interface FigureBlock {
+  kind: "figure"
+  title?: BilingualString
+  eyebrow?: BilingualString
+  /** Image URL (https://...) or data: URI. Frontend doesn't transform it. */
+  src: string
+  /** Alt text for screen readers + load-failure fallback. */
+  alt: BilingualString
+  caption?: BilingualString
+  /** Optional: "16:9", "4:3", "1:1", or "auto" (browser-natural). */
+  aspect?: "16:9" | "4:3" | "1:1" | "auto"
+}
+
+/**
+ * Code block — fixed-pitch source listing. Language is informational
+ * (used for label) but not interpreted by the renderer (no syntax
+ * highlighting in MVP). For multi-line snippets, pass the full string
+ * with embedded `\n`.
+ */
+export interface CodeBlock {
+  kind: "code"
+  title?: BilingualString
+  eyebrow?: BilingualString
+  /** e.g. "python", "sql", "r", "ts". Free-form string. */
+  language?: string
+  /** Optional filename / origin label shown above the code body. */
+  filename?: string
+  /** The actual source. Preserved verbatim. */
+  code: string
+}
+
 export type Section =
   | ProseBlock
   | TableBlock
   | KvGridBlock
   | ActionsBlock
   | ReactionBlock
+  | FigureBlock
+  | CodeBlock
 
 /**
  * Shape stored in events.metadata. Future fields belong here too

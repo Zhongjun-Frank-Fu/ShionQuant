@@ -502,10 +502,16 @@ create table calendar_subscriptions (
 create table reports (
   id              uuid primary key default gen_random_uuid(),
   report_type     text not null,            -- 'risk_attribution' | 'performance' | 'strategy_memo' | 'macro' | 'custom'
+  -- Inbox category (added 2026-05). Drives the "Tune what arrives in your
+  -- inbox" toggles + the Reports page filter chips.
+  category        text,                     -- 'must_read' | 'attribution' | 'quarterly_performance' | 'macro_regime' | 'strategy_model' | 'custom_research'
   title           text not null,
   subtitle        text,
-  body_md         text,                     -- markdown content
+  body_md         text,                     -- legacy markdown content
   body_format     text not null default 'md',  -- 'md' | 'mdx'
+  -- Sections-based rich body. See docs/event-metadata-schema.md — same
+  -- discriminated-union schema used by events.metadata.
+  metadata        jsonb,
   author_advisor_id uuid references advisors(id) on delete set null,
   client_id       uuid references clients(id),  -- null = firm-wide report
   pages           integer,
@@ -520,7 +526,11 @@ create table reports (
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
 
-  check (report_type in ('risk_attribution', 'performance', 'strategy_memo', 'macro', 'custom'))
+  check (report_type in ('risk_attribution', 'performance', 'strategy_memo', 'macro', 'custom')),
+  check (category is null or category in (
+    'must_read', 'attribution', 'quarterly_performance',
+    'macro_regime', 'strategy_model', 'custom_research'
+  ))
 );
 create trigger reports_updated_at before update on reports
   for each row execute function set_updated_at();

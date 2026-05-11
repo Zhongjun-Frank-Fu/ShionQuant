@@ -1054,8 +1054,8 @@
       <span class="zh-inline">报告与研究</span>
       <span class="dot"></span>
       <span class="accent">
-        <span class="en-inline">2 unread · 14 archived</span>
-        <span class="zh-inline">2 份未读 · 14 份历史</span>
+        <span class="en-inline" data-bind="header.subEn">2 unread · 14 archived</span>
+        <span class="zh-inline" data-bind="header.subZh">2 份未读 · 14 份历史</span>
       </span>
     </div>
     <h1 class="greeting">
@@ -1081,31 +1081,13 @@
 </header>
 
 <!-- ── FILTER BAR ── -->
+<!-- Chips are rebuilt by SQ-REPORTS-V1 with real per-category counts;
+     static markup below is graceful-degradation fallback only. -->
 <div class="filter-bar">
-  <div class="filter-chips">
-    <button class="chip active">
+  <div class="filter-chips" data-rebuild="filter.chips">
+    <button class="chip active" data-filter="all">
       <span class="en-inline">All</span><span class="zh-inline">全部</span>
-      <span class="count">14</span>
-    </button>
-    <button class="chip">
-      <span class="en-inline">Risk Attribution</span><span class="zh-inline">风险归因</span>
-      <span class="count">4</span>
-    </button>
-    <button class="chip">
-      <span class="en-inline">Performance</span><span class="zh-inline">业绩</span>
-      <span class="count">2</span>
-    </button>
-    <button class="chip">
-      <span class="en-inline">Strategy Memo</span><span class="zh-inline">策略备忘</span>
-      <span class="count">3</span>
-    </button>
-    <button class="chip">
-      <span class="en-inline">Macro</span><span class="zh-inline">宏观</span>
-      <span class="count">3</span>
-    </button>
-    <button class="chip">
-      <span class="en-inline">Custom Research</span><span class="zh-inline">定制研究</span>
-      <span class="count">2</span>
+      <span class="count">0</span>
     </button>
   </div>
   <label class="search-input">
@@ -1118,7 +1100,9 @@
 </div>
 
 <!-- ── FEATURED REPORT ── -->
-<section class="featured-section">
+<!-- Featured card body is rebuilt by SQ-REPORTS-V1 from the most-recent
+     report. Outer section + eyebrow stays static. -->
+<section class="featured-section" data-rebuild="featured.section">
   <p class="featured-eyebrow">
     <span class="en-inline">Latest · Just published</span>
     <span class="zh-inline">最新 · 刚发布</span>
@@ -1260,7 +1244,7 @@
     </div>
   </div>
 
-  <div class="reports-list">
+  <div class="reports-list" data-rebuild="reports.list">
 
     <article class="report">
       <div class="r-date">
@@ -1467,43 +1451,7 @@
         <span class="zh-inline">所有报告始终保留在此页面可查阅。右侧开关用于控制哪些报告会同时推送至您登记的邮箱与手机。</span>
       </p>
     </div>
-    <div class="sub-toggles">
-      <div class="sub-row">
-        <span class="sub-label">
-          <span class="en-inline">Monthly Risk Attribution</span><span class="zh-inline">月度风险归因</span>
-          <span class="sl-cadence">· Monthly</span>
-        </span>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <div class="sub-row">
-        <span class="sub-label">
-          <span class="en-inline">Quarterly Performance Review</span><span class="zh-inline">季度业绩复盘</span>
-          <span class="sl-cadence">· Quarterly</span>
-        </span>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <div class="sub-row">
-        <span class="sub-label">
-          <span class="en-inline">Macro Regime Updates</span><span class="zh-inline">宏观体制更新</span>
-          <span class="sl-cadence">· Bi-weekly</span>
-        </span>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <div class="sub-row">
-        <span class="sub-label">
-          <span class="en-inline">Strategy Memos (ad-hoc)</span><span class="zh-inline">策略备忘（即时）</span>
-          <span class="sl-cadence">· Event-driven</span>
-        </span>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <div class="sub-row">
-        <span class="sub-label">
-          <span class="en-inline">Custom Research Findings</span><span class="zh-inline">定制研究成果</span>
-          <span class="sl-cadence">· On completion</span>
-        </span>
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
-      </div>
-    </div>
+    <div class="sub-toggles" data-rebuild="subscriptions.toggles"></div>
   </div>
 
 </section>
@@ -1858,6 +1806,316 @@
   });
 })();
 </script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+ * SQ-REPORTS-V1
+ * Live wire-up for the Reports list page.
+ *
+ * GET /api/v1/reports → list (sorted by publishedAt DESC, includes
+ * category + readCount + isBookmarked per row).
+ *
+ * Renders:
+ *   • Header subtitle: unread count + total
+ *   • Filter chips: 6 category chips + All, with per-category counts
+ *   • Featured: the single most-recent report (latest published)
+ *   • Reports list: every other report, type-tag + author + dates + status
+ *   • Subscription toggles: 6 inbox-category rows (no persistence yet)
+ *
+ * Failure semantics: blank everything on boot, mark "Not loaded / 未读取"
+ * on fetch error — never silently fall back to demo data.
+ * ───────────────────────────────────────────────────────────────────────── */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const FAILED_EN = 'Not loaded';
+  const FAILED_ZH = '未读取';
+  const _zh = () => document.body.classList.contains('lang-zh');
+  const _failedTxt = () => _zh() ? FAILED_ZH : FAILED_EN;
+  const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
+  }[c]));
+
+  // ─── Category labels (matches docs/event-metadata-schema.md indirectly) ─
+  const CATEGORIES = [
+    { key: 'must_read',              en: 'Must Read',                zh: '必读',           cadence: { en: 'Event-driven', zh: '即时推送' } },
+    { key: 'attribution',            en: 'Attribution',              zh: '风险归因',       cadence: { en: 'Monthly',      zh: '每月' } },
+    { key: 'quarterly_performance',  en: 'Quarterly Performance',    zh: '季度业绩',       cadence: { en: 'Quarterly',    zh: '每季' } },
+    { key: 'macro_regime',           en: 'Macro Regime Updates',     zh: '宏观体制更新',   cadence: { en: 'Bi-weekly',    zh: '双周' } },
+    { key: 'strategy_model',         en: 'Strategy Models',          zh: '策略模型',       cadence: { en: 'Event-driven', zh: '即时推送' } },
+    { key: 'custom_research',        en: 'Custom Research Findings', zh: '定制研究成果',   cadence: { en: 'On completion',zh: '完工推送' } },
+  ];
+  const CATEGORY_TAG_CLASS = {
+    must_read: 'memo',
+    attribution: '',
+    quarterly_performance: 'perf',
+    macro_regime: 'macro',
+    strategy_model: 'memo',
+    custom_research: '',
+  };
+
+  // ─── DOM helpers ────────────────────────────────────────────────────
+  const setBind = (key, val) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => { el.textContent = val; });
+  };
+  const setRebuild = (key, html) => {
+    const el = document.querySelector(`[data-rebuild="${key}"]`);
+    if (el) el.innerHTML = html;
+  };
+  function _blankAllBindings() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = '—'; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => { el.innerHTML = ''; });
+  }
+  function _markFailed() {
+    const txt = _failedTxt();
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = txt; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => {
+      el.innerHTML = `<div class="rebuild-failed">${escapeHtml(txt)}</div>`;
+    });
+  }
+
+  // ─── Networking ─────────────────────────────────────────────────────
+  async function fetchReports() {
+    const res = await fetch(`${API_BASE}/reports?limit=200`, {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      const err = new Error(`HTTP ${res.status} :: ${body.slice(0, 200)}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+
+  // ─── Date formatting (UTC for now; could honor displayTz later) ─────
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtShortDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return `${d.getUTCDate()} ${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  }
+  function fmtDayMonth(iso) {
+    if (!iso) return { day: '—', monthYear: '—' };
+    const d = new Date(iso);
+    return {
+      day: String(d.getUTCDate()).padStart(2, '0'),
+      monthYear: `${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`,
+    };
+  }
+  function detailUrl(id) {
+    return `Shion Quant Report Detail.html?id=${encodeURIComponent(id)}`;
+  }
+
+  // ─── State + filter ─────────────────────────────────────────────────
+  let _allReports = [];
+  let _activeFilter = 'all';
+  function applyFilter() {
+    const filtered = _activeFilter === 'all'
+      ? _allReports
+      : _allReports.filter((r) => r.category === _activeFilter);
+    renderFeatured(filtered);
+    renderList(filtered);
+  }
+
+  // ─── Header ─────────────────────────────────────────────────────────
+  function renderHeader(reports) {
+    const unread = reports.filter((r) => !r.readCount || r.readCount === 0).length;
+    setBind('header.subEn', `${unread} unread · ${reports.length} total`);
+    setBind('header.subZh', `${unread} 份未读 · 共 ${reports.length} 份`);
+  }
+
+  // ─── Filter chips ───────────────────────────────────────────────────
+  function renderChips(reports) {
+    const counts = {};
+    for (const r of reports) counts[r.category] = (counts[r.category] || 0) + 1;
+    const html = [
+      `<button class="chip${_activeFilter === 'all' ? ' active' : ''}" data-filter="all">
+        <span class="en-inline">All</span><span class="zh-inline">全部</span>
+        <span class="count">${reports.length}</span>
+      </button>`,
+      ...CATEGORIES.map((c) => `
+        <button class="chip${_activeFilter === c.key ? ' active' : ''}" data-filter="${c.key}">
+          <span class="en-inline">${escapeHtml(c.en)}</span><span class="zh-inline">${escapeHtml(c.zh)}</span>
+          <span class="count">${counts[c.key] || 0}</span>
+        </button>`),
+    ].join('');
+    setRebuild('filter.chips', html);
+    document.querySelectorAll('[data-filter]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        _activeFilter = btn.getAttribute('data-filter') || 'all';
+        // Update active state without rebuilding the entire chip strip
+        document.querySelectorAll('[data-filter]').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilter();
+      });
+    });
+  }
+
+  // ─── Featured card ──────────────────────────────────────────────────
+  function categoryLabel(key) {
+    const c = CATEGORIES.find((cc) => cc.key === key);
+    if (!c) return { en: key || '—', zh: key || '—' };
+    return c;
+  }
+  function renderFeatured(reports) {
+    const r = reports[0];
+    if (!r) {
+      const msg = _zh() ? '此筛选无报告' : 'No reports match this filter';
+      setRebuild('featured.section', `<p class="featured-eyebrow"><span class="en-inline">Latest</span><span class="zh-inline">最新</span></p><div class="rebuild-failed">${escapeHtml(msg)}</div>`);
+      return;
+    }
+    const cat = categoryLabel(r.category);
+    const author = r.authorAdvisorId ? 'K. Tanaka' : (_zh() ? '团队' : 'Team');
+    setRebuild('featured.section', `
+      <p class="featured-eyebrow">
+        <span class="en-inline">Latest · Just published</span>
+        <span class="zh-inline">最新 · 刚发布</span>
+      </p>
+      <div class="featured">
+        <div class="featured-body">
+          <div>
+            <div class="feat-meta">
+              <span class="tag"><span class="en-inline">${escapeHtml(cat.en)}</span><span class="zh-inline">${escapeHtml(cat.zh)}</span></span>
+              <span class="date">${escapeHtml(fmtShortDate(r.publishedAt))}</span>
+              <span>·</span>
+              <span><span class="en-inline">Author</span><span class="zh-inline">作者</span> · ${escapeHtml(author)}</span>
+              ${r.pages ? `<span>·</span><span>${r.pages} pp</span>` : ''}
+            </div>
+            <h2 class="feat-title">${escapeHtml(r.title)}</h2>
+            ${r.subtitle ? `<p class="feat-excerpt">${escapeHtml(r.subtitle)}</p>` : ''}
+          </div>
+          <div>
+            <div class="feat-stats">
+              ${r.pages       != null ? `<div><span class="fs-label"><span class="en-inline">Pages</span><span class="zh-inline">页数</span></span><span class="fs-value">${r.pages}</span></div>` : ''}
+              ${r.chartsCount != null ? `<div><span class="fs-label"><span class="en-inline">Charts</span><span class="zh-inline">图表</span></span><span class="fs-value">${r.chartsCount}</span></div>` : ''}
+              ${r.tablesCount != null ? `<div><span class="fs-label"><span class="en-inline">Tables</span><span class="zh-inline">数据表</span></span><span class="fs-value">${r.tablesCount}</span></div>` : ''}
+              ${r.readTimeMin != null ? `<div><span class="fs-label"><span class="en-inline">Read time</span><span class="zh-inline">预计阅读</span></span><span class="fs-value">~${r.readTimeMin} min</span></div>` : ''}
+            </div>
+            <div class="feat-actions">
+              <a href="${escapeHtml(detailUrl(r.id))}" class="ha-btn primary">
+                <span class="en-inline">Open Report ›</span><span class="zh-inline">阅读报告 ›</span>
+              </a>
+              <a href="#" class="ha-btn">
+                <span class="en-inline">Bookmark</span><span class="zh-inline">收藏</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>`);
+  }
+
+  // ─── Reports list (skip featured at index 0) ────────────────────────
+  function renderList(reports) {
+    const rest = reports.slice(1);
+    if (rest.length === 0) {
+      const msg = _zh() ? '再无其它报告' : 'No earlier reports';
+      setRebuild('reports.list', `<div class="rebuild-failed">${escapeHtml(msg)}</div>`);
+      return;
+    }
+    const html = rest.map((r) => {
+      const cat = categoryLabel(r.category);
+      const tagClass = CATEGORY_TAG_CLASS[r.category] || '';
+      const author = r.authorAdvisorId ? 'K. Tanaka' : (_zh() ? '团队' : 'Team');
+      const dm = fmtDayMonth(r.publishedAt);
+      const statusHtml = r.readCount > 0
+        ? `<span class="r-status"><span class="en-inline">Read ${escapeHtml(fmtShortDate(r.lastReadAt))}</span><span class="zh-inline">已读 ${escapeHtml(fmtShortDate(r.lastReadAt))}</span></span>`
+        : `<span class="r-status unread"><span class="en-inline">Unread</span><span class="zh-inline">未读</span></span>`;
+      return `
+        <article class="report">
+          <div class="r-date">
+            <span class="rd-day">${escapeHtml(dm.day)}</span>
+            <span class="rd-month"><span class="en-inline">${escapeHtml(dm.monthYear)}</span><span class="zh-inline">${escapeHtml(dm.monthYear)}</span></span>
+          </div>
+          <div class="r-meta-col">
+            <span class="r-tag ${tagClass}"><span class="en-inline">${escapeHtml(cat.en)}</span><span class="zh-inline">${escapeHtml(cat.zh)}</span></span>
+            <div class="r-author">
+              <span class="au-label"><span class="en-inline">Author</span><span class="zh-inline">作者</span></span>
+              ${escapeHtml(author)}
+              ${(r.pages || r.readTimeMin) ? `<span class="au-pages">${r.pages ? `${r.pages} pp` : ''}${r.pages && r.readTimeMin ? ' · ' : ''}${r.readTimeMin ? `~${r.readTimeMin} min` : ''}</span>` : ''}
+            </div>
+          </div>
+          <div class="r-body">
+            <h3 class="r-title">${escapeHtml(r.title)}</h3>
+            ${r.subtitle ? `<p class="r-excerpt">${escapeHtml(r.subtitle)}</p>` : ''}
+          </div>
+          <div class="r-action">
+            ${statusHtml}
+            <a href="${escapeHtml(detailUrl(r.id))}" class="ra-btn">
+              <span class="en-inline">${r.readCount > 0 ? 'Re-open' : 'Open'}</span>
+              <span class="zh-inline">${r.readCount > 0 ? '再次阅读' : '阅读'}</span>
+            </a>
+          </div>
+        </article>`;
+    }).join('');
+    setRebuild('reports.list', html);
+  }
+
+  // ─── Subscription toggles (6 inbox categories) ─────────────────────
+  function renderSubscriptions() {
+    // Stub: no backend persistence yet. Defaults: must_read / attribution /
+    // quarterly_performance ON; the rest OFF. (Matches the original demo.)
+    const ON = new Set(['must_read', 'attribution', 'quarterly_performance', 'macro_regime', 'strategy_model']);
+    const html = CATEGORIES.map((c) => `
+      <div class="sub-row">
+        <span class="sub-label">
+          <span class="en-inline">${escapeHtml(c.en)}</span><span class="zh-inline">${escapeHtml(c.zh)}</span>
+          <span class="sl-cadence">· <span class="en-inline">${escapeHtml(c.cadence.en)}</span><span class="zh-inline">${escapeHtml(c.cadence.zh)}</span></span>
+        </span>
+        <label class="switch"><input type="checkbox"${ON.has(c.key) ? ' checked' : ''}><span class="slider"></span></label>
+      </div>`).join('');
+    setRebuild('subscriptions.toggles', html);
+  }
+
+  // ─── boot ───────────────────────────────────────────────────────────
+  async function boot() {
+    _blankAllBindings();
+    try {
+      const data = await fetchReports();
+      _allReports = Array.isArray(data.reports) ? data.reports : [];
+      // Sort newest first (server already does this, but defensive).
+      _allReports.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+      renderHeader(_allReports);
+      renderChips(_allReports);
+      applyFilter();              // populates featured + list under current filter
+      renderSubscriptions();
+    } catch (err) {
+      console.warn('[reports] fetch failed:', err.message || err);
+      _markFailed();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
+<style>
+  .rebuild-failed {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); letter-spacing: 0.06em; }
+</style>
 
 </body>
 </html>
