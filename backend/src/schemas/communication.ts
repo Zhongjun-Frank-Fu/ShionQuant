@@ -81,3 +81,58 @@ export const meetingCreateSchema = z
     advisorId: z.string().uuid().optional(),
   })
   .strict()
+
+// ─── Contact Advisor — requests + slots ──────────────────────────────────
+// New 2026-05. Lives in /communication/contact/* — see schema.ts admin
+// section for the table shape (advisor_time_slots + advisor_contact_requests).
+
+const REQUEST_TYPE = ["message", "call", "in_person"] as const
+const SLOT_TYPE = ["call", "in_person"] as const
+
+export const slotsQuerySchema = z.object({
+  type: z.enum(SLOT_TYPE).optional(),
+  from: z.string().datetime({ offset: true }).optional(),
+  to: z.string().datetime({ offset: true }).optional(),
+  advisorId: z.string().uuid().optional(),
+})
+
+export const contactRequestCreateSchema = z
+  .object({
+    requestType: z.enum(REQUEST_TYPE),
+    /** Free-form location. Required for in_person, optional for call (defaults
+     *  to the linked slot's location), null for message. */
+    location: z.string().min(1).max(200).nullable().optional(),
+    /** ISO instant (call w/o slot, or in_person window start). */
+    preferredStartsAt: z.string().datetime({ offset: true }).nullable().optional(),
+    /** ISO instant (in_person window end). */
+    preferredEndsAt: z.string().datetime({ offset: true }).nullable().optional(),
+    /** Minutes. */
+    durationMinutes: z.number().int().min(15).max(60 * 24 * 3).nullable().optional(),
+    /** Subject + body for messages; agenda for call/in_person. */
+    reason: z.string().min(1).max(4000),
+    urgency: z.enum(URGENCY).nullable().optional(),
+    /** When picking a specific call slot, link it here. */
+    linkedSlotId: z.string().uuid().nullable().optional(),
+    /** Co-submitters by display name (joint accounts). */
+    submitters: z.array(z.string().min(1).max(120)).max(6).optional(),
+    /** Free-form: { template?: string; videoTool?: string; attachments?: [...] }. */
+    metadata: z.record(z.unknown()).optional(),
+  })
+  .strict()
+  .refine(
+    (v) => v.requestType !== "message" || (v.preferredStartsAt == null && v.linkedSlotId == null),
+    { message: "Message requests cannot have preferredStartsAt or linkedSlotId", path: ["preferredStartsAt"] },
+  )
+  .refine(
+    (v) => v.requestType !== "in_person" || v.preferredStartsAt != null,
+    { message: "In-person requests must include preferredStartsAt", path: ["preferredStartsAt"] },
+  )
+
+export const contactRequestsListQuerySchema = z.object({
+  status: z
+    .enum(["pending", "acknowledged", "confirmed", "declined", "completed", "cancelled"])
+    .optional(),
+  type: z.enum(REQUEST_TYPE).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0),
+})

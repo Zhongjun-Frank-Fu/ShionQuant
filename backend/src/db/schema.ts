@@ -1050,6 +1050,136 @@ export const meetingBookings = pgTable(
 )
 
 // ╔═══════════════════════════════════════════════════════════════════════════╗
+// ║  ADVISOR ADMIN — CONTACT REQUESTS & TIME SLOTS                             ║
+// ║                                                                            ║
+// ║  Distinct from `messageThreads` / `meetingBookings`:                       ║
+// ║    - those are the *settled* state (an active thread, a confirmed booking) ║
+// ║    - the tables below are the *inbound queue* — what the client filled    ║
+// ║      out on the Contact-Advisor page, before the advisor triages it.      ║
+// ║                                                                            ║
+// ║  Conceptually admin-owned: clients INSERT new requests + advisors UPDATE  ║
+// ║  status / resolution. Time slots are advisor-defined and read-only to     ║
+// ║  clients. Kept in this section to make the admin-vs-public split obvious. ║
+// ╚═══════════════════════════════════════════════════════════════════════════╝
+
+/**
+ * Bookable advisor time slots — call or in-person, with a location label.
+ * Advisor tooling INSERTs these; the client portal only reads them to render
+ * the slot picker on Contact-Advisor. A slot may be consumed by a contact
+ * request, at which point we link the request → slot and (optionally) the
+ * slot → meeting booking.
+ */
+export const advisorTimeSlots = pgTable(
+  "advisor_time_slots",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    advisorId: uuid("advisor_id").notNull().references(() => advisors.id, {
+      onDelete: "cascade",
+    }),
+    slotType: text("slot_type").notNull().$type<"call" | "in_person">(),
+    /** Free-form label, e.g. "Zoom · auto-link", "San Diego · INTELLIGENCE INVESTMENT office", "Hong Kong · KT visit". */
+    location: text("location").notNull(),
+    startsAt: ts("starts_at").notNull(),
+    endsAt: ts("ends_at").notNull(),
+    /** Denormalized for fast filtering — keep in lockstep with ends-starts. */
+    durationMinutes: integer("duration_minutes").notNull(),
+    /** Concurrent capacity. Most advisor slots are 1; larger for office days. */
+    capacity: integer("capacity").notNull().default(1),
+    /** Soft-disable without deleting (preserves history if past bookings reference it). */
+    isActive: boolean("is_active").notNull().default(true),
+    /** Optional context shown to the client when picking — e.g. "Pre-FOMC week" or "ID required at lobby". */
+    notes: text("notes"),
+    createdAt: ts("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("advisor_slots_advisor_starts_idx").on(t.advisorId, t.startsAt)
+      .where(sql`is_active = true`),
+    index("advisor_slots_type_starts_idx").on(t.slotType, t.startsAt)
+      .where(sql`is_active = true`),
+  ],
+)
+
+/**
+ * Status lifecycle for a contact request:
+ *   pending     → just submitted, advisor not yet looked
+ *   acknowledged → advisor saw it, no decision yet (optional intermediate)
+ *   confirmed   → advisor accepted (call/in-person → also creates a meeting booking)
+ *   declined    → advisor said no; resolutionNotes explains why
+ *   completed   → the meeting / message exchange happened
+ *   cancelled   → client withdrew the request
+ */
+export type ContactRequestStatus =
+  | "pending"
+  | "acknowledged"
+  | "confirmed"
+  | "declined"
+  | "completed"
+  | "cancelled"
+
+export type ContactRequestType = "message" | "call" | "in_person"
+
+/**
+ * Inbound request from the client portal. One row per submission, regardless
+ * of type. Message-type rows omit slot-related fields; call/in-person rows
+ * usually link to a specific `advisorTimeSlots` row.
+ */
+export const advisorContactRequests = pgTable(
+  "advisor_contact_requests",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    clientId: uuid("client_id").notNull().references(() => clients.id, {
+      onDelete: "cascade",
+    }),
+    /** The human who clicked Submit. May differ from clientId for joint accounts. */
+    submittedByUserId: uuid("submitted_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    /** Free-form list of co-submitters for joint requests (e.g. spouse names). */
+    submitters: jsonb("submitters").$type<string[]>(),
+    requestType: text("request_type").notNull().$type<ContactRequestType>(),
+    /** Location label — null for message-type requests. */
+    location: text("location"),
+    /** Preferred start instant (calls) or earliest date of a window (in-person). */
+    preferredStartsAt: ts("preferred_starts_at"),
+    /** Optional latest end of a window (in-person; null for calls). */
+    preferredEndsAt: ts("preferred_ends_at"),
+    /** Minutes. 30 / 60 / 90 for calls; 180 / 360 / 720+ for in-person. */
+    durationMinutes: integer("duration_minutes"),
+    /** Subject + body / agenda / reason. Plain text; never encrypted-at-rest here. */
+    reason: text("reason").notNull(),
+    /** Mirrors messages.urgency; only meaningful for message-type. */
+    urgency: text("urgency").$type<"routine" | "soon" | "urgent">(),
+    /** Specific slot consumed, when the user picked one. Nullable for messages + open in-person windows. */
+    linkedSlotId: uuid("linked_slot_id").references(() => advisorTimeSlots.id, {
+      onDelete: "set null",
+    }),
+    status: text("status")
+      .notNull()
+      .default("pending")
+      .$type<ContactRequestStatus>(),
+    /** Advisor who closed the request (any non-pending terminal state). */
+    resolvedByAdvisorId: uuid("resolved_by_advisor_id").references(() => advisors.id, {
+      onDelete: "set null",
+    }),
+    resolvedAt: ts("resolved_at"),
+    resolutionNotes: text("resolution_notes"),
+    /** Resulting booking, if the request became a meeting. */
+    resultingBookingId: uuid("resulting_booking_id").references(() => meetingBookings.id, {
+      onDelete: "set null",
+    }),
+    /** Free-form: video_link, channel, template_used, attachments, etc. */
+    metadata: jsonb("metadata"),
+    createdAt: ts("created_at").notNull().defaultNow(),
+    updatedAt: ts("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("contact_requests_client_idx").on(t.clientId, t.createdAt),
+    index("contact_requests_status_idx").on(t.status, t.createdAt)
+      .where(sql`status in ('pending', 'acknowledged')`),
+  ],
+)
+
+// ╔═══════════════════════════════════════════════════════════════════════════╗
 // ║  AUDIT LOG (immutable; 7-year retention; never UPDATE/DELETE)              ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 

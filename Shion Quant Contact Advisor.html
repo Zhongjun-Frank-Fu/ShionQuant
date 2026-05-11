@@ -486,6 +486,92 @@
   .pane { display: none; }
   .pane.active { display: block; }
 
+  /* SQ-CONTACT-V1 additions */
+  .rebuild-loading {
+    padding: 1.4rem 1.2rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--silver);
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+  body.lang-zh .rebuild-loading { font-family: var(--sans-zh); letter-spacing: 0; }
+  .rebuild-error {
+    padding: 1rem 1.2rem;
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    color: var(--loss);
+    background: rgba(196,82,82,0.04);
+    border-left: 2px solid var(--loss);
+  }
+  body.lang-zh .rebuild-error { font-family: var(--sans-zh); }
+  .empty-state {
+    padding: 1.2rem;
+    text-align: center;
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    color: var(--silver);
+    line-height: 1.5;
+  }
+  body.lang-zh .empty-state { font-family: var(--sans-zh); }
+
+  /* Recent request rows reuse .thread layout from the original page so the
+   * design tokens match. Add status pills + per-status colors. */
+  .req-status {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  body.lang-zh .req-status { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .req-status.pending      { background: rgba(200,168,75,0.16); color: var(--warn); }
+  .req-status.acknowledged { background: rgba(35,71,212,0.10);  color: var(--royal); }
+  .req-status.confirmed    { background: rgba(45,138,93,0.12);  color: var(--gain); }
+  .req-status.declined,
+  .req-status.cancelled    { background: rgba(196,82,82,0.10);  color: var(--loss); }
+  .req-status.completed    { background: var(--bg-soft);        color: var(--ink-soft); }
+  .req-kind {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  body.lang-zh .req-kind { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+
+  .ha-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+  .ha-btn.primary:disabled:hover { background: var(--royal); border-color: var(--royal); }
+
+  /* Toast */
+  .sq-toast {
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    padding: 0.7rem 1rem;
+    border-radius: 4px;
+    box-shadow: 0 12px 32px rgba(13,16,32,0.25);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.25s cubic-bezier(0.25,1,0.5,1);
+    max-width: 360px;
+  }
+  body.lang-zh .sq-toast { font-family: var(--sans-zh); }
+  .sq-toast.show { opacity: 1; transform: translateY(0); }
+  .sq-toast.err { background: var(--loss); }
+
   .portal-foot { background: var(--ink); padding: 0.9rem 2.4rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
   .portal-foot-logo { font-family: var(--serif-en); font-size: 0.85rem; font-weight: 700; color: #fff; }
   .portal-foot-logo .hl { color: var(--royal-light); }
@@ -560,12 +646,13 @@
   <section class="sec">
     <div class="card">
       <div class="advisor">
-        <div class="ad-avatar">KT</div>
+        <div class="ad-avatar" data-bind="advisor.initials">KT</div>
         <div class="ad-info">
-          <div class="ad-name">K. Tanaka</div>
+          <div class="ad-name" data-bind="advisor.fullName">K. Tanaka</div>
           <div class="ad-role">
-            <span class="en-inline">Senior Quant · your lead advisor since Jul 2024</span>
-            <span class="zh-inline">高级量化 · 自 2024/7 起为您主要顾问</span>
+            <span data-bind="advisor.role">Senior Quant</span>
+            <span class="en-inline"> · your lead advisor</span>
+            <span class="zh-inline"> · 您的主要顾问</span>
           </div>
           <div class="ad-status">
             <span class="en-inline">Available now · typical reply within 2h</span>
@@ -573,9 +660,8 @@
           </div>
         </div>
         <div class="ad-meta">
-          <span class="en-inline">San Diego · PT</span>
-          <span class="zh-inline">圣地亚哥 · 太平洋时间</span><br>
-          <strong>09:14 local</strong>
+          <span data-bind="advisor.location">San Diego · PT</span><br>
+          <strong data-bind="advisor.localTime">—</strong>
         </div>
       </div>
     </div>
@@ -617,24 +703,24 @@
       <div class="card">
         <div class="field">
           <label class="field-k"><span class="en-inline">Subject</span><span class="zh-inline">主题</span></label>
-          <input type="text" placeholder="e.g. NVDA position sizing question">
+          <input id="msg-subject" type="text" placeholder="e.g. NVDA position sizing question">
         </div>
 
         <div class="field">
           <label class="field-k"><span class="en-inline">Urgency</span><span class="zh-inline">紧急程度</span></label>
           <div class="urgency-row">
-            <label class="urgency-chip selected">
-              <input type="radio" name="urgency" checked>
+            <label class="urgency-chip selected" data-urgency="routine">
+              <input type="radio" name="urgency" value="routine" checked>
               <span class="en-inline">Routine</span><span class="zh-inline">日常</span>
               <span class="meta">~2h</span>
             </label>
-            <label class="urgency-chip">
-              <input type="radio" name="urgency">
+            <label class="urgency-chip" data-urgency="soon">
+              <input type="radio" name="urgency" value="soon">
               <span class="en-inline">Soon</span><span class="zh-inline">尽快</span>
               <span class="meta">~30m</span>
             </label>
-            <label class="urgency-chip">
-              <input type="radio" name="urgency">
+            <label class="urgency-chip" data-urgency="urgent">
+              <input type="radio" name="urgency" value="urgent">
               <span class="en-inline">Urgent</span><span class="zh-inline">紧急</span>
               <span class="meta">SMS + push</span>
             </label>
@@ -668,57 +754,8 @@
         </span>
         <div class="submit-actions">
           <a href="Shion Quant Portal.html" class="ha-btn"><span class="en-inline">Cancel</span><span class="zh-inline">取消</span></a>
-          <button class="ha-btn primary"><span class="en-inline">Send message</span><span class="zh-inline">发送消息</span></button>
+          <button id="btn-send-message" class="ha-btn primary"><span class="en-inline">Send message</span><span class="zh-inline">发送消息</span></button>
         </div>
-      </div>
-    </section>
-
-    <!-- RECENT THREADS -->
-    <section class="sec">
-      <div class="sec-head">
-        <h2 class="sec-title"><span class="en">Recent <em>conversations</em></span><span class="zh">最近<em>对话</em></span></h2>
-      </div>
-      <div class="card">
-        <a href="#" class="thread">
-          <div class="thread-info">
-            <div class="thread-subject">
-              <span class="en-inline">RE: Q1 attribution detail · NVDA contribution</span>
-              <span class="zh-inline">回复：Q1 归因细节 · NVDA 贡献</span>
-              <span class="unread">NEW</span>
-            </div>
-            <div class="thread-preview">
-              <span class="en-inline">— Of the 58 bps, ~42 bps came from price appreciation, ~16 bps from option premium…</span>
-              <span class="zh-inline">— 58 bps 中约 42 bps 来自价格上涨，约 16 bps 来自期权权利金…</span>
-            </div>
-          </div>
-          <div class="thread-time">3h ago</div>
-        </a>
-        <a href="#" class="thread">
-          <div class="thread-info">
-            <div class="thread-subject">
-              <span class="en-inline">Treasury duration shift timing</span>
-              <span class="zh-inline">国债久期调整时点</span>
-            </div>
-            <div class="thread-preview">
-              <span class="en-inline">— Recommend after the May coupon settles, around 16 May. Detailed in the macro update.</span>
-              <span class="zh-inline">— 建议在 5 月付息结算后，约 5/16。宏观更新中有详述。</span>
-            </div>
-          </div>
-          <div class="thread-time">2 days ago</div>
-        </a>
-        <a href="#" class="thread">
-          <div class="thread-info">
-            <div class="thread-subject">
-              <span class="en-inline">SPY hedge cost question · pre-FOMC</span>
-              <span class="zh-inline">SPY 对冲成本咨询 · FOMC 前</span>
-            </div>
-            <div class="thread-preview">
-              <span class="en-inline">— Holding the 530P through Fed Day, even if cost rises ~$1.50/ct. The asymmetric…</span>
-              <span class="zh-inline">— 即使权利金上升约 $1.50/张，仍持有 530P 通过 Fed Day。非对称…</span>
-            </div>
-          </div>
-          <div class="thread-time">1 week ago</div>
-        </a>
       </div>
     </section>
 
@@ -730,57 +767,9 @@
     <section class="sec">
       <div class="sec-head">
         <h2 class="sec-title"><span class="en">Pick a <em>time</em></span><span class="zh">选择<em>时间</em></span></h2>
-        <span style="font-family: var(--mono); font-size: 0.66rem; color: var(--silver); letter-spacing: 0.04em;"><span class="en-inline">Times shown in HKT · KT works in PT</span><span class="zh-inline">显示为港时 · KT 在太平洋时区</span></span>
+        <span style="font-family: var(--mono); font-size: 0.66rem; color: var(--silver); letter-spacing: 0.04em;"><span class="en-inline">Times shown in your local TZ · KT works in PT</span><span class="zh-inline">显示为本地时区 · KT 在太平洋时区</span></span>
       </div>
-      <div class="card">
-        <div class="slots-day">
-          <div class="slots-date">
-            <span class="day"><span class="en-inline">Mon · 27 Apr</span><span class="zh-inline">周一 · 4/27</span></span>
-            <span><span class="en-inline">Tomorrow</span><span class="zh-inline">明日</span></span>
-          </div>
-          <div class="slots-list">
-            <div class="slot taken">22:00</div>
-            <div class="slot">23:00<span class="tz">HKT</span></div>
-            <div class="slot">00:00<span class="tz">+1 HKT</span></div>
-            <div class="slot taken">01:00</div>
-          </div>
-        </div>
-        <div class="slots-day">
-          <div class="slots-date">
-            <span class="day"><span class="en-inline">Tue · 28 Apr</span><span class="zh-inline">周二 · 4/28</span></span>
-            <span style="color: var(--gold); font-family: var(--mono); font-size: 0.6rem;"><span class="en-inline">Quarterly Review · 22:30</span><span class="zh-inline">季度复盘 · 22:30</span></span>
-          </div>
-          <div class="slots-list">
-            <div class="slot">21:30<span class="tz">HKT</span></div>
-            <div class="slot taken">22:30</div>
-            <div class="slot">23:30<span class="tz">HKT</span></div>
-            <div class="slot">00:30<span class="tz">+1 HKT</span></div>
-          </div>
-        </div>
-        <div class="slots-day">
-          <div class="slots-date">
-            <span class="day"><span class="en-inline">Wed · 29 Apr</span><span class="zh-inline">周三 · 4/29</span></span>
-          </div>
-          <div class="slots-list">
-            <div class="slot">22:00<span class="tz">HKT</span></div>
-            <div class="slot">23:00<span class="tz">HKT</span></div>
-            <div class="slot selected">00:00<span class="tz">+1 HKT</span></div>
-            <div class="slot">01:00<span class="tz">+1 HKT</span></div>
-          </div>
-        </div>
-        <div class="slots-day">
-          <div class="slots-date">
-            <span class="day"><span class="en-inline">Thu · 30 Apr</span><span class="zh-inline">周四 · 4/30</span></span>
-            <span style="color: var(--warn); font-family: var(--mono); font-size: 0.6rem;"><span class="en-inline">FOMC Day</span><span class="zh-inline">FOMC 决议日</span></span>
-          </div>
-          <div class="slots-list">
-            <div class="slot taken">22:00</div>
-            <div class="slot taken">23:00</div>
-            <div class="slot taken">00:00</div>
-            <div class="slot">01:00<span class="tz">+1 HKT</span></div>
-          </div>
-        </div>
-      </div>
+      <div class="card" data-rebuild="call.slots"></div>
     </section>
 
     <section class="sec">
@@ -790,34 +779,34 @@
       <div class="card">
         <div class="field">
           <label class="field-k"><span class="en-inline">Duration</span><span class="zh-inline">时长</span></label>
-          <select>
-            <option>30 minutes · check-in</option>
-            <option selected>60 minutes · standard</option>
-            <option>90 minutes · deep dive</option>
+          <select id="call-duration">
+            <option value="30">30 minutes · check-in</option>
+            <option value="60" selected>60 minutes · standard</option>
+            <option value="90">90 minutes · deep dive</option>
           </select>
         </div>
         <div class="field">
           <label class="field-k"><span class="en-inline">Topic / agenda</span><span class="zh-inline">议题</span></label>
-          <textarea placeholder="What would you like to discuss? Helps KT prep ahead of the call.">Pre-FOMC NVDA gamma exposure check, post-print decision tree if implied move plays out larger than 8.4%.</textarea>
+          <textarea id="call-agenda" placeholder="What would you like to discuss? Helps KT prep ahead of the call."></textarea>
         </div>
         <div class="field">
           <label class="field-k"><span class="en-inline">Video link</span><span class="zh-inline">视频会议</span></label>
-          <select>
-            <option selected>Zoom · auto-generated link</option>
-            <option>Google Meet</option>
-            <option>Phone only · KT calls you</option>
+          <select id="call-video">
+            <option value="zoom" selected>Zoom · auto-generated link</option>
+            <option value="meet">Google Meet</option>
+            <option value="phone">Phone only · KT calls you</option>
           </select>
         </div>
       </div>
 
       <div class="submit-bar">
-        <span class="submit-meta">
-          <span class="en-inline"><strong>Wed 29 Apr · 00:00 HKT</strong> · 60 min · Zoom</span>
-          <span class="zh-inline"><strong>周三 4/29 · 00:00 HKT</strong> · 60 分钟 · Zoom</span>
+        <span class="submit-meta" data-bind="call.selectedMeta">
+          <span class="en-inline">Pick a slot above to enable booking</span>
+          <span class="zh-inline">请先在上方选择一个时间段</span>
         </span>
         <div class="submit-actions">
           <a href="Shion Quant Portal.html" class="ha-btn"><span class="en-inline">Cancel</span><span class="zh-inline">取消</span></a>
-          <button class="ha-btn primary"><span class="en-inline">Confirm booking</span><span class="zh-inline">确认预约</span></button>
+          <button id="btn-confirm-call" class="ha-btn primary" disabled><span class="en-inline">Confirm booking</span><span class="zh-inline">确认预约</span></button>
         </div>
       </div>
     </section>
@@ -840,27 +829,28 @@
       <div class="card">
         <div class="field">
           <label class="field-k"><span class="en-inline">Location</span><span class="zh-inline">地点</span></label>
-          <select>
-            <option selected>San Diego · INTELLIGENCE INVESTMENT office</option>
-            <option>Hong Kong · KT's quarterly visit (next 22 Sep – 4 Oct)</option>
-            <option>Other · specify in notes</option>
+          <select id="ip-location" data-rebuild="inperson.locations">
+            <option>San Diego · INTELLIGENCE INVESTMENT office</option>
           </select>
         </div>
         <div class="field">
           <label class="field-k"><span class="en-inline">Preferred date range</span><span class="zh-inline">期望日期范围</span></label>
-          <input type="text" value="Mid-May 2026 (any week)">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+            <input id="ip-date-from" type="date">
+            <input id="ip-date-to" type="date">
+          </div>
         </div>
         <div class="field">
           <label class="field-k"><span class="en-inline">Duration</span><span class="zh-inline">时长</span></label>
-          <select>
-            <option>Half day · 3 hours</option>
-            <option selected>Full day · 6 hours + lunch</option>
-            <option>Two days · deep review</option>
+          <select id="ip-duration">
+            <option value="180">Half day · 3 hours</option>
+            <option value="360" selected>Full day · 6 hours + lunch</option>
+            <option value="720">Two days · deep review</option>
           </select>
         </div>
         <div class="field">
           <label class="field-k"><span class="en-inline">Reason / agenda</span><span class="zh-inline">事由 / 议题</span></label>
-          <textarea placeholder="Annual review, strategy reset, account restructuring discussion, etc.">Annual strategy reset for 2026–2027 cycle, review tail-hedge framework with practical case studies, discuss adding bond ladder.</textarea>
+          <textarea id="ip-reason" placeholder="Annual review, strategy reset, account restructuring discussion, etc."></textarea>
         </div>
       </div>
 
@@ -871,12 +861,20 @@
         </span>
         <div class="submit-actions">
           <a href="Shion Quant Portal.html" class="ha-btn"><span class="en-inline">Cancel</span><span class="zh-inline">取消</span></a>
-          <button class="ha-btn primary"><span class="en-inline">Submit request</span><span class="zh-inline">提交请求</span></button>
+          <button id="btn-submit-inperson" class="ha-btn primary"><span class="en-inline">Submit request</span><span class="zh-inline">提交请求</span></button>
         </div>
       </div>
     </section>
 
   </div>
+
+  <!-- Recent requests — always visible regardless of which pane is active -->
+  <section class="sec" id="recent-requests-section">
+    <div class="sec-head">
+      <h2 class="sec-title"><span class="en">Recent <em>requests</em></span><span class="zh">最近<em>请求</em></span></h2>
+    </div>
+    <div class="card" data-rebuild="recent.requests"></div>
+  </section>
 
   <!-- AFTER-HOURS NOTE — common across all panes -->
   <div class="ah-note" style="margin-top: 2rem;">
@@ -1337,6 +1335,485 @@
       console.warn('[user-identity] fetch failed:', err.message || err);
     }
   })();
+})();
+</script>
+
+<script>
+/* SQ-CONTACT-V1 — wires the Contact Advisor page to:
+ *   GET  /communication/contact/advisor        → header card
+ *   GET  /communication/contact/slots?type=…   → call grid + in-person locations
+ *   POST /communication/contact/requests       → submit a message / call / in-person
+ *   GET  /communication/contact/requests       → "Recent requests" list
+ *
+ * Pane visibility (message vs call vs in-person) is owned by the original
+ * inline script earlier in the file; this script just renders into the
+ * data-rebuild containers and wires the three Submit buttons.
+ */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  let advisor = null;
+  let callSlots = [];
+  let inPersonSlots = [];
+  let selectedCallSlotId = null;
+  let recentRequests = [];
+
+  // ─── DOM helpers ───────────────────────────────────────────────────────
+  function setRebuild(key, html) {
+    const el = document.querySelector(`[data-rebuild="${key}"]`);
+    if (el) el.innerHTML = html;
+    return el;
+  }
+  function showLoading(key) {
+    setRebuild(key, '<div class="rebuild-loading"><span class="en-inline">Loading…</span><span class="zh-inline">加载中…</span></div>');
+  }
+  function showError(key, msg) {
+    setRebuild(key, `<div class="rebuild-error">${msg}</div>`);
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  }
+  function setBind(key, value) {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => {
+      el.textContent = value;
+    });
+  }
+  function isZh() { return document.body.classList.contains('lang-zh'); }
+
+  // Toast
+  const toastEl = document.createElement('div');
+  toastEl.className = 'sq-toast';
+  document.body.appendChild(toastEl);
+  let toastTimer = null;
+  function toast(msg, opts) {
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('err', !!(opts && opts.error));
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2800);
+  }
+
+  // ─── Date / time formatting ───────────────────────────────────────────
+  function fmtDay(d, zh) {
+    return d.toLocaleDateString(zh ? 'zh-CN' : 'en-US', {
+      weekday: 'short', month: 'short', day: 'numeric',
+    });
+  }
+  function fmtTime(d) {
+    return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+  }
+  function fmtTzShort() {
+    try {
+      const dtf = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' });
+      const part = dtf.formatToParts(new Date()).find((p) => p.type === 'timeZoneName');
+      return part?.value || 'local';
+    } catch { return 'local'; }
+  }
+  function fmtAbsolute(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  }
+  function fmtRelative(iso) {
+    const ms = Date.now() - new Date(iso).getTime();
+    const min = Math.round(ms / 60_000);
+    const zh = isZh();
+    if (min < 60) return zh ? `${min} 分钟前` : `${min}m ago`;
+    const hr = Math.round(min / 60);
+    if (hr < 24) return zh ? `${hr} 小时前` : `${hr}h ago`;
+    const day = Math.round(hr / 24);
+    if (day < 7) return zh ? `${day} 天前` : `${day}d ago`;
+    const wk = Math.round(day / 7);
+    return zh ? `${wk} 周前` : `${wk}w ago`;
+  }
+
+  // ─── Advisor card ──────────────────────────────────────────────────────
+  function renderAdvisorCard() {
+    if (!advisor) return;
+    setBind('advisor.initials', advisor.initials || '?');
+    setBind('advisor.fullName', advisor.fullName || '—');
+    setBind('advisor.role', advisor.role || '—');
+    setBind('advisor.location', advisor.location || advisor.timezone || '—');
+
+    // Advisor's local clock — recompute on a 30s tick so it stays current.
+    function tick() {
+      if (!advisor.timezone) return;
+      try {
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-US', {
+          timeZone: advisor.timezone,
+          hour: '2-digit', minute: '2-digit', hour12: false,
+        });
+        const isLate = (() => {
+          try {
+            const hourStr = new Date().toLocaleString('en-US', {
+              timeZone: advisor.timezone, hour: 'numeric', hour12: false,
+            });
+            const h = parseInt(hourStr, 10);
+            return h < 7 || h >= 18;
+          } catch { return false; }
+        })();
+        setBind('advisor.localTime', `${time} ${isLate ? '· after hours' : 'local'}`);
+      } catch {
+        setBind('advisor.localTime', 'local');
+      }
+    }
+    tick();
+    setInterval(tick, 30_000);
+  }
+
+  // ─── Call slot grid ────────────────────────────────────────────────────
+  function groupSlotsByDay(slots) {
+    const map = new Map();
+    for (const s of slots) {
+      const d = new Date(s.startsAt);
+      const key = d.toISOString().slice(0, 10); // YYYY-MM-DD in UTC; same row globally
+      if (!map.has(key)) map.set(key, { date: d, slots: [] });
+      map.get(key).slots.push(s);
+    }
+    return Array.from(map.values()).sort((a, b) => a.date - b.date);
+  }
+
+  function renderCallSlots() {
+    if (callSlots.length === 0) {
+      setRebuild('call.slots', `<div class="empty-state">
+        <span class="en-inline">No call slots available right now. KT will publish more soon — try a message instead.</span>
+        <span class="zh-inline">暂无可预约电话时段，KT 将很快补充。可改为发送消息。</span>
+      </div>`);
+      return;
+    }
+    const tz = fmtTzShort();
+    const grouped = groupSlotsByDay(callSlots);
+    const html = grouped.map((g) => {
+      const slotChips = g.slots.map((s) => {
+        const t = fmtTime(new Date(s.startsAt));
+        const taken = s.isTaken ? 'taken' : '';
+        return `<div class="slot ${taken}" data-slot-id="${s.id}">${escapeHtml(t)}<span class="tz">${escapeHtml(tz)}</span></div>`;
+      }).join('');
+      return `
+        <div class="slots-day">
+          <div class="slots-date">
+            <span class="day">${escapeHtml(fmtDay(g.date, isZh()))}</span>
+          </div>
+          <div class="slots-list">${slotChips}</div>
+        </div>
+      `;
+    }).join('');
+    setRebuild('call.slots', html);
+
+    // Wire slot click
+    document.querySelectorAll('[data-slot-id]').forEach((el) => {
+      el.addEventListener('click', () => {
+        if (el.classList.contains('taken')) return;
+        document.querySelectorAll('[data-slot-id]').forEach((x) => x.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedCallSlotId = el.getAttribute('data-slot-id');
+        updateCallMeta();
+      });
+    });
+  }
+
+  function updateCallMeta() {
+    const meta = document.querySelector('[data-bind="call.selectedMeta"]');
+    const btn = document.getElementById('btn-confirm-call');
+    if (!selectedCallSlotId) {
+      if (meta) meta.innerHTML = `
+        <span class="en-inline">Pick a slot above to enable booking</span>
+        <span class="zh-inline">请先在上方选择一个时间段</span>`;
+      if (btn) btn.disabled = true;
+      return;
+    }
+    const slot = callSlots.find((s) => s.id === selectedCallSlotId);
+    if (!slot) return;
+    const d = new Date(slot.startsAt);
+    const dur = document.getElementById('call-duration')?.value || slot.durationMinutes;
+    const tool = document.getElementById('call-video')?.selectedOptions[0]?.textContent || 'Zoom';
+    if (meta) meta.innerHTML = `
+      <span class="en-inline"><strong>${escapeHtml(fmtDay(d, false))} · ${escapeHtml(fmtTime(d))} ${escapeHtml(fmtTzShort())}</strong> · ${dur} min · ${escapeHtml(tool.split(' · ')[0])}</span>
+      <span class="zh-inline"><strong>${escapeHtml(fmtDay(d, true))} · ${escapeHtml(fmtTime(d))} ${escapeHtml(fmtTzShort())}</strong> · ${dur} 分钟 · ${escapeHtml(tool.split(' · ')[0])}</span>
+    `;
+    if (btn) btn.disabled = false;
+  }
+
+  // ─── In-person locations ───────────────────────────────────────────────
+  function renderInPersonLocations() {
+    const el = document.getElementById('ip-location');
+    if (!el) return;
+    // Build distinct locations from in-person slots, then fall back to a
+    // default if no slots came back.
+    const distinct = Array.from(new Set(inPersonSlots.map((s) => s.location)));
+    if (distinct.length === 0) {
+      distinct.push('San Diego · INTELLIGENCE INVESTMENT office');
+    }
+    distinct.push('Other · specify in notes');
+    el.innerHTML = distinct.map((loc, i) =>
+      `<option value="${escapeHtml(loc)}" ${i === 0 ? 'selected' : ''}>${escapeHtml(loc)}</option>`
+    ).join('');
+  }
+
+  // ─── Recent requests ───────────────────────────────────────────────────
+  function statusLabel(status, zh) {
+    const labels = {
+      pending:      [ 'Pending',      '待处理' ],
+      acknowledged: [ 'Acknowledged', '已查看' ],
+      confirmed:    [ 'Confirmed',    '已确认' ],
+      declined:     [ 'Declined',     '已婉拒' ],
+      completed:    [ 'Completed',    '已完成' ],
+      cancelled:    [ 'Cancelled',    '已取消' ],
+    };
+    return labels[status]?.[zh ? 1 : 0] || status;
+  }
+  function kindLabel(t, zh) {
+    return ({
+      message:   zh ? '消息'   : 'MESSAGE',
+      call:      zh ? '电话'   : 'CALL',
+      in_person: zh ? '当面'   : 'IN-PERSON',
+    })[t] || t;
+  }
+
+  function renderRecentRequests() {
+    if (recentRequests.length === 0) {
+      setRebuild('recent.requests', `<div class="empty-state">
+        <span class="en-inline">No requests yet. Submit your first one above.</span>
+        <span class="zh-inline">暂无请求记录。在上方提交您的第一个请求。</span>
+      </div>`);
+      return;
+    }
+    const zh = isZh();
+    const rows = recentRequests.slice(0, 6).map((r) => {
+      const subject = (r.reason || '').slice(0, 70).replace(/\s+/g, ' ').trim() + ((r.reason || '').length > 70 ? '…' : '');
+      const meta = [];
+      if (r.location) meta.push(r.location);
+      if (r.preferredStartsAt) meta.push(fmtAbsolute(r.preferredStartsAt));
+      if (r.durationMinutes) meta.push(`${r.durationMinutes >= 60 ? Math.round(r.durationMinutes / 60) + 'h' : r.durationMinutes + 'm'}`);
+      const submitters = (r.submitters && r.submitters.length > 0) ? r.submitters.join(', ') : null;
+      const previewParts = [];
+      if (submitters) previewParts.push(zh ? `提交人：${submitters}` : `Submitted by: ${submitters}`);
+      previewParts.push(...meta);
+      return `
+        <a href="#" class="thread" data-request-id="${escapeHtml(r.id)}">
+          <div class="thread-info">
+            <div class="thread-subject">
+              <span class="req-kind">${escapeHtml(kindLabel(r.requestType, zh))}</span>
+              <span>${escapeHtml(subject)}</span>
+              <span class="req-status ${escapeHtml(r.status)}">${escapeHtml(statusLabel(r.status, zh))}</span>
+            </div>
+            <div class="thread-preview">${escapeHtml(previewParts.join(' · ') || '—')}</div>
+          </div>
+          <div class="thread-time">${escapeHtml(fmtRelative(r.createdAt))}</div>
+        </a>
+      `;
+    }).join('');
+    setRebuild('recent.requests', rows);
+  }
+
+  // ─── Loaders ───────────────────────────────────────────────────────────
+  async function loadAdvisor() {
+    try {
+      const res = await fetch(API_BASE + '/communication/contact/advisor', { credentials: 'include' });
+      if (!res.ok) return;
+      const data = await res.json();
+      advisor = data.advisor;
+      renderAdvisorCard();
+    } catch (err) {
+      console.warn('[contact] advisor load failed:', err);
+    }
+  }
+
+  async function loadCallSlots() {
+    showLoading('call.slots');
+    try {
+      const res = await fetch(API_BASE + '/communication/contact/slots?type=call', { credentials: 'include' });
+      if (!res.ok) {
+        showError('call.slots', `<span class="en-inline">Failed to load slots (${res.status})</span><span class="zh-inline">加载时间段失败 (${res.status})</span>`);
+        return;
+      }
+      const data = await res.json();
+      callSlots = data.slots || [];
+      renderCallSlots();
+    } catch (err) {
+      showError('call.slots', `<span class="en-inline">Network error</span><span class="zh-inline">网络错误</span>`);
+    }
+  }
+
+  async function loadInPersonSlots() {
+    try {
+      const res = await fetch(API_BASE + '/communication/contact/slots?type=in_person', { credentials: 'include' });
+      if (!res.ok) return;
+      const data = await res.json();
+      inPersonSlots = data.slots || [];
+      renderInPersonLocations();
+    } catch { /* silent — falls back to default option */ }
+  }
+
+  async function loadRecentRequests() {
+    showLoading('recent.requests');
+    try {
+      const res = await fetch(API_BASE + '/communication/contact/requests?limit=6', { credentials: 'include' });
+      if (!res.ok) {
+        showError('recent.requests', `<span class="en-inline">Failed to load requests (${res.status})</span><span class="zh-inline">加载请求失败 (${res.status})</span>`);
+        return;
+      }
+      const data = await res.json();
+      recentRequests = data.requests || [];
+      renderRecentRequests();
+    } catch {
+      showError('recent.requests', `<span class="en-inline">Network error</span><span class="zh-inline">网络错误</span>`);
+    }
+  }
+
+  // ─── Submit handlers ───────────────────────────────────────────────────
+  async function postRequest(payload, buttonEl) {
+    if (buttonEl) buttonEl.disabled = true;
+    try {
+      const res = await fetch(API_BASE + '/communication/contact/requests', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        let detail = res.status + '';
+        try {
+          const j = await res.json();
+          detail = j.error || j.message || detail;
+        } catch { /* keep status */ }
+        toast((isZh() ? '提交失败：' : 'Submit failed: ') + detail, { error: true });
+        if (buttonEl) buttonEl.disabled = false;
+        return null;
+      }
+      const data = await res.json();
+      toast(isZh() ? '请求已提交' : 'Request submitted');
+      await loadRecentRequests();
+      if (buttonEl) buttonEl.disabled = false;
+      return data;
+    } catch (err) {
+      toast((isZh() ? '网络错误：' : 'Network error: ') + (err.message || err), { error: true });
+      if (buttonEl) buttonEl.disabled = false;
+      return null;
+    }
+  }
+
+  function wireMessageSubmit() {
+    const btn = document.getElementById('btn-send-message');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      const subject = (document.getElementById('msg-subject')?.value || '').trim();
+      const body = (document.getElementById('msg-body')?.value || '').trim();
+      const urgency = document.querySelector('input[name="urgency"]:checked')?.value || 'routine';
+      if (!subject && !body) {
+        toast(isZh() ? '请填写主题或内容' : 'Please fill in subject or message');
+        return;
+      }
+      const reason = subject ? (body ? subject + '\n\n' + body : subject) : body;
+      const result = await postRequest({
+        requestType: 'message',
+        reason,
+        urgency,
+      }, btn);
+      if (result) {
+        document.getElementById('msg-subject').value = '';
+        document.getElementById('msg-body').value = '';
+      }
+    });
+  }
+
+  function wireCallSubmit() {
+    const btn = document.getElementById('btn-confirm-call');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      if (!selectedCallSlotId) return;
+      const duration = parseInt(document.getElementById('call-duration')?.value || '60', 10);
+      const agenda = (document.getElementById('call-agenda')?.value || '').trim();
+      const videoTool = document.getElementById('call-video')?.value || 'zoom';
+      if (!agenda) {
+        toast(isZh() ? '请填写议题' : 'Please add an agenda');
+        return;
+      }
+      const result = await postRequest({
+        requestType: 'call',
+        linkedSlotId: selectedCallSlotId,
+        durationMinutes: duration,
+        reason: agenda,
+        metadata: { videoTool },
+      }, btn);
+      if (result) {
+        document.getElementById('call-agenda').value = '';
+        // Refresh slots so the just-booked one shows as taken.
+        await loadCallSlots();
+        selectedCallSlotId = null;
+        updateCallMeta();
+      }
+    });
+
+    // Live-update meta strip when duration / video tool changes.
+    document.getElementById('call-duration')?.addEventListener('change', updateCallMeta);
+    document.getElementById('call-video')?.addEventListener('change', updateCallMeta);
+  }
+
+  function wireInPersonSubmit() {
+    const btn = document.getElementById('btn-submit-inperson');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      const location = document.getElementById('ip-location')?.value || '';
+      const dateFrom = document.getElementById('ip-date-from')?.value;
+      const dateTo = document.getElementById('ip-date-to')?.value;
+      const duration = parseInt(document.getElementById('ip-duration')?.value || '360', 10);
+      const reason = (document.getElementById('ip-reason')?.value || '').trim();
+      if (!dateFrom) {
+        toast(isZh() ? '请选择期望开始日期' : 'Please select a preferred start date');
+        return;
+      }
+      if (!reason) {
+        toast(isZh() ? '请填写事由 / 议题' : 'Please add a reason or agenda');
+        return;
+      }
+      // Convert YYYY-MM-DD to ISO with offset, anchored to local midnight.
+      const startIso = new Date(dateFrom + 'T00:00:00').toISOString();
+      const endIso = dateTo ? new Date(dateTo + 'T23:59:59').toISOString() : null;
+      const result = await postRequest({
+        requestType: 'in_person',
+        location,
+        preferredStartsAt: startIso,
+        preferredEndsAt: endIso,
+        durationMinutes: duration,
+        reason,
+      }, btn);
+      if (result) {
+        document.getElementById('ip-reason').value = '';
+        document.getElementById('ip-date-from').value = '';
+        document.getElementById('ip-date-to').value = '';
+      }
+    });
+  }
+
+  // Re-render dates / status labels when language switches.
+  document.querySelectorAll('.lang-btn').forEach((b) => b.addEventListener('click', () => {
+    renderCallSlots();
+    renderRecentRequests();
+    updateCallMeta();
+    // Re-select the slot DOM if one was selected
+    if (selectedCallSlotId) {
+      const el = document.querySelector(`[data-slot-id="${selectedCallSlotId}"]`);
+      el?.classList.add('selected');
+    }
+  }));
+
+  // Boot
+  wireMessageSubmit();
+  wireCallSubmit();
+  wireInPersonSubmit();
+  loadAdvisor();
+  loadCallSlots();
+  loadInPersonSlots();
+  loadRecentRequests();
 })();
 </script>
 

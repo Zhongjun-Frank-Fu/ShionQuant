@@ -30,10 +30,12 @@
  *   compared to the things gated by mfaAuthMiddleware (KYC, custom requests).
  */
 
-import { and, asc, count, desc, eq, gte, lte, or, sql, type SQL } from "drizzle-orm"
+import { and, asc, count, desc, eq, gte, inArray, lte, or, sql, type SQL } from "drizzle-orm"
 import { Hono } from "hono"
 
 import {
+  advisorContactRequests,
+  advisorTimeSlots,
   advisors,
   db,
   events,
@@ -56,8 +58,11 @@ import { extractIp } from "../../lib/ip.js"
 import { authMiddleware } from "../../middleware/auth.js"
 import {
   availabilityQuerySchema,
+  contactRequestCreateSchema,
+  contactRequestsListQuerySchema,
   meetingCreateSchema,
   messageCreateSchema,
+  slotsQuerySchema,
   threadCreateSchema,
   threadDetailQuerySchema,
   threadsListQuerySchema,
@@ -537,6 +542,330 @@ app.delete("/meetings/:id", async (c) => {
 
   return c.json({ ok: true })
 })
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONTACT ADVISOR — inbound queue + bookable slots
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Routes:
+//   GET    /communication/contact/advisor         → primary advisor (or active fallback)
+//   GET    /communication/contact/slots           → available slots (type / from / to)
+//   GET    /communication/contact/requests        → list this client's requests
+//   GET    /communication/contact/requests/:id    → single request
+//   POST   /communication/contact/requests        → submit a new request
+//   POST   /communication/contact/requests/:id/cancel → client withdraws
+
+/**
+ * GET /communication/contact/advisor — resolves the right advisor for the
+ * Contact-Advisor page card. Tries client.primaryAdvisorId; falls back to
+ * any active advisor so the page never renders empty in a partially-seeded
+ * environment.
+ */
+app.get("/contact/advisor", async (c) => {
+  const client = requireClient(c)
+  let advisor = null
+  if (client.primaryAdvisorId) {
+    advisor = await db.query.advisors.findFirst({
+      where: and(eq(advisors.id, client.primaryAdvisorId), eq(advisors.isActive, true)),
+    })
+  }
+  if (!advisor) {
+    advisor = await db.query.advisors.findFirst({
+      where: eq(advisors.isActive, true),
+    })
+  }
+  if (!advisor) throw notFound("No active advisor configured")
+
+  // Quick aggregate stats for the page card: typical reply window from
+  // messages over the last 90 days. Cheap because we only count, no joins.
+  // Skipped for now — page renders the static copy from advisor.bio / role.
+
+  return c.json({
+    ok: true,
+    advisor: {
+      id: advisor.id,
+      fullName: advisor.fullName,
+      initials: advisor.initials,
+      role: advisor.role,
+      email: advisor.email,
+      timezone: advisor.timezone,
+      location: advisor.location,
+      isActive: advisor.isActive,
+    },
+  })
+})
+
+/**
+ * GET /communication/contact/slots — list available advisor time slots.
+ * Filters: type (call|in_person), from / to ISO datetimes, optional advisorId.
+ * Excludes slots already consumed (linked by a non-cancelled contact request).
+ */
+app.get("/contact/slots", async (c) => {
+  const client = requireClient(c)
+  const query = slotsQuerySchema.parse(
+    Object.fromEntries(new URL(c.req.url).searchParams),
+  )
+
+  const advisorId = query.advisorId ?? client.primaryAdvisorId
+  const from = query.from ? new Date(query.from) : new Date()
+  const to = query.to
+    ? new Date(query.to)
+    : new Date(Date.now() + 30 * 24 * 60 * 60_000)
+
+  const conditions: SQL[] = [
+    eq(advisorTimeSlots.isActive, true),
+    gte(advisorTimeSlots.startsAt, from),
+    lte(advisorTimeSlots.startsAt, to),
+  ]
+  if (advisorId) conditions.push(eq(advisorTimeSlots.advisorId, advisorId))
+  if (query.type) conditions.push(eq(advisorTimeSlots.slotType, query.type))
+
+  const slotRows = await db
+    .select()
+    .from(advisorTimeSlots)
+    .where(and(...conditions))
+    .orderBy(asc(advisorTimeSlots.startsAt))
+
+  // Collect IDs that have already been consumed (linked + not cancelled).
+  // Status filter excludes the two terminal "didn't happen" states so the
+  // slot frees up after a decline / cancellation.
+  const slotIds = slotRows.map((s) => s.id)
+  const consumed = new Set<string>()
+  if (slotIds.length > 0) {
+    const linked = await db
+      .select({
+        slotId: advisorContactRequests.linkedSlotId,
+      })
+      .from(advisorContactRequests)
+      .where(
+        and(
+          inArray(advisorContactRequests.linkedSlotId, slotIds),
+          sql`${advisorContactRequests.status} not in ('cancelled', 'declined')`,
+        ),
+      )
+    for (const row of linked) {
+      if (row.slotId) consumed.add(row.slotId)
+    }
+  }
+
+  return c.json({
+    ok: true,
+    from: from.toISOString(),
+    to: to.toISOString(),
+    slots: slotRows.map((s) => ({
+      id: s.id,
+      advisorId: s.advisorId,
+      slotType: s.slotType,
+      location: s.location,
+      startsAt: s.startsAt,
+      endsAt: s.endsAt,
+      durationMinutes: s.durationMinutes,
+      notes: s.notes,
+      isTaken: consumed.has(s.id),
+    })),
+  })
+})
+
+/**
+ * GET /communication/contact/requests — list this client's requests, newest
+ * first. Optional filters: status, type. Limit/offset pagination.
+ */
+app.get("/contact/requests", async (c) => {
+  const client = requireClient(c)
+  const query = contactRequestsListQuerySchema.parse(
+    Object.fromEntries(new URL(c.req.url).searchParams),
+  )
+
+  const conditions: SQL[] = [eq(advisorContactRequests.clientId, client.id)]
+  if (query.status) conditions.push(eq(advisorContactRequests.status, query.status))
+  if (query.type) conditions.push(eq(advisorContactRequests.requestType, query.type))
+
+  const rows = await db
+    .select()
+    .from(advisorContactRequests)
+    .where(and(...conditions))
+    .orderBy(desc(advisorContactRequests.createdAt))
+    .limit(query.limit)
+    .offset(query.offset)
+
+  return c.json({
+    ok: true,
+    requests: rows.map(shapeContactRequest),
+  })
+})
+
+app.get("/contact/requests/:id", async (c) => {
+  const client = requireClient(c)
+  const id = c.req.param("id")
+  const row = await db.query.advisorContactRequests.findFirst({
+    where: and(
+      eq(advisorContactRequests.id, id),
+      eq(advisorContactRequests.clientId, client.id),
+    ),
+  })
+  if (!row) throw notFound("Request not found")
+  return c.json({ ok: true, request: shapeContactRequest(row) })
+})
+
+/**
+ * POST /communication/contact/requests — submit a new contact request.
+ * Type-specific validation already runs in the zod schema (.refine() rules).
+ *
+ * If `linkedSlotId` is provided, we verify:
+ *   - it exists + is active
+ *   - it's not already consumed (race-safe: re-check in tx if needed)
+ *   - its slotType matches requestType
+ *   - location defaults to the slot's location when null
+ */
+app.post("/contact/requests", async (c) => {
+  const client = requireClient(c)
+  const user = c.get("user")
+  const ip = extractIp(c)
+  const userAgent = c.req.header("user-agent") ?? null
+
+  const body = contactRequestCreateSchema.parse(await c.req.json())
+
+  let linkedSlot = null
+  if (body.linkedSlotId) {
+    linkedSlot = await db.query.advisorTimeSlots.findFirst({
+      where: and(
+        eq(advisorTimeSlots.id, body.linkedSlotId),
+        eq(advisorTimeSlots.isActive, true),
+      ),
+    })
+    if (!linkedSlot) {
+      throw badRequest("linkedSlotId not found or inactive")
+    }
+    if (linkedSlot.slotType !== body.requestType) {
+      throw badRequest(
+        `Slot is type=${linkedSlot.slotType} but request is type=${body.requestType}`,
+      )
+    }
+    // Double-booking guard. Single existence check; the unique-ish guarantee
+    // is good enough for low-volume advisor scheduling.
+    const taken = await db
+      .select({ id: advisorContactRequests.id })
+      .from(advisorContactRequests)
+      .where(
+        and(
+          eq(advisorContactRequests.linkedSlotId, body.linkedSlotId),
+          sql`${advisorContactRequests.status} not in ('cancelled', 'declined')`,
+        ),
+      )
+      .limit(1)
+    if (taken.length > 0) {
+      throw conflict("This slot is no longer available")
+    }
+  }
+
+  const [inserted] = await db
+    .insert(advisorContactRequests)
+    .values({
+      clientId: client.id,
+      submittedByUserId: user.id,
+      submitters: body.submitters ?? null,
+      requestType: body.requestType,
+      location: body.location ?? linkedSlot?.location ?? null,
+      preferredStartsAt: body.preferredStartsAt
+        ? new Date(body.preferredStartsAt)
+        : linkedSlot?.startsAt ?? null,
+      preferredEndsAt: body.preferredEndsAt
+        ? new Date(body.preferredEndsAt)
+        : linkedSlot?.endsAt ?? null,
+      durationMinutes:
+        body.durationMinutes ?? linkedSlot?.durationMinutes ?? null,
+      reason: body.reason,
+      urgency: body.urgency ?? null,
+      linkedSlotId: body.linkedSlotId ?? null,
+      status: "pending",
+      metadata: body.metadata ?? null,
+    })
+    .returning()
+
+  await audit({
+    action: "communication.contact_request.create",
+    userId: user.id,
+    clientId: client.id,
+    ip,
+    userAgent,
+    resourceType: "advisor_contact_request",
+    resourceId: inserted!.id,
+    metadata: {
+      requestType: body.requestType,
+      hasSlot: body.linkedSlotId != null,
+    },
+  })
+
+  return c.json({ ok: true, request: shapeContactRequest(inserted!) }, 201)
+})
+
+/**
+ * POST /communication/contact/requests/:id/cancel — client withdraws a
+ * pending or acknowledged request. Once confirmed / declined / completed the
+ * advisor owns the row; cancellation goes through them.
+ */
+app.post("/contact/requests/:id/cancel", async (c) => {
+  const client = requireClient(c)
+  const user = c.get("user")
+  const ip = extractIp(c)
+  const userAgent = c.req.header("user-agent") ?? null
+  const id = c.req.param("id")
+
+  const row = await db.query.advisorContactRequests.findFirst({
+    where: and(
+      eq(advisorContactRequests.id, id),
+      eq(advisorContactRequests.clientId, client.id),
+    ),
+  })
+  if (!row) throw notFound("Request not found")
+  if (!["pending", "acknowledged"].includes(row.status)) {
+    throw conflict(
+      `Cannot cancel a request in status="${row.status}". Contact your advisor.`,
+    )
+  }
+
+  await db
+    .update(advisorContactRequests)
+    .set({ status: "cancelled", updatedAt: new Date() })
+    .where(eq(advisorContactRequests.id, id))
+
+  await audit({
+    action: "communication.contact_request.cancel",
+    userId: user.id,
+    clientId: client.id,
+    ip,
+    userAgent,
+    resourceType: "advisor_contact_request",
+    resourceId: id,
+  })
+
+  return c.json({ ok: true })
+})
+
+function shapeContactRequest(r: typeof advisorContactRequests.$inferSelect) {
+  return {
+    id: r.id,
+    clientId: r.clientId,
+    submittedByUserId: r.submittedByUserId,
+    submitters: r.submitters,
+    requestType: r.requestType,
+    location: r.location,
+    preferredStartsAt: r.preferredStartsAt,
+    preferredEndsAt: r.preferredEndsAt,
+    durationMinutes: r.durationMinutes,
+    reason: r.reason,
+    urgency: r.urgency,
+    linkedSlotId: r.linkedSlotId,
+    status: r.status,
+    resolvedByAdvisorId: r.resolvedByAdvisorId,
+    resolvedAt: r.resolvedAt,
+    resolutionNotes: r.resolutionNotes,
+    resultingBookingId: r.resultingBookingId,
+    metadata: r.metadata,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+  }
+}
 
 export default app
 

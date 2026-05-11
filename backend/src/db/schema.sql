@@ -865,6 +865,72 @@ create index meeting_bookings_client_time_idx on meeting_bookings (client_id, sc
 
 
 -- ╔═══════════════════════════════════════════════════════════════════════════╗
+-- ║  ADVISOR ADMIN — CONTACT REQUESTS & TIME SLOTS                             ║
+-- ╚═══════════════════════════════════════════════════════════════════════════╝
+--
+-- Distinct from message_threads / meeting_bookings:
+--   - those are the *settled* state (active thread, confirmed booking).
+--   - the tables below are the *inbound queue* — what the client filled out
+--     on the Contact-Advisor page, before the advisor triages it.
+
+create table advisor_time_slots (
+  id                uuid primary key default gen_random_uuid(),
+  advisor_id        uuid not null references advisors(id) on delete cascade,
+  slot_type         text not null,            -- 'call' | 'in_person'
+  location          text not null,            -- free-form label
+  starts_at         timestamptz not null,
+  ends_at           timestamptz not null,
+  duration_minutes  integer not null,
+  capacity          integer not null default 1,
+  is_active         boolean not null default true,
+  notes             text,
+  created_at        timestamptz not null default now(),
+
+  check (slot_type in ('call', 'in_person')),
+  check (ends_at > starts_at)
+);
+create index advisor_slots_advisor_starts_idx
+  on advisor_time_slots (advisor_id, starts_at)
+  where is_active = true;
+create index advisor_slots_type_starts_idx
+  on advisor_time_slots (slot_type, starts_at)
+  where is_active = true;
+
+
+create table advisor_contact_requests (
+  id                       uuid primary key default gen_random_uuid(),
+  client_id                uuid not null references clients(id) on delete cascade,
+  submitted_by_user_id     uuid references users(id) on delete set null,
+  submitters               jsonb,             -- ["Mr. Chen", "Mrs. Chen"]
+  request_type             text not null,     -- 'message' | 'call' | 'in_person'
+  location                 text,
+  preferred_starts_at      timestamptz,
+  preferred_ends_at        timestamptz,
+  duration_minutes         integer,
+  reason                   text not null,
+  urgency                  text,              -- 'routine' | 'soon' | 'urgent'
+  linked_slot_id           uuid references advisor_time_slots(id) on delete set null,
+  status                   text not null default 'pending',
+  resolved_by_advisor_id   uuid references advisors(id) on delete set null,
+  resolved_at              timestamptz,
+  resolution_notes         text,
+  resulting_booking_id     uuid references meeting_bookings(id) on delete set null,
+  metadata                 jsonb,
+  created_at               timestamptz not null default now(),
+  updated_at               timestamptz not null default now(),
+
+  check (request_type in ('message', 'call', 'in_person')),
+  check (status in ('pending', 'acknowledged', 'confirmed', 'declined', 'completed', 'cancelled')),
+  check (urgency is null or urgency in ('routine', 'soon', 'urgent'))
+);
+create index contact_requests_client_idx
+  on advisor_contact_requests (client_id, created_at desc);
+create index contact_requests_status_idx
+  on advisor_contact_requests (status, created_at desc)
+  where status in ('pending', 'acknowledged');
+
+
+-- ╔═══════════════════════════════════════════════════════════════════════════╗
 -- ║  AUDIT LOG (immutable)                                                     ║
 -- ╚═══════════════════════════════════════════════════════════════════════════╝
 --

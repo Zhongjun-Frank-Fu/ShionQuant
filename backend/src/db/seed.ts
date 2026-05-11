@@ -36,6 +36,8 @@ import { randomBytes } from "node:crypto"
 import {
   accounts,
   addresses,
+  advisorContactRequests,
+  advisorTimeSlots,
   advisors,
   authFactors,
   beneficiaries,
@@ -138,6 +140,10 @@ async function main() {
   // ON DELETE SET NULL on report.author_advisor_id, so we can't even filter
   // by author. In a dev-only seed it's safe to nuke the entire firm-wide set.
   await db.delete(reports).where(isNull(reports.clientId))
+  // Advisor → time slots is ON DELETE CASCADE, so deleting an advisor
+  // implicitly clears its slots. But contact-request rows reference both
+  // (slot via SET NULL, advisor via SET NULL on resolved_by) so they survive
+  // the advisor deletion safely.
   await db.delete(advisors).where(inArray(advisors.email, [ADVISOR_EMAIL]))
 
   // ─── 2. Advisor (KT) ──────────────────────────────────────────────────────
@@ -2448,6 +2454,165 @@ async function main() {
   })
   console.log(
     `  ✓ confirmed meeting booked for ${meetingAt.toISOString()} (60min, video)`,
+  )
+
+  // ─── 23b. Contact Advisor — slots + sample requests ───────────────────────
+  // Bookable slots for the next 2 weeks: call slots Mon-Thu @ 22:00 HKT
+  // (15:00 PT) and 23:00 HKT (16:00 PT), plus a handful of in-person windows
+  // (full-day office visits in San Diego on specific weeks).
+
+  const now = new Date()
+  const slotInserts: typeof advisorTimeSlots.$inferInsert[] = []
+
+  // Build call slots for the next 14 days, skip weekends.
+  for (let day = 1; day <= 14; day += 1) {
+    const d = new Date(now)
+    d.setUTCDate(d.getUTCDate() + day)
+    const dow = d.getUTCDay()
+    if (dow === 0 || dow === 6) continue // skip Sat / Sun
+
+    // 22:00 HKT = 14:00 UTC; 23:00 HKT = 15:00 UTC
+    for (const utcHour of [14, 15]) {
+      const starts = new Date(d)
+      starts.setUTCHours(utcHour, 0, 0, 0)
+      const ends = new Date(starts.getTime() + 60 * 60_000)
+      // Block out a few slots to make the grid look realistic.
+      // Day 2 @ 22:00 already booked (visible "taken" pill); day 4 @ all
+      // slots taken to mirror an "FOMC Day" busy state.
+      const taken = (day === 2 && utcHour === 14) || day === 4
+
+      slotInserts.push({
+        advisorId: advisor!.id,
+        slotType: "call",
+        location: "Zoom · auto-generated link",
+        startsAt: starts,
+        endsAt: ends,
+        durationMinutes: 60,
+        capacity: 1,
+        isActive: true,
+        notes: taken ? "Already booked" : null,
+      })
+    }
+  }
+
+  // In-person windows — 3 full-day slots in San Diego (next 6 weeks) + 2 in
+  // Hong Kong during KT's quarterly visit window.
+  for (let week = 2; week <= 6; week += 2) {
+    const monday = new Date(now)
+    monday.setUTCDate(monday.getUTCDate() + week * 7 - (monday.getUTCDay() - 1))
+    // Tue + Thu of each cohort week as 6-hour in-person windows, 17:00–23:00 UTC
+    // (= 09:00–15:00 PT in San Diego).
+    for (const dayOffset of [1, 3]) {
+      const starts = new Date(monday)
+      starts.setUTCDate(starts.getUTCDate() + dayOffset)
+      starts.setUTCHours(17, 0, 0, 0)
+      const ends = new Date(starts.getTime() + 6 * 60 * 60_000)
+      slotInserts.push({
+        advisorId: advisor!.id,
+        slotType: "in_person",
+        location: "San Diego · INTELLIGENCE INVESTMENT office",
+        startsAt: starts,
+        endsAt: ends,
+        durationMinutes: 360,
+        capacity: 1,
+        isActive: true,
+        notes: "Lunch on-site · ID required at lobby",
+      })
+    }
+  }
+  // Hong Kong quarterly visit window — 2 sample slots
+  const hkVisitStart = new Date(now)
+  hkVisitStart.setUTCDate(hkVisitStart.getUTCDate() + 45) // ~6 weeks out
+  hkVisitStart.setUTCHours(2, 0, 0, 0)
+  for (const dayOffset of [0, 2]) {
+    const starts = new Date(hkVisitStart)
+    starts.setUTCDate(starts.getUTCDate() + dayOffset)
+    const ends = new Date(starts.getTime() + 3 * 60 * 60_000)
+    slotInserts.push({
+      advisorId: advisor!.id,
+      slotType: "in_person",
+      location: "Hong Kong · KT quarterly visit",
+      startsAt: starts,
+      endsAt: ends,
+      durationMinutes: 180,
+      capacity: 1,
+      isActive: true,
+      notes: "Half-day window during KT's HK trip",
+    })
+  }
+
+  const insertedSlots = await db
+    .insert(advisorTimeSlots)
+    .values(slotInserts)
+    .returning({ id: advisorTimeSlots.id, startsAt: advisorTimeSlots.startsAt, slotType: advisorTimeSlots.slotType })
+
+  console.log(
+    `  ✓ ${insertedSlots.length} advisor time slots (${
+      insertedSlots.filter((s) => s.slotType === "call").length
+    } call + ${insertedSlots.filter((s) => s.slotType === "in_person").length} in-person)`,
+  )
+
+  // Sample contact requests — mix of statuses to exercise the "Recent
+  // requests" UI on the Contact Advisor page. Pick a real slot ID for one
+  // confirmed call so the page can show "linked slot" wiring.
+  const firstCallSlot = insertedSlots.find((s) => s.slotType === "call")
+  const sampleRequests: typeof advisorContactRequests.$inferInsert[] = [
+    {
+      clientId: client!.id,
+      submittedByUserId: user!.id,
+      submitters: ["Mr. Chen"],
+      requestType: "message",
+      reason:
+        "Pre-FOMC NVDA gamma exposure check — wondering if we should trim or " +
+        "roll the 530P hedge given the implied move has come in to 8.4%.",
+      urgency: "soon",
+      status: "completed",
+      resolvedByAdvisorId: advisor!.id,
+      resolvedAt: new Date(now.getTime() - 2 * 24 * 60 * 60_000),
+      resolutionNotes: "Reply sent via secure thread; trimmed 30% of hedge.",
+      createdAt: new Date(now.getTime() - 3 * 24 * 60 * 60_000),
+      updatedAt: new Date(now.getTime() - 2 * 24 * 60 * 60_000),
+    },
+    {
+      clientId: client!.id,
+      submittedByUserId: user!.id,
+      submitters: ["Mr. Chen"],
+      requestType: "call",
+      location: firstCallSlot ? "Zoom · auto-generated link" : null,
+      preferredStartsAt: firstCallSlot?.startsAt ?? null,
+      durationMinutes: 60,
+      linkedSlotId: firstCallSlot?.id ?? null,
+      reason:
+        "Quarterly attribution walk-through — focus on NVDA contribution detail + treasury duration shift timing.",
+      status: "confirmed",
+      resolvedByAdvisorId: advisor!.id,
+      resolvedAt: new Date(now.getTime() - 1 * 24 * 60 * 60_000),
+      resolutionNotes: "Booked into Zoom auto-link.",
+      createdAt: new Date(now.getTime() - 1.5 * 24 * 60 * 60_000),
+      updatedAt: new Date(now.getTime() - 1 * 24 * 60 * 60_000),
+    },
+    {
+      clientId: client!.id,
+      submittedByUserId: user!.id,
+      submitters: ["Mr. Chen", "Mrs. Chen"],
+      requestType: "in_person",
+      location: "San Diego · INTELLIGENCE INVESTMENT office",
+      preferredStartsAt: new Date(now.getTime() + 21 * 24 * 60 * 60_000),
+      preferredEndsAt: new Date(now.getTime() + 28 * 24 * 60 * 60_000),
+      durationMinutes: 360,
+      reason:
+        "Annual strategy reset for 2026–2027. Review tail-hedge framework, " +
+        "discuss adding 2-year bond ladder, and Mrs. Chen would like to discuss " +
+        "the trust structure changes.",
+      status: "acknowledged",
+      createdAt: new Date(now.getTime() - 6 * 60 * 60_000),
+      updatedAt: new Date(now.getTime() - 4 * 60 * 60_000),
+    },
+  ]
+
+  await db.insert(advisorContactRequests).values(sampleRequests)
+  console.log(
+    `  ✓ ${sampleRequests.length} sample contact requests (1 completed message, 1 confirmed call, 1 acknowledged in-person)`,
   )
 
   // ─── 24. Billing fixtures (M8) ────────────────────────────────────────────
