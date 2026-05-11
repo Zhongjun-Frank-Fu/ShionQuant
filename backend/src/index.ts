@@ -22,7 +22,6 @@
  */
 
 import { Hono } from "hono"
-import { compress } from "hono/compress"
 import { secureHeaders } from "hono/secure-headers"
 
 import v1 from "./api/v1/index.js"
@@ -59,15 +58,18 @@ app.use(
   }),
 )
 
-// 3. Compression — gzip/deflate for responses > 1 KB. Workers also auto-
-//    compresses outbound; this is belt-and-braces for older clients.
-app.use("*", compress())
-
-// 4. CORS — strict origin allowlist + credentials.
+// 3. CORS — strict origin allowlist + credentials.
 app.use("*", corsMiddleware)
 
-// 5. CSRF — Origin/Referer check for state-changing requests.
+// 4. CSRF — Origin/Referer check for state-changing requests.
 app.use("*", csrfMiddleware)
+
+// NOTE: no `hono/compress` middleware. Cloudflare Workers already
+// auto-compresses outbound responses based on the client's Accept-Encoding,
+// and adding Hono's compress on top caused a bug where the response body
+// arrived gzip-encoded but the `Content-Encoding` header was missing for
+// clients that requested only `br` or `identity` — browsers then read the
+// raw bytes as text and rendered garbage. Leaving compression to the edge.
 
 // ─── Routes ────────────────────────────────────────────────────────────────
 
