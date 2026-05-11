@@ -208,18 +208,72 @@ export const loginEvents = pgTable(
 // ║  PROFILE & KYC                                                             ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
+/**
+ * Schema for a single non-HKID identity document. HKID stays in its own
+ * dedicated `hkid_encrypted` column because it's the primary KYC anchor in
+ * HK; everything else (passports, foreign IDs, tax IDs, driver licenses)
+ * collapses into this unified shape and lives in `identities_encrypted`.
+ */
+export interface ProfileIdentity {
+  kind: "passport" | "tax_id" | "national_id" | "driver_license" | "other"
+  /** ISO country code, e.g. "HK" / "US" / "CN". Required for passports + tax IDs. */
+  country?: string
+  /** Encrypted-at-rest in identities_encrypted; never sent to the client raw. */
+  number: string
+  /** Optional display label override ("US SSN", "TW NHI", …). */
+  label?: string
+  issuedAt?: string
+  expiresAt?: string
+  notes?: string
+}
+
+/**
+ * People & beneficiaries — alternative source-of-truth to the `beneficiaries`
+ * table. Stored in `people_and_beneficiaries_encrypted`. If both this and
+ * the beneficiaries table have data, the JSON wins.
+ */
+export interface ProfilePerson {
+  /** Stable id (uuid string) so the frontend can render keys. */
+  id: string
+  /** Bilingual full name, e.g. "Lin, Hui-Yu · 林慧瑜". Stored encrypted. */
+  fullName: string
+  displayLabel?: string
+  relation: "spouse" | "daughter" | "son" | "accountant" | "lawyer" | "other"
+  /** Beneficiary share (0–100). Null = not a beneficiary. */
+  sharePct?: number
+  /** What the portal allows this person to see. */
+  permissions: "none" | "read" | "read_trade" | "tax_only" | "limited"
+  contact?: { email?: string; phone?: string }
+  revisitAt?: string
+}
+
 export const profiles = pgTable("profiles", {
   clientId: uuid("client_id")
     .primaryKey()
     .references(() => clients.id, { onDelete: "cascade" }),
   legalNameEncrypted: bytea("legal_name_encrypted").notNull(),
   legalNameHash: bytea("legal_name_hash"),
+  // Granular name fields — added 2026-05. legal_name_encrypted stays as the
+  // KYC-anchor (single string, locked). These four are the per-component
+  // names the Profile page shows + can edit.
+  firstNameEncrypted: bytea("first_name_encrypted"),
+  lastNameEncrypted: bytea("last_name_encrypted"),
+  chineseNameEncrypted: bytea("chinese_name_encrypted"),
+  preferredNameEncrypted: bytea("preferred_name_encrypted"),
+  preferredChineseNameEncrypted: bytea("preferred_chinese_name_encrypted"),
   dateOfBirth: date("date_of_birth"),
   nationality: text("nationality"),
   hkidEncrypted: bytea("hkid_encrypted"),
   passportEncrypted: bytea("passport_encrypted"),
+  /** Unified identities slot: encrypted JSON array of ProfileIdentity. */
+  identitiesEncrypted: bytea("identities_encrypted"),
+  /** Custodian-side trading status; e.g. 'active' / 'restricted' / 'pending'. */
+  tradingStatus: text("trading_status"),
   primaryEmail: citext("primary_email"),
   primaryPhone: text("primary_phone"),
+  /** Encrypted JSON array of ProfilePerson — alternative to the
+   *  `beneficiaries` table. Populated when the editor mode is active. */
+  peopleAndBeneficiariesEncrypted: bytea("people_and_beneficiaries_encrypted"),
   preferredChannel: text("preferred_channel")
     .default("email")
     .$type<"email" | "portal" | "whatsapp" | "phone">(),

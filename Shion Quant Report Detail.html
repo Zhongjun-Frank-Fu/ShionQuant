@@ -970,12 +970,12 @@
   dropdown.setAttribute('aria-label', 'Account menu');
   dropdown.innerHTML = `
     <div class="ud-header">
-      <div class="ud-avatar-lg">陈</div>
+      <div class="ud-avatar-lg" data-bind="user.initial">陈</div>
       <div class="ud-info">
         <div class="ud-name">
-          <span class="en-inline">Chen Wei-Ming</span><span class="zh-inline">陈伟铭</span>
+          <span class="en-inline" data-bind="user.fullEn">Chen Wei-Ming</span><span class="zh-inline" data-bind="user.fullZh">陈伟铭</span>
         </div>
-        <div class="ud-email">w.chen@private-domain.com</div>
+        <div class="ud-email" data-bind="user.email">w.chen@private-domain.com</div>
         <div class="ud-meta">
           <span class="ud-pill">CLIENT 0042</span>
           <span class="ud-pill-text">
@@ -1820,6 +1820,76 @@
   .rf-list li { margin-bottom: 0.45rem; }
   .rf-list li:last-child { margin-bottom: 0; }
 </style>
+
+
+<script>
+/* SQ-USER-IDENTITY-V1 — populates [data-bind="user.*"] across the page from
+ * GET /api/v1/account/me. Result is cached in sessionStorage for the session
+ * so cross-page nav doesn't hit the endpoint each time. Runs after the
+ * SQ-DROPDOWN-V1 IIFE so the injected dropdown markup is already mounted. */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const CACHE_KEY = 'sq:userIdentity:v1';
+  const CACHE_TTL_MS = 5 * 60 * 1000; // 5 min — short enough to pick up advisor edits
+
+  function applyBindings(me) {
+    const map = {
+      'user.initial':              me.profile?.initial ?? '?',
+      'user.preferredName':        me.profile?.preferredName ?? me.user?.email ?? '—',
+      'user.preferredChineseName': me.profile?.preferredChineseName ?? me.profile?.preferredName ?? '—',
+      'user.fullEn':               me.profile?.preferredName ?? me.user?.email ?? '—',
+      'user.fullZh':               me.profile?.preferredChineseName ?? me.profile?.preferredName ?? '—',
+      'user.email':                me.profile?.primaryEmail ?? me.user?.email ?? '—',
+    };
+    for (const [key, val] of Object.entries(map)) {
+      document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => {
+        el.textContent = val;
+      });
+    }
+  }
+
+  // Try cache first, then network.
+  let cached = null;
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.expiresAt > Date.now()) cached = parsed.data;
+    }
+  } catch { /* ignore */ }
+  if (cached) applyBindings(cached);
+
+  // Always refresh from network when possible, so cross-page nav stays current.
+  (async () => {
+    try {
+      const res = await fetch(API_BASE + '/account/me', {
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      applyBindings(data);
+      try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+          data, expiresAt: Date.now() + CACHE_TTL_MS,
+        }));
+      } catch { /* quota; ignore */ }
+    } catch (err) {
+      // Keep cached or hardcoded fallback visible; don't blow up the page.
+      console.warn('[user-identity] fetch failed:', err.message || err);
+    }
+  })();
+})();
+</script>
 
 </body>
 </html>

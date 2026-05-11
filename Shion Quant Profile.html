@@ -541,295 +541,56 @@
 
   <!-- IDENTITY -->
   <div class="id-row">
-    <div class="id-avatar">陈</div>
+    <div class="id-avatar" data-bind="identity.avatar">—</div>
     <div class="id-text">
       <div class="id-name">
-        <span class="en">Chen <em>Wei-Ming</em></span>
-        <span class="zh">陈<em>伟铭</em></span>
+        <span class="en" data-bind="identity.nameEn">—</span>
+        <span class="zh" data-bind="identity.nameZh">—</span>
       </div>
       <div class="id-line">
-        <span class="en-inline">Client 0042</span>
-        <span class="zh-inline">客户 0042</span>
+        <span data-bind="identity.clientNumber">Client —</span>
         <span class="dot">·</span>
-        <span class="en-inline">Hong Kong</span>
-        <span class="zh-inline">香港</span>
+        <span data-bind="identity.jurisdiction">—</span>
         <span class="dot">·</span>
-        <span class="en-inline">Member since Jul 2024</span>
-        <span class="zh-inline">2024 年 7 月加入</span>
+        <span class="en-inline" data-bind="identity.memberSinceEn">—</span>
+        <span class="zh-inline" data-bind="identity.memberSinceZh">—</span>
       </div>
     </div>
   </div>
 
-  <!-- 1. ABOUT YOU — with real Edit mode -->
+  <!-- 1. ABOUT YOU (data-driven; edit mode wired separately in MVP-2) -->
   <section class="sec" id="sec-about">
     <div class="sec-head">
       <h2 class="sec-title"><span class="en">About <em>you</em></span><span class="zh">关于<em>您</em></span></h2>
-      <button class="sec-edit" data-action="edit" data-target="sec-about"><span class="en-inline">Edit</span><span class="zh-inline">编辑</span></button>
-      <div class="sec-actions">
-        <button class="sec-cancel"><span class="en-inline">Cancel</span><span class="zh-inline">取消</span></button>
-        <button class="sec-save"><span class="en-inline">Save changes</span><span class="zh-inline">保存修改</span></button>
-      </div>
     </div>
     <div class="card">
-      <div class="sum-grid">
-
-        <!-- Locked: Legal name -->
-        <div class="sum-cell" data-locked>
-          <div class="sum-k">
-            <span class="en-inline">Legal name</span><span class="zh-inline">法定姓名</span>
-            <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-          <div class="sum-v">
-            <span class="display">Chen, Wei-Ming · 陈伟铭</span>
-            <input class="edit" type="text" value="Chen, Wei-Ming · 陈伟铭" readonly>
-            <div class="lock-hint">
-              <span class="en-inline">KYC-locked · contact your advisor to update</span>
-              <span class="zh-inline">KYC 锁定 · 如需修改请联系顾问</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Editable: Preferred name -->
-        <div class="sum-cell">
-          <div class="sum-k"><span class="en-inline">Preferred name</span><span class="zh-inline">称呼</span></div>
-          <div class="sum-v">
-            <span class="display">Mr. Chen · 陈先生</span>
-            <input class="edit" type="text" value="Mr. Chen · 陈先生">
-          </div>
-        </div>
-
-        <!-- Editable: Email -->
-        <div class="sum-cell">
-          <div class="sum-k"><span class="en-inline">Email</span><span class="zh-inline">邮箱</span></div>
-          <div class="sum-v mono">
-            <span class="display">w.chen@private-domain.com</span>
-            <input class="edit mono" type="email" value="w.chen@private-domain.com">
-          </div>
-        </div>
-
-        <!-- Editable: Mobile -->
-        <div class="sum-cell">
-          <div class="sum-k"><span class="en-inline">Mobile</span><span class="zh-inline">手机</span></div>
-          <div class="sum-v mono">
-            <span class="display">+852 9*** **42</span>
-            <input class="edit mono" type="tel" value="+852 9*** **42">
-          </div>
-        </div>
-
-        <!-- Editable: Tax residency (select) -->
-        <div class="sum-cell">
-          <div class="sum-k"><span class="en-inline">Tax residency</span><span class="zh-inline">税务居留</span></div>
-          <div class="sum-v">
-            <span class="display"><span class="en-inline">Hong Kong SAR</span><span class="zh-inline">中国香港</span></span>
-            <select class="edit">
-              <option selected>Hong Kong SAR · 中国香港</option>
-              <option>Singapore · 新加坡</option>
-              <option>Taiwan · 中国台湾</option>
-              <option>United States</option>
-              <option>United Kingdom</option>
-              <option>Other…</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Editable: Address -->
-        <div class="sum-cell">
-          <div class="sum-k"><span class="en-inline">Address</span><span class="zh-inline">地址</span></div>
-          <div class="sum-v">
-            <span class="display"><span class="en-inline">Mid-Levels, Hong Kong</span><span class="zh-inline">香港半山</span></span>
-            <input class="edit" type="text" value="Mid-Levels, Hong Kong">
-          </div>
-        </div>
-      </div>
-
+      <div class="sum-grid" data-rebuild="about.basics"></div>
       <details class="more">
         <summary>
-          <span class="en-inline">Show ID, passport, tax IDs &amp; treaty status</span>
-          <span class="zh-inline">显示身份证、护照、税号与协定状态</span>
+          <span class="en-inline">Show ID, passport, tax IDs &amp; trading status</span>
+          <span class="zh-inline">显示身份证、护照、税号与交易状态</span>
         </summary>
         <div class="more-body">
-          <div class="sum-grid">
-            <div class="sum-cell" data-locked>
-              <div class="sum-k">
-                <span class="en-inline">Date of birth</span><span class="zh-inline">出生日期</span>
-                <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </div>
-              <div class="sum-v">
-                <span class="display" style="font-family:var(--mono); font-size:0.82rem; letter-spacing:0.02em;">1981-04-12 · age 45</span>
-                <input class="edit mono" type="text" value="1981-04-12" readonly>
-                <div class="lock-hint"><span class="en-inline">KYC-locked</span><span class="zh-inline">KYC 锁定</span></div>
-              </div>
-            </div>
-            <div class="sum-cell" data-locked>
-              <div class="sum-k">
-                <span class="en-inline">Nationality</span><span class="zh-inline">国籍</span>
-                <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </div>
-              <div class="sum-v">
-                <span class="display"><span class="en-inline">Hong Kong SAR</span><span class="zh-inline">中国香港</span></span>
-                <input class="edit" type="text" value="Hong Kong SAR" readonly>
-                <div class="lock-hint"><span class="en-inline">KYC-locked</span><span class="zh-inline">KYC 锁定</span></div>
-              </div>
-            </div>
-            <div class="sum-cell" data-locked>
-              <div class="sum-k">
-                <span class="en-inline">HKID</span>
-                <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </div>
-              <div class="sum-v">
-                <span class="display" style="font-family:var(--mono); font-size:0.82rem; letter-spacing:0.02em;">K1***42(8) · 2031-04</span>
-                <input class="edit mono" type="text" value="K1***42(8)" readonly>
-                <div class="lock-hint"><span class="en-inline">KYC-locked</span><span class="zh-inline">KYC 锁定</span></div>
-              </div>
-            </div>
-            <div class="sum-cell" data-locked>
-              <div class="sum-k">
-                <span class="en-inline">Passport</span><span class="zh-inline">护照</span>
-                <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </div>
-              <div class="sum-v">
-                <span class="display" style="font-family:var(--mono); font-size:0.82rem; letter-spacing:0.02em;">K12***17 · 2028-09</span>
-                <input class="edit mono" type="text" value="K12***17" readonly>
-                <div class="lock-hint"><span class="en-inline">KYC-locked</span><span class="zh-inline">KYC 锁定</span></div>
-              </div>
-            </div>
-            <div class="sum-cell" data-locked>
-              <div class="sum-k">
-                <span class="en-inline">Tax ID (HK)</span><span class="zh-inline">税号 (HK)</span>
-                <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </div>
-              <div class="sum-v">
-                <span class="display" style="font-family:var(--mono); font-size:0.82rem; letter-spacing:0.02em;">IRD ***-***-242</span>
-                <input class="edit mono" type="text" value="IRD ***-***-242" readonly>
-                <div class="lock-hint"><span class="en-inline">KYC-locked</span><span class="zh-inline">KYC 锁定</span></div>
-              </div>
-            </div>
-            <div class="sum-cell" data-locked>
-              <div class="sum-k">
-                <span class="en-inline">US treaty status</span><span class="zh-inline">美国协定</span>
-                <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </div>
-              <div class="sum-v">
-                <span class="display"><span class="en-inline">W-8BEN · renews Jul 2027</span><span class="zh-inline">W-8BEN · 2027/7 续期</span></span>
-                <input class="edit" type="text" value="W-8BEN · renews Jul 2027" readonly>
-                <div class="lock-hint"><span class="en-inline">Form-based · contact advisor</span><span class="zh-inline">表单签署 · 请联系顾问</span></div>
-              </div>
-            </div>
-          </div>
+          <div class="sum-grid" data-rebuild="about.identity"></div>
         </div>
       </details>
     </div>
   </section>
 
-  <!-- 2. PEOPLE -->
+  <!-- 2. PEOPLE & BENEFICIARIES (data-driven) -->
   <section class="sec">
     <div class="sec-head">
       <h2 class="sec-title"><span class="en">People &amp; <em>beneficiaries</em></span><span class="zh">家庭与<em>受益人</em></span></h2>
-      <button class="sec-edit"><span class="en-inline">Manage</span><span class="zh-inline">管理</span></button>
     </div>
-    <div class="card">
-      <div class="person">
-        <div class="p-avatar gold">L</div>
-        <div class="p-info">
-          <div class="p-name">Lin, Hui-Yu · 林慧瑜</div>
-          <div class="p-rel"><span class="en-inline">Spouse · co-beneficiary 50%</span><span class="zh-inline">配偶 · 受益人 50%</span></div>
-        </div>
-        <div class="p-perm"><strong>Read + Trade</strong></div>
-      </div>
-      <div class="person">
-        <div class="p-avatar royal">CJ</div>
-        <div class="p-info">
-          <div class="p-name">Chen, Jia-Yi · 陈嘉怡</div>
-          <div class="p-rel"><span class="en-inline">Daughter · 25%</span><span class="zh-inline">女儿 · 25%</span></div>
-        </div>
-        <div class="p-perm"><strong>Read only</strong></div>
-      </div>
-      <div class="person">
-        <div class="p-avatar ink">YK</div>
-        <div class="p-info">
-          <div class="p-name">Yip, Kar-Ming · 葉家明</div>
-          <div class="p-rel"><span class="en-inline">Accountant · third party</span><span class="zh-inline">会计师 · 第三方</span></div>
-        </div>
-        <div class="p-perm"><strong>Tax docs only</strong></div>
-      </div>
-      <details class="more">
-        <summary>
-          <span class="en-inline">+ 1 more (contingent beneficiary)</span>
-          <span class="zh-inline">+ 1 位（后续受益人）</span>
-        </summary>
-        <div class="more-body">
-          <div class="person">
-            <div class="p-avatar royal">CK</div>
-            <div class="p-info">
-              <div class="p-name">Chen, Kai-Lun · 陈凯伦</div>
-              <div class="p-rel"><span class="en-inline">Son · 25% · revisit at 18</span><span class="zh-inline">儿子 · 25% · 18 岁时复议</span></div>
-            </div>
-            <div class="p-perm"><strong>None</strong></div>
-          </div>
-        </div>
-      </details>
-      <button class="add-row"><span class="en-inline">+ Add a person</span><span class="zh-inline">+ 添加成员</span></button>
-    </div>
+    <div class="card" data-rebuild="people.list"></div>
   </section>
 
-  <!-- 3. PREFERENCES — inline live, no edit mode needed -->
+  <!-- 3. PREFERENCES (data-driven) -->
   <section class="sec">
     <div class="sec-head">
       <h2 class="sec-title"><span class="en"><em>Preferences</em></span><span class="zh"><em>偏好设置</em></span></h2>
     </div>
-    <div class="card">
-      <div class="pref">
-        <div class="pref-text">
-          <div class="pref-name"><span class="en-inline">Language</span><span class="zh-inline">语言</span></div>
-          <div class="pref-hint"><span class="en-inline">Used for portal &amp; reports</span><span class="zh-inline">用于门户与报告</span></div>
-        </div>
-        <select>
-          <option>English</option>
-          <option>繁體中文</option>
-          <option>简体中文</option>
-        </select>
-      </div>
-      <div class="pref">
-        <div class="pref-text">
-          <div class="pref-name"><span class="en-inline">Preferred channel</span><span class="zh-inline">联系渠道</span></div>
-          <div class="pref-hint"><span class="en-inline">For non-urgent updates</span><span class="zh-inline">非紧急事项首选</span></div>
-        </div>
-        <select>
-          <option>Email</option>
-          <option>Portal in-app</option>
-          <option>WhatsApp HK</option>
-        </select>
-      </div>
-      <div class="pref">
-        <div class="pref-text">
-          <div class="pref-name"><span class="en-inline">Quiet hours · 22:00–07:00 HKT</span><span class="zh-inline">免打扰时段 · 22:00–07:00 HKT</span></div>
-          <div class="pref-hint"><span class="en-inline">Critical alerts always reach you</span><span class="zh-inline">重大预警仍会送达</span></div>
-        </div>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <details class="more">
-        <summary>
-          <span class="en-inline">More preferences</span>
-          <span class="zh-inline">更多偏好</span>
-        </summary>
-        <div class="more-body">
-          <div class="pref">
-            <div class="pref-text">
-              <div class="pref-name"><span class="en-inline">Marketing emails</span><span class="zh-inline">营销邮件</span></div>
-              <div class="pref-hint"><span class="en-inline">Quarterly market commentary</span><span class="zh-inline">季度市场评论</span></div>
-            </div>
-            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-          </div>
-          <div class="pref">
-            <div class="pref-text">
-              <div class="pref-name"><span class="en-inline">Anonymized case-study consent</span><span class="zh-inline">匿名案例授权</span></div>
-              <div class="pref-hint"><span class="en-inline">Allow anonymous use in research</span><span class="zh-inline">允许匿名用于研究</span></div>
-            </div>
-            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
-          </div>
-        </div>
-      </details>
-    </div>
+    <div class="card" data-rebuild="prefs.list"></div>
   </section>
 
   <!-- 4. CLOSURE -->
@@ -1144,12 +905,12 @@
   dropdown.setAttribute('aria-label', 'Account menu');
   dropdown.innerHTML = `
     <div class="ud-header">
-      <div class="ud-avatar-lg">陈</div>
+      <div class="ud-avatar-lg" data-bind="user.initial">陈</div>
       <div class="ud-info">
         <div class="ud-name">
-          <span class="en-inline">Chen Wei-Ming</span><span class="zh-inline">陈伟铭</span>
+          <span class="en-inline" data-bind="user.fullEn">Chen Wei-Ming</span><span class="zh-inline" data-bind="user.fullZh">陈伟铭</span>
         </div>
-        <div class="ud-email">w.chen@private-domain.com</div>
+        <div class="ud-email" data-bind="user.email">w.chen@private-domain.com</div>
         <div class="ud-meta">
           <span class="ud-pill">CLIENT 0042</span>
           <span class="ud-pill-text">
@@ -1259,6 +1020,461 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') wrap.classList.remove('open');
   });
+})();
+</script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+ * SQ-PROFILE-V1
+ *
+ * Reads `GET /api/v1/account/profile` (MFA-gated) and populates:
+ *   - identity strip (avatar, name, client #, jurisdiction, joined date)
+ *   - About you basics (6 cells: legal name / preferred / email / mobile /
+ *     tax residency / address)
+ *   - Identity details (DOB, nationality, HKID, passport, identities[],
+ *     trading status)
+ *   - People & beneficiaries (from peopleAndBeneficiaries OR beneficiaries
+ *     table fallback)
+ *   - Preferences (lang, channel, quiet hours, marketing, case-study consent)
+ *
+ * Edit mode is not wired in this MVP — fields render read-only. The
+ * existing PATCH endpoints stay available for a future edit-mode pass.
+ * ───────────────────────────────────────────────────────────────────────── */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const FAILED_EN = 'Not loaded';
+  const FAILED_ZH = '未读取';
+  const _zh = () => document.body.classList.contains('lang-zh');
+  const _failedTxt = () => _zh() ? FAILED_ZH : FAILED_EN;
+  const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
+  }[c]));
+
+  const MONTHS_LONG_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function fmtMemberSinceEn(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return `Member since ${MONTHS_LONG_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  }
+  function fmtMemberSinceZh(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return `${d.getUTCFullYear()} 年 ${d.getUTCMonth() + 1} 月加入`;
+  }
+  function fmtDob(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    const today = new Date();
+    let age = today.getUTCFullYear() - d.getUTCFullYear();
+    const m = today.getUTCMonth() - d.getUTCMonth();
+    if (m < 0 || (m === 0 && today.getUTCDate() < d.getUTCDate())) age--;
+    return `${iso} · age ${age}`;
+  }
+
+  const setBind = (k, v) => document.querySelectorAll(`[data-bind="${k}"]`).forEach((el) => { el.textContent = v; });
+  const setBindHtml = (k, v) => document.querySelectorAll(`[data-bind="${k}"]`).forEach((el) => { el.innerHTML = v; });
+  const setRebuild = (k, html) => {
+    const el = document.querySelector(`[data-rebuild="${k}"]`);
+    if (el) el.innerHTML = html;
+  };
+  function _blankAllBindings() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = '—'; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => { el.innerHTML = ''; });
+  }
+  function _markFailed() {
+    const txt = _failedTxt();
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = txt; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => {
+      el.innerHTML = `<div class="rebuild-failed">${escapeHtml(txt)}</div>`;
+    });
+  }
+
+  async function fetchProfile() {
+    const res = await fetch(`${API_BASE}/account/profile`, {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status} :: ${body.slice(0, 200)}`);
+    }
+    return res.json();
+  }
+
+  // ─── Helper renderers for sum-grid cells ─────────────────────────────
+  function sumCell({ keyEn, keyZh, value, mono = false, locked = false, hintEn, hintZh }) {
+    const lockSvg = locked
+      ? '<svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+      : '';
+    const lockHint = locked
+      ? `<div class="lock-hint"><span class="en-inline">${escapeHtml(hintEn || 'KYC-locked · contact your advisor to update')}</span><span class="zh-inline">${escapeHtml(hintZh || 'KYC 锁定 · 如需修改请联系顾问')}</span></div>`
+      : '';
+    return `
+      <div class="sum-cell"${locked ? ' data-locked' : ''}>
+        <div class="sum-k">
+          <span class="en-inline">${escapeHtml(keyEn)}</span><span class="zh-inline">${escapeHtml(keyZh)}</span>
+          ${lockSvg}
+        </div>
+        <div class="sum-v${mono ? ' mono' : ''}">
+          <span class="display"${mono ? ' style="font-family:var(--mono); font-size:0.82rem; letter-spacing:0.02em;"' : ''}>${value}</span>
+          ${lockHint}
+        </div>
+      </div>`;
+  }
+
+  function renderIdentity(payload) {
+    const p = payload.profile;
+    const c = payload.client;
+    // Avatar: prefer first char of preferred Chinese name → preferred English → legal name first char
+    const initial = (p.preferredChineseName && p.preferredChineseName.charAt(0)) ||
+      (p.preferredName && p.preferredName.replace(/^(Mr|Ms|Dr|Mrs)\.\s*/, '').charAt(0)) ||
+      (p.firstName && p.firstName.charAt(0)) ||
+      (p.legalName && p.legalName.charAt(0)) || '—';
+    setBind('identity.avatar', initial);
+
+    // Bilingual full name in the header strip
+    const enName = (p.firstName && p.lastName)
+      ? `${p.lastName}, ${p.firstName}`
+      : (p.legalName || '—');
+    const zhName = p.chineseName || p.preferredChineseName || enName;
+    setBindHtml('identity.nameEn', `<span class="en">${escapeHtml(enName)}</span>`);
+    setBindHtml('identity.nameZh', `<span class="zh">${escapeHtml(zhName)}</span>`);
+
+    setBind('identity.clientNumber', _zh() ? `客户 ${c.clientNumber}` : `Client ${c.clientNumber}`);
+    const jurisdictionLabel = c.jurisdiction === 'HK'
+      ? (_zh() ? '中国香港' : 'Hong Kong')
+      : (c.jurisdiction || '—');
+    setBind('identity.jurisdiction', jurisdictionLabel);
+    setBind('identity.memberSinceEn', fmtMemberSinceEn(c.joinedAt));
+    setBind('identity.memberSinceZh', fmtMemberSinceZh(c.joinedAt));
+  }
+
+  function renderAboutBasics(payload) {
+    const p = payload.profile;
+    const primaryAddr = (payload.addresses || []).find((a) => a.isPrimary) || (payload.addresses || [])[0] || null;
+    const addressStr = primaryAddr
+      ? [primaryAddr.line1, primaryAddr.city, primaryAddr.countryIso].filter(Boolean).join(', ')
+      : '—';
+    const primaryTax = (payload.taxResidencies || []).find((t) => t.isPrimary) || (payload.taxResidencies || [])[0] || null;
+    const taxStr = primaryTax
+      ? (primaryTax.countryIso === 'HK' ? (_zh() ? '中国香港' : 'Hong Kong SAR') : primaryTax.countryIso)
+      : '—';
+
+    const legalDisplay = p.firstName && p.lastName
+      ? `${p.lastName}, ${p.firstName}${p.chineseName ? ' · ' + p.chineseName : ''}`
+      : (p.legalName || '—');
+    const prefDisplay = [p.preferredName, p.preferredChineseName].filter(Boolean).join(' · ') || '—';
+
+    const cells = [
+      sumCell({ keyEn: 'Legal name', keyZh: '法定姓名', value: escapeHtml(legalDisplay), locked: true }),
+      sumCell({ keyEn: 'Preferred name', keyZh: '称呼', value: escapeHtml(prefDisplay) }),
+      sumCell({ keyEn: 'Email', keyZh: '邮箱', value: escapeHtml(p.primaryEmail || '—'), mono: true }),
+      sumCell({ keyEn: 'Mobile', keyZh: '手机', value: escapeHtml(p.primaryPhone || '—'), mono: true }),
+      sumCell({ keyEn: 'Tax residency', keyZh: '税务居留', value: escapeHtml(taxStr) }),
+      sumCell({ keyEn: 'Address', keyZh: '地址', value: escapeHtml(addressStr) }),
+    ].join('');
+    setRebuild('about.basics', cells);
+  }
+
+  function renderAboutIdentity(payload) {
+    const p = payload.profile;
+    const cells = [];
+    cells.push(sumCell({ keyEn: 'Date of birth', keyZh: '出生日期', value: escapeHtml(fmtDob(p.dateOfBirth)), mono: true, locked: true, hintEn: 'KYC-locked', hintZh: 'KYC 锁定' }));
+    cells.push(sumCell({ keyEn: 'Nationality', keyZh: '国籍',
+      value: p.nationality === 'HK' ? (_zh() ? '中国香港' : 'Hong Kong SAR') : escapeHtml(p.nationality || '—'),
+      locked: true, hintEn: 'KYC-locked', hintZh: 'KYC 锁定' }));
+    if (p.hkid) {
+      cells.push(sumCell({ keyEn: 'HKID', keyZh: 'HKID', value: escapeHtml(p.hkid), mono: true, locked: true, hintEn: 'KYC-locked', hintZh: 'KYC 锁定' }));
+    }
+    if (p.passport) {
+      cells.push(sumCell({ keyEn: 'Passport', keyZh: '护照', value: escapeHtml(p.passport), mono: true, locked: true, hintEn: 'KYC-locked', hintZh: 'KYC 锁定' }));
+    }
+    // Unified identities array — render each as its own cell.
+    const idents = Array.isArray(p.identities) ? p.identities : [];
+    for (const id of idents) {
+      const labelEn = id.label || `${(id.kind || 'id').toUpperCase().replace('_', ' ')}${id.country ? ' (' + id.country + ')' : ''}`;
+      const labelZh = id.kind === 'tax_id' ? `税号${id.country ? ' (' + id.country + ')' : ''}` :
+                      id.kind === 'passport' ? `护照${id.country ? ' (' + id.country + ')' : ''}` :
+                      labelEn;
+      const numAndExp = id.number + (id.expiresAt ? ` · ${id.expiresAt.slice(0, 7)}` : '');
+      cells.push(sumCell({
+        keyEn: labelEn, keyZh: labelZh, value: escapeHtml(numAndExp),
+        mono: true, locked: true, hintEn: 'KYC-locked', hintZh: 'KYC 锁定',
+      }));
+    }
+    // Trading status
+    const ts = p.tradingStatus || '—';
+    const tsLabel = ts === 'active'      ? (_zh() ? '正常交易' : 'Active')
+                  : ts === 'restricted'  ? (_zh() ? '受限'     : 'Restricted')
+                  : ts === 'pending'     ? (_zh() ? '待激活'   : 'Pending')
+                  : ts;
+    cells.push(sumCell({ keyEn: 'Trading status', keyZh: '交易状态', value: escapeHtml(tsLabel) }));
+    setRebuild('about.identity', cells.join(''));
+  }
+
+  // ─── People & beneficiaries ────────────────────────────────────────
+  function renderPeople(payload) {
+    // Prefer JSON column if populated; else fall back to beneficiaries table.
+    const json = payload.profile.peopleAndBeneficiaries;
+    let rows;
+    if (Array.isArray(json) && json.length > 0) {
+      rows = json.map((p) => ({
+        avatarChar: (p.fullName || '?').charAt(0),
+        name: p.fullName,
+        relation: p.relation,
+        sharePct: p.sharePct,
+        permissions: p.permissions,
+        displayLabel: p.displayLabel,
+        revisitAt: p.revisitAt,
+      }));
+    } else {
+      const tableRows = payload.beneficiaries || [];
+      rows = tableRows.map((b) => ({
+        avatarChar: (b.fullName || '?').charAt(0),
+        name: b.fullName,
+        relation: b.relation,
+        sharePct: b.sharePct != null ? Number(b.sharePct) : null,
+        permissions: b.permissions,
+        displayLabel: b.displayLabel,
+        revisitAt: b.revisitAt,
+      }));
+    }
+
+    if (rows.length === 0) {
+      setRebuild('people.list', `<div class="rebuild-failed"><span class="en-inline">No people on file</span><span class="zh-inline">暂无关联人员</span></div>`);
+      return;
+    }
+
+    const PALETTE = ['royal', 'gold', 'ink', 'royal'];
+    const PERM_LABELS = {
+      none: { en: 'None', zh: '无权限' },
+      read: { en: 'Read only', zh: '仅查看' },
+      read_trade: { en: 'Read + Trade', zh: '查看与交易' },
+      tax_only: { en: 'Tax docs only', zh: '仅税务' },
+      limited: { en: 'Limited', zh: '受限' },
+    };
+    const RELATION_LABELS = {
+      spouse: { en: 'Spouse', zh: '配偶' },
+      daughter: { en: 'Daughter', zh: '女儿' },
+      son: { en: 'Son', zh: '儿子' },
+      accountant: { en: 'Accountant', zh: '会计师' },
+      lawyer: { en: 'Lawyer', zh: '律师' },
+      other: { en: 'Related party', zh: '关联方' },
+    };
+
+    const html = rows.map((p, i) => {
+      const palette = PALETTE[i % PALETTE.length];
+      const rel = RELATION_LABELS[p.relation] || { en: p.relation || '—', zh: p.relation || '—' };
+      const perm = PERM_LABELS[p.permissions] || { en: p.permissions || '—', zh: p.permissions || '—' };
+      const shareSuffix = p.sharePct != null ? ` · ${p.sharePct}%` : '';
+      const revisit = p.revisitAt ? ` · revisit ${p.revisitAt.slice(0, 7)}` : '';
+      return `
+        <div class="person">
+          <div class="p-avatar ${palette}">${escapeHtml(p.avatarChar)}</div>
+          <div class="p-info">
+            <div class="p-name">${escapeHtml(p.name)}</div>
+            <div class="p-rel">
+              <span class="en-inline">${escapeHtml(rel.en)}${shareSuffix}${revisit}</span>
+              <span class="zh-inline">${escapeHtml(rel.zh)}${shareSuffix}${revisit}</span>
+            </div>
+          </div>
+          <div class="p-perm">
+            <strong><span class="en-inline">${escapeHtml(perm.en)}</span><span class="zh-inline">${escapeHtml(perm.zh)}</span></strong>
+          </div>
+        </div>`;
+    }).join('');
+    setRebuild('people.list', html);
+  }
+
+  // ─── Preferences ────────────────────────────────────────────────────
+  function renderPrefs(payload) {
+    const p = payload.profile;
+    const langOptions = [
+      { val: 'en',      en: 'English',          zh: 'English' },
+      { val: 'zh-Hant', en: 'Traditional 繁體',  zh: '繁體中文' },
+      { val: 'zh-Hans', en: 'Simplified 简体',   zh: '简体中文' },
+    ];
+    const channelOptions = [
+      { val: 'email',    en: 'Email',           zh: '邮箱' },
+      { val: 'portal',   en: 'Portal in-app',   zh: '门户内消息' },
+      { val: 'whatsapp', en: 'WhatsApp',        zh: 'WhatsApp' },
+      { val: 'phone',    en: 'Phone',           zh: '电话' },
+    ];
+
+    const qh = p.quietHoursLocal || {};
+    const qhLabel = qh.start && qh.end
+      ? `${qh.start}–${qh.end}${qh.timezone ? ' ' + qh.timezone : ''}`
+      : '—';
+
+    const html = `
+      <div class="pref">
+        <div class="pref-text">
+          <div class="pref-name"><span class="en-inline">Language</span><span class="zh-inline">语言</span></div>
+          <div class="pref-hint"><span class="en-inline">Used for portal &amp; reports</span><span class="zh-inline">用于门户与报告</span></div>
+        </div>
+        <select disabled title="Edit mode coming in MVP-2">
+          ${langOptions.map((o) => `<option value="${escapeHtml(o.val)}"${o.val === p.preferredLang ? ' selected' : ''}>${escapeHtml(_zh() ? o.zh : o.en)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="pref">
+        <div class="pref-text">
+          <div class="pref-name"><span class="en-inline">Preferred channel</span><span class="zh-inline">联系渠道</span></div>
+          <div class="pref-hint"><span class="en-inline">For non-urgent updates</span><span class="zh-inline">非紧急事项首选</span></div>
+        </div>
+        <select disabled title="Edit mode coming in MVP-2">
+          ${channelOptions.map((o) => `<option value="${escapeHtml(o.val)}"${o.val === p.preferredChannel ? ' selected' : ''}>${escapeHtml(_zh() ? o.zh : o.en)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="pref">
+        <div class="pref-text">
+          <div class="pref-name">
+            <span class="en-inline">Quiet hours · ${escapeHtml(qhLabel)}</span>
+            <span class="zh-inline">免打扰时段 · ${escapeHtml(qhLabel)}</span>
+          </div>
+          <div class="pref-hint"><span class="en-inline">Critical alerts always reach you</span><span class="zh-inline">重大预警仍会送达</span></div>
+        </div>
+        <label class="switch"><input type="checkbox" ${qh.start ? 'checked' : ''} disabled><span class="slider"></span></label>
+      </div>
+      <details class="more">
+        <summary>
+          <span class="en-inline">More preferences</span>
+          <span class="zh-inline">更多偏好</span>
+        </summary>
+        <div class="more-body">
+          <div class="pref">
+            <div class="pref-text">
+              <div class="pref-name"><span class="en-inline">Marketing emails</span><span class="zh-inline">营销邮件</span></div>
+              <div class="pref-hint"><span class="en-inline">Quarterly market commentary</span><span class="zh-inline">季度市场评论</span></div>
+            </div>
+            <label class="switch"><input type="checkbox" ${p.marketingConsent ? 'checked' : ''} disabled><span class="slider"></span></label>
+          </div>
+          <div class="pref">
+            <div class="pref-text">
+              <div class="pref-name"><span class="en-inline">Anonymized case-study consent</span><span class="zh-inline">匿名案例授权</span></div>
+              <div class="pref-hint"><span class="en-inline">Allow anonymous use in research</span><span class="zh-inline">允许匿名用于研究</span></div>
+            </div>
+            <label class="switch"><input type="checkbox" ${p.caseStudyConsent ? 'checked' : ''} disabled><span class="slider"></span></label>
+          </div>
+        </div>
+      </details>`;
+    setRebuild('prefs.list', html);
+  }
+
+  async function boot() {
+    _blankAllBindings();
+    try {
+      const data = await fetchProfile();
+      renderIdentity(data);
+      renderAboutBasics(data);
+      renderAboutIdentity(data);
+      renderPeople(data);
+      renderPrefs(data);
+    } catch (err) {
+      console.warn('[profile] fetch failed:', err.message || err);
+      _markFailed();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
+<style>
+  .rebuild-failed {
+    text-align: center;
+    padding: 1rem 0;
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); letter-spacing: 0.06em; }
+</style>
+
+
+<script>
+/* SQ-USER-IDENTITY-V1 — populates [data-bind="user.*"] across the page from
+ * GET /api/v1/account/me. Result is cached in sessionStorage for the session
+ * so cross-page nav doesn't hit the endpoint each time. Runs after the
+ * SQ-DROPDOWN-V1 IIFE so the injected dropdown markup is already mounted. */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const CACHE_KEY = 'sq:userIdentity:v1';
+  const CACHE_TTL_MS = 5 * 60 * 1000; // 5 min — short enough to pick up advisor edits
+
+  function applyBindings(me) {
+    const map = {
+      'user.initial':              me.profile?.initial ?? '?',
+      'user.preferredName':        me.profile?.preferredName ?? me.user?.email ?? '—',
+      'user.preferredChineseName': me.profile?.preferredChineseName ?? me.profile?.preferredName ?? '—',
+      'user.fullEn':               me.profile?.preferredName ?? me.user?.email ?? '—',
+      'user.fullZh':               me.profile?.preferredChineseName ?? me.profile?.preferredName ?? '—',
+      'user.email':                me.profile?.primaryEmail ?? me.user?.email ?? '—',
+    };
+    for (const [key, val] of Object.entries(map)) {
+      document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => {
+        el.textContent = val;
+      });
+    }
+  }
+
+  // Try cache first, then network.
+  let cached = null;
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.expiresAt > Date.now()) cached = parsed.data;
+    }
+  } catch { /* ignore */ }
+  if (cached) applyBindings(cached);
+
+  // Always refresh from network when possible, so cross-page nav stays current.
+  (async () => {
+    try {
+      const res = await fetch(API_BASE + '/account/me', {
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      applyBindings(data);
+      try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+          data, expiresAt: Date.now() + CACHE_TTL_MS,
+        }));
+      } catch { /* quota; ignore */ }
+    } catch (err) {
+      // Keep cached or hardcoded fallback visible; don't blow up the page.
+      console.warn('[user-identity] fetch failed:', err.message || err);
+    }
+  })();
 })();
 </script>
 

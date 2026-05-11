@@ -22,6 +22,7 @@
     "db:migrate-buying-power": "node scripts/db-exec.mjs src/db/migrations/0002_buying_power.sql",
     "db:migrate-reports-category-metadata": "node scripts/db-exec.mjs src/db/migrations/0003_reports_category_metadata.sql",
     "db:migrate-documents-folded-metadata": "node scripts/db-exec.mjs src/db/migrations/0004_documents_folded_metadata.sql",
+    "db:migrate-profile-extended": "node scripts/db-exec.mjs src/db/migrations/0005_profile_extended.sql",
     "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",

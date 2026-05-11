@@ -191,25 +191,59 @@ async function main() {
   )
 
   // ─── 7. Profile (encrypted KYC) ───────────────────────────────────────────
-  const legalName = "陳啟明"
+  // Granular name fields drive everything user-facing (nav dropdown, Profile
+  // page, greeting on Portal); legalNameEncrypted stays as the KYC-anchor.
+  const firstName = "Wei-Ming"
+  const lastName = "Chen"
+  const chineseName = "陈伟铭"
+  const preferredName = "Mr. Chen"
+  const preferredChineseName = "陈先生"
+  const legalName = `${lastName}, ${firstName} · ${chineseName}`
   const { encrypted: legalNameEncrypted, hash: legalNameHash } =
     await encryptAndHash(legalName)
+  const identitiesJson: Array<{ kind: string; country?: string; number: string; label?: string; expiresAt?: string }> = [
+    { kind: "passport", country: "HK", number: "K12***17", label: "HK passport", expiresAt: "2028-09-30" },
+    { kind: "tax_id", country: "HK", number: "IRD-***-242", label: "HK Inland Revenue", },
+  ]
+  const peopleJson: Array<{
+    id: string
+    fullName: string
+    displayLabel?: string
+    relation: string
+    sharePct?: number
+    permissions: string
+    contact?: { email?: string; phone?: string }
+    revisitAt?: string
+  }> = [
+    { id: "p_spouse",   fullName: "Lin, Hui-Yu · 林慧瑜",   displayLabel: "Spouse",     relation: "spouse",     sharePct: 50, permissions: "read_trade" },
+    { id: "p_daughter", fullName: "Chen, Jia-Yi · 陈嘉怡",  displayLabel: "Daughter",   relation: "daughter",   sharePct: 25, permissions: "read" },
+    { id: "p_son",      fullName: "Chen, Kai-Lun · 陈凯伦", displayLabel: "Son (minor)",relation: "son",        sharePct: 25, permissions: "none", revisitAt: "2032-01-01" },
+    { id: "p_acct",     fullName: "Yip, Kar-Ming · 葉家明", displayLabel: "Accountant", relation: "accountant",               permissions: "tax_only", contact: { email: "kar.ming@yip-cpa.test" } },
+  ]
   await db.insert(profiles).values({
     clientId: client!.id,
     legalNameEncrypted,
     legalNameHash,
-    dateOfBirth: "1968-04-23",
+    firstNameEncrypted: await encryptField(firstName),
+    lastNameEncrypted: await encryptField(lastName),
+    chineseNameEncrypted: await encryptField(chineseName),
+    preferredNameEncrypted: await encryptField(preferredName),
+    preferredChineseNameEncrypted: await encryptField(preferredChineseName),
+    dateOfBirth: "1981-04-12",
     nationality: "HK",
-    hkidEncrypted: await encryptField("A1234567"),
-    passportEncrypted: null,
-    primaryEmail: TEST_EMAIL,
-    primaryPhone: "+852 9123 4567",
+    hkidEncrypted: await encryptField("K1***42(8)"),
+    passportEncrypted: await encryptField("K12***17"),
+    identitiesEncrypted: await encryptField(JSON.stringify(identitiesJson)),
+    tradingStatus: "active",
+    primaryEmail: "w.chen@private-domain.com", // shown on Profile; auth email is chen@test.local
+    primaryPhone: "+852 9*** **42",
+    peopleAndBeneficiariesEncrypted: await encryptField(JSON.stringify(peopleJson)),
     preferredChannel: "portal",
-    quietHoursLocal: { start: "22:00", end: "08:00", timezone: "Asia/Hong_Kong" },
+    quietHoursLocal: { start: "22:00", end: "07:00", timezone: "Asia/Hong_Kong" },
     marketingConsent: true,
     caseStudyConsent: false,
   })
-  console.log("  ✓ profile (encrypted)")
+  console.log("  ✓ profile (encrypted + granular names + identities + people)")
 
   // ─── 8. Address ───────────────────────────────────────────────────────────
   await db.insert(addresses).values({

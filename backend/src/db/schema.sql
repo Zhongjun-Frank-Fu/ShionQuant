@@ -194,14 +194,29 @@ create index login_events_ip_time_idx on login_events (ip, occurred_at desc);
 
 create table profiles (
   client_id       uuid primary key references clients(id) on delete cascade,
-  legal_name_encrypted bytea not null,      -- envelope encrypted
+  legal_name_encrypted bytea not null,      -- envelope encrypted, full legal name (KYC-locked)
   legal_name_hash bytea,                    -- for search/dedup (sha256 of normalized)
+  -- Granular name fields (added 2026-05). KYC-anchor stays in legal_name_encrypted;
+  -- these four are the editable display names used by the Profile page.
+  first_name_encrypted bytea,
+  last_name_encrypted  bytea,
+  chinese_name_encrypted bytea,
+  preferred_name_encrypted bytea,
+  preferred_chinese_name_encrypted bytea,
   date_of_birth   date,
   nationality     text,
-  hkid_encrypted  bytea,                    -- envelope encrypted
-  passport_encrypted bytea,                 -- envelope encrypted
+  hkid_encrypted  bytea,                    -- envelope encrypted; HK primary ID
+  passport_encrypted bytea,                 -- envelope encrypted; primary passport
+  -- Unified identities slot — envelope-encrypted JSON array of
+  -- {kind, country?, number, label?, issuedAt?, expiresAt?, notes?}
+  identities_encrypted bytea,
+  trading_status  text,                     -- 'active' | 'restricted' | 'pending' | etc
   primary_email   citext,
   primary_phone   text,
+  -- People & beneficiaries as encrypted JSON. Alternative source-of-truth to
+  -- the dedicated `beneficiaries` table; whichever has data wins (JSON has
+  -- priority when both exist).
+  people_and_beneficiaries_encrypted bytea,
   preferred_channel text default 'email',   -- 'email' | 'portal' | 'whatsapp' | 'phone'
   quiet_hours_local jsonb,                  -- {start: '22:00', end: '07:00', tz: 'Asia/Hong_Kong'}
   marketing_consent boolean not null default true,

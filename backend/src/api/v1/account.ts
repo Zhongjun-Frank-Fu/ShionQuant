@@ -87,6 +87,72 @@ function requireClient(c: import("hono").Context) {
   return client
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// GET /api/v1/account/me
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Tiny "who am I" response shaped specifically for the nav-bar account
+ * dropdown. Returns just the bits a global navigation widget needs:
+ *   preferredName, preferredChineseName, primaryEmail, clientNumber, initial.
+ *
+ * Deliberately:
+ *   - NOT mfa-gated (cosmetic data only; same as the user's email which is
+ *     visible in the login flow)
+ *   - NOT audited (would flood audit_log on every page nav)
+ *   - cheap: at most one decrypt per cold-cache request
+ *
+ * Cache hint: frontend should store the result in sessionStorage and reuse
+ * across page navigations until logout.
+ */
+app.get("/me", async (c) => {
+  const client = requireClient(c)
+  const user = c.get("user")
+
+  const profile = await db.query.profiles.findFirst({
+    where: eq(profiles.clientId, client.id),
+  })
+
+  const [preferredName, preferredChineseName] = await Promise.all([
+    profile?.preferredNameEncrypted
+      ? decryptField(profile.preferredNameEncrypted)
+      : Promise.resolve(null),
+    profile?.preferredChineseNameEncrypted
+      ? decryptField(profile.preferredChineseNameEncrypted)
+      : Promise.resolve(null),
+  ])
+
+  // Initial: prefer the first letter of the preferred Chinese name (single
+  // glyph fits a 32px avatar best); fall back to preferred English; finally
+  // the auth-email's first letter so the avatar is never empty.
+  const initial =
+    (preferredChineseName && preferredChineseName.charAt(0)) ||
+    (preferredName && preferredName.replace(/^(Mr|Ms|Dr|Mrs)\.\s*/, "").charAt(0)) ||
+    user.email.charAt(0).toUpperCase()
+
+  return c.json({
+    ok: true,
+    user: {
+      id: user.id,
+      email: user.email, // auth-email
+      preferredLang: user.preferredLang,
+    },
+    profile: {
+      preferredName,
+      preferredChineseName,
+      primaryEmail: profile?.primaryEmail ?? user.email,
+      initial,
+    },
+    client: {
+      id: client.id,
+      clientNumber: client.clientNumber,
+      tier: client.tier,
+      jurisdiction: client.jurisdiction,
+      joinedAt: client.joinedAt,
+    },
+  })
+})
+
 // ╔═══════════════════════════════════════════════════════════════════════════╗
 // ║  PROFILE                                                                   ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
@@ -118,13 +184,43 @@ app.get("/profile", mfaAuthMiddleware, async (c) => {
 
   // Decrypt KYC fields. Each `decryptField` is one KMS call; in a real KMS
   // we'd batch these, but for the Local KMS the round-trip is local memory.
-  const legalName = await decryptField(profile.legalNameEncrypted)
-  const hkid = profile.hkidEncrypted
-    ? await decryptField(profile.hkidEncrypted)
-    : null
-  const passport = profile.passportEncrypted
-    ? await decryptField(profile.passportEncrypted)
-    : null
+  const [
+    legalName,
+    firstName,
+    lastName,
+    chineseName,
+    preferredName,
+    preferredChineseName,
+    hkid,
+    passport,
+    identitiesRaw,
+    peopleAndBeneficiariesRaw,
+  ] = await Promise.all([
+    decryptField(profile.legalNameEncrypted),
+    profile.firstNameEncrypted ? decryptField(profile.firstNameEncrypted) : Promise.resolve(null),
+    profile.lastNameEncrypted ? decryptField(profile.lastNameEncrypted) : Promise.resolve(null),
+    profile.chineseNameEncrypted ? decryptField(profile.chineseNameEncrypted) : Promise.resolve(null),
+    profile.preferredNameEncrypted ? decryptField(profile.preferredNameEncrypted) : Promise.resolve(null),
+    profile.preferredChineseNameEncrypted ? decryptField(profile.preferredChineseNameEncrypted) : Promise.resolve(null),
+    profile.hkidEncrypted ? decryptField(profile.hkidEncrypted) : Promise.resolve(null),
+    profile.passportEncrypted ? decryptField(profile.passportEncrypted) : Promise.resolve(null),
+    profile.identitiesEncrypted ? decryptField(profile.identitiesEncrypted) : Promise.resolve(null),
+    profile.peopleAndBeneficiariesEncrypted
+      ? decryptField(profile.peopleAndBeneficiariesEncrypted)
+      : Promise.resolve(null),
+  ])
+
+  // Both jsonb-equivalent fields are stored as encrypted JSON strings; parse
+  // here so the client sees structured data. Bad JSON → ignore + log.
+  const safeParse = (label: string, raw: string | null) => {
+    if (!raw) return null
+    try { return JSON.parse(raw) } catch (err) {
+      console.warn(`[account.profile] failed to JSON.parse ${label}: ${String(err)}`)
+      return null
+    }
+  }
+  const identities = safeParse("identities", identitiesRaw)
+  const peopleAndBeneficiaries = safeParse("peopleAndBeneficiaries", peopleAndBeneficiariesRaw)
 
   // Sub-resources.
   const [addressRows, taxRows, beneficiaryRows] = await Promise.all([
@@ -198,14 +294,29 @@ app.get("/profile", mfaAuthMiddleware, async (c) => {
   return c.json({
     ok: true,
     profile: {
+      // Granular names (added 2026-05). Frontend should prefer these over
+      // `legalName`; that one stays around as the KYC-locked anchor.
+      firstName,
+      lastName,
+      chineseName,
+      preferredName,
+      preferredChineseName,
       legalName,
       dateOfBirth: profile.dateOfBirth,
       nationality: profile.nationality,
       hkid,
       passport,
+      // Unified identities (decrypted JSON array). HKID + passport above
+      // are the special-cased ones; this is the catch-all bucket.
+      identities,
+      tradingStatus: profile.tradingStatus,
       primaryEmail: profile.primaryEmail,
       primaryPhone: profile.primaryPhone,
+      // JSON-as-table alternative to the `beneficiaries` table below.
+      // Frontend renders this if present; falls back to `beneficiaries`.
+      peopleAndBeneficiaries,
       preferredChannel: profile.preferredChannel,
+      preferredLang: user.preferredLang, // lives on users; surface here for convenience
       quietHoursLocal: profile.quietHoursLocal,
       marketingConsent: profile.marketingConsent,
       caseStudyConsent: profile.caseStudyConsent,
