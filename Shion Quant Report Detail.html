@@ -1194,25 +1194,25 @@
     return base ? `sec-${idx + 1}-${base.slice(0, 40)}` : `sec-${idx + 1}`;
   }
 
+  // ▼ Renderer markup mirrors the Event Detail section family (`.det-section`
+  //   / `.ds-num` / `.ds-title` / `.ds-meta` / `.det-prose`). The legacy
+  //   `.rep-section` / `.rs-*` classes are kept for the static demo / SEO
+  //   fallback at the top of this file but no longer produced by the JS path.
   function _sectionHead(num, title, eyebrow) {
     if (!title && !eyebrow) return '';
     return `
-      <div class="rs-num-wrap">
-        <span class="rs-num">${String(num).padStart(2, '0')}</span>
-      </div>
-      <div class="rs-head">
-        ${title ? `<h2 class="rs-title">${escapeHtml(bi(title))}</h2>` : ''}
-        ${eyebrow ? `<p class="rs-eyebrow">${escapeHtml(bi(eyebrow))}</p>` : ''}
+      <div class="det-section-head">
+        <span class="ds-num">${String(num).padStart(2, '0')}</span>
+        ${title ? `<span class="ds-title">${escapeHtml(bi(title))}</span>` : ''}
+        ${eyebrow ? `<span class="ds-meta">${escapeHtml(bi(eyebrow))}</span>` : ''}
       </div>`;
   }
 
   function renderProse(block, idx, anchor) {
     return `
-      <section class="rep-section" id="${escapeHtml(anchor)}">
+      <section class="det-section" id="${escapeHtml(anchor)}">
         ${_sectionHead(idx + 1, block.title, block.eyebrow)}
-        <div class="rs-body">
-          <p class="rs-prose">${escapeHtml(bi(block.body))}</p>
-        </div>
+        <p class="det-prose">${escapeHtml(bi(block.body))}</p>
       </section>`;
   }
 
@@ -1235,11 +1235,9 @@
       return `<td${toneClass}${a}>${escapeHtml(text)}</td>`;
     }).join('')}</tr>`).join('')}</tbody>`;
     return `
-      <section class="rep-section" id="${escapeHtml(anchor)}">
+      <section class="det-section" id="${escapeHtml(anchor)}">
         ${_sectionHead(idx + 1, block.title, block.eyebrow)}
-        <div class="rs-body">
-          <table class="pos-mini">${head}${body}</table>
-        </div>
+        <table class="pos-mini">${head}${body}</table>
       </section>`;
   }
 
@@ -1258,9 +1256,9 @@
         </div>`;
     }).join('');
     return `
-      <section class="rep-section" id="${escapeHtml(anchor)}">
+      <section class="det-section" id="${escapeHtml(anchor)}">
         ${_sectionHead(idx + 1, block.title, block.eyebrow)}
-        <div class="rs-body"><div class="kv-grid">${tiles}</div></div>
+        <div class="kv-grid">${tiles}</div>
       </section>`;
   }
 
@@ -1282,9 +1280,9 @@
         </div>`;
     }).join('');
     return `
-      <section class="rep-section" id="${escapeHtml(anchor)}">
+      <section class="det-section" id="${escapeHtml(anchor)}">
         ${_sectionHead(idx + 1, block.title, block.eyebrow)}
-        <div class="rs-body"><div class="action-list">${rows}</div></div>
+        <div class="action-list">${rows}</div>
       </section>`;
   }
 
@@ -1299,20 +1297,18 @@
       </tr>`;
     }).join('');
     return `
-      <section class="rep-section" id="${escapeHtml(anchor)}">
+      <section class="det-section" id="${escapeHtml(anchor)}">
         ${_sectionHead(idx + 1, block.title, block.eyebrow)}
-        <div class="rs-body">
-          <table class="pos-mini">
-            <thead>
-              <tr>
-                <th><span class="en-inline">Period</span><span class="zh-inline">期间</span></th>
-                <th><span class="en-inline">Surprise</span><span class="zh-inline">超预期</span></th>
-                <th><span class="en-inline">Reaction</span><span class="zh-inline">反应</span></th>
-              </tr>
-            </thead>
-            <tbody>${tbody}</tbody>
-          </table>
-        </div>
+        <table class="pos-mini">
+          <thead>
+            <tr>
+              <th><span class="en-inline">Period</span><span class="zh-inline">期间</span></th>
+              <th><span class="en-inline">Surprise</span><span class="zh-inline">超预期</span></th>
+              <th><span class="en-inline">Reaction</span><span class="zh-inline">反应</span></th>
+            </tr>
+          </thead>
+          <tbody>${tbody}</tbody>
+        </table>
       </section>`;
   }
 
@@ -1324,14 +1320,12 @@
       ? `<figcaption class="fig-caption">${escapeHtml(bi(block.caption))}</figcaption>`
       : '';
     return `
-      <section class="rep-section" id="${escapeHtml(anchor)}">
+      <section class="det-section" id="${escapeHtml(anchor)}">
         ${_sectionHead(idx + 1, block.title, block.eyebrow)}
-        <div class="rs-body">
-          <figure class="fig-block">
-            <img class="fig-img"${aspectStyle} src="${escapeHtml(block.src || '')}" alt="${escapeHtml(bi(block.alt))}" loading="lazy">
-            ${caption}
-          </figure>
-        </div>
+        <figure class="fig-block">
+          <img class="fig-img"${aspectStyle} src="${escapeHtml(block.src || '')}" alt="${escapeHtml(bi(block.alt))}" loading="lazy">
+          ${caption}
+        </figure>
       </section>`;
   }
 
@@ -1342,13 +1336,11 @@
       ? `<div class="code-banner">${fname}${lang}</div>`
       : '';
     return `
-      <section class="rep-section" id="${escapeHtml(anchor)}">
+      <section class="det-section" id="${escapeHtml(anchor)}">
         ${_sectionHead(idx + 1, block.title, block.eyebrow)}
-        <div class="rs-body">
-          <div class="code-block">
-            ${banner}
-            <pre><code>${escapeHtml(block.code || '')}</code></pre>
-          </div>
+        <div class="code-block">
+          ${banner}
+          <pre><code>${escapeHtml(block.code || '')}</code></pre>
         </div>
       </section>`;
   }
@@ -1527,26 +1519,93 @@
 </script>
 
 <style>
-  /* Block-renderer styles. The .rep-section / .rs-num / .rs-title classes
-     already exist for the static fallback; here we just add what's new. */
-  .rs-eyebrow {
+  /* ─── DESIGN-TOKEN SYNC with Event Detail (Schedules family) ──────────
+     Every block kind below renders into `.det-section` so the spacing /
+     numbering / heading typography match Event Detail's main column 1-to-1.
+     The legacy `.rep-section / .rs-*` classes still exist for the static
+     demo HTML at the top of the file (graceful degradation) but the JS
+     path now exclusively emits the `.det-section` family. */
+
+  .det-section { margin-bottom: 2.2rem; max-width: none; }
+  .det-section:last-child { margin-bottom: 0; }
+  .det-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    margin-bottom: 0.95rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .ds-num {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--royal);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+  .ds-title {
+    font-family: var(--serif-en);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  body.lang-zh .ds-title { font-family: var(--serif-zh); }
+  .ds-title em { font-style: italic; font-weight: 400; color: var(--royal); }
+  .ds-meta {
     font-family: var(--sans-en);
     font-size: 0.62rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--ink-soft);
-    margin: 0.2rem 0 0;
+    color: var(--silver);
+    margin-left: auto;
   }
-  body.lang-zh .rs-eyebrow { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+  body.lang-zh .ds-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
 
-  .rs-prose {
-    font-family: var(--serif-en);
-    font-size: 1rem;
-    line-height: 1.75;
+  .det-prose {
+    font-family: var(--sans-en);
+    font-size: 0.86rem;
     color: var(--ink-mid);
-    max-width: 34em;
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 70ch;
   }
-  body.lang-zh .rs-prose { font-family: var(--serif-zh); line-height: 1.95; }
+  body.lang-zh .det-prose { font-family: var(--sans-zh); max-width: 36em; }
+
+  /* Position-style table — copied verbatim from Event Detail so reports
+     get the same tabular-nums + uppercase-thead treatment. */
+  .pos-mini {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--sans-en);
+    font-variant-numeric: tabular-nums;
+    margin-top: 0.85rem;
+  }
+  body.lang-zh .pos-mini { font-family: var(--sans-zh); }
+  .pos-mini th {
+    text-align: right;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.54rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  body.lang-zh .pos-mini th { letter-spacing: 0.06em; text-transform: none; }
+  .pos-mini th:first-child, .pos-mini th:nth-child(2) { text-align: left; }
+  .pos-mini th:first-child { padding-left: 0; }
+  .pos-mini td {
+    padding: 0.65rem 0.65rem;
+    text-align: right;
+    font-size: 0.78rem;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule);
+  }
+  .pos-mini td:first-child, .pos-mini td:nth-child(2) { text-align: left; }
+  .pos-mini td:first-child { padding-left: 0; }
+  .pos-mini .gain { color: var(--gain); }
+  .pos-mini .loss { color: var(--loss); }
 
   /* kv-grid + action-list reuse the same styling as Event Detail. */
   .kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }

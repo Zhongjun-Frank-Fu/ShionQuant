@@ -29,7 +29,7 @@ import { and, eq, inArray, isNull } from "drizzle-orm"
 
 import { generateRecoveryCodes, hashPassword } from "../auth/argon2.js"
 import { hashRecoveryCodes } from "../auth/recovery.js"
-import { generateSecret, provisioningUri } from "../auth/totp.js"
+import { provisioningUri } from "../auth/totp.js"
 import { encryptAndHash, encryptField, encryptSecret } from "../lib/crypto.js"
 import { randomBytes } from "node:crypto"
 
@@ -66,6 +66,22 @@ const TEST_EMAIL = "chen@test.local"
 const TEST_PASSWORD = "demo-password-2026"
 const TEST_CLIENT_NUMBER = "SQ-0042"
 const ADVISOR_EMAIL = "kt@shion.test"
+
+/**
+ * Fixed dev-only TOTP secret. The seed used to call `generateSecret()` on
+ * every run, which forced us to update the Authenticator app entry each
+ * time. For local dev there's no actual security to preserve (chen@test.local
+ * has a hardcoded password too) and a stable secret lets you scan/type once
+ * and forget about it.
+ *
+ * Safe because the surrounding seed refuses to run when NODE_ENV=production
+ * (see top of main()). If you ever want a fresh secret, replace this value
+ * and re-add the entry to your Authenticator.
+ *
+ * Format: 32 chars of base32 = 160 bits of entropy = same as
+ * `new Secret({size: 20}).base32` would produce.
+ */
+const TEST_TOTP_SECRET_BASE32 = "A7QUFSUX3UWMS7OE2XPJVGZMZXJNR4IJ"
 
 async function main() {
   if (process.env.NODE_ENV === "production") {
@@ -154,7 +170,7 @@ async function main() {
   console.log("  ✓ client:", client!.clientNumber, `(${client!.tier})`)
 
   // ─── 5. TOTP factor ───────────────────────────────────────────────────────
-  const totpSecret = generateSecret()
+  const totpSecret = TEST_TOTP_SECRET_BASE32 // stable across seed runs (dev only)
   await db.insert(authFactors).values({
     userId: user!.id,
     factorType: "totp",
