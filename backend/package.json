@@ -24,6 +24,7 @@
     "db:migrate-documents-folded-metadata": "node scripts/db-exec.mjs src/db/migrations/0004_documents_folded_metadata.sql",
     "db:migrate-profile-extended": "node scripts/db-exec.mjs src/db/migrations/0005_profile_extended.sql",
     "db:migrate-custom-projects-metadata": "node scripts/db-exec.mjs src/db/migrations/0006_custom_projects_metadata.sql",
+    "db:migrate-calendar-preferences": "node scripts/db-exec.mjs src/db/migrations/0007_calendar_preferences.sql",
     "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",

@@ -1786,14 +1786,39 @@ async function main() {
   }
   console.log(`  ✓ ${eventInserts.length} schedule events (with reminders)`)
 
-  // ─── 18. ICS subscription ─────────────────────────────────────────────────
+  // ─── 18. ICS subscription + calendar preferences ──────────────────────────
   const icsToken = randomBytes(24).toString("base64url")
   await db.insert(calendarSubscriptions).values({
     clientId: client!.id,
     icsToken,
+    // Seed defaults that match the server-side DEFAULT_CALENDAR_PREFERENCES.
+    // Kept inline (rather than imported) so the seed stays a single
+    // self-contained source of truth.
+    preferences: {
+      positionDerivedEvents: {
+        macroCalendar: true,
+        earnings: true,
+        heldPositions: true,
+        advisorTouchpoints: true,
+        reportDeliveries: true,
+        complianceRenewals: false,
+      },
+      reminders: {
+        critical:        { leadMinutes: [60 * 24, 180, 30], email: true,  push: true,  sms: true  },
+        optionsEarnings: { leadMinutes: [60 * 24],          email: true,  push: true,  sms: false },
+        advisorCalls:    { leadMinutes: [60 * 24, 30],      email: true,  push: true,  sms: true  },
+        personalEvents:  { leadMinutes: [30],               email: false, push: true,  sms: false },
+      },
+      display: {
+        timezone: "America/New_York",
+        weekStart: "monday",
+        showPast14Days: false,
+        compactMode: true,
+      },
+    },
   })
   const icsUrl = `http://localhost:3001/api/v1/schedules/ics/${icsToken}`
-  console.log(`  ✓ ICS subscription token created`)
+  console.log(`  ✓ ICS subscription token + calendar preferences seeded`)
 
   // ─── 19. Reports library (M6 fixtures) ────────────────────────────────────
   // Six reports across all six inbox categories. Mix of firm-wide

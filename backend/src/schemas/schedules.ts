@@ -112,3 +112,54 @@ export const scheduleSettingsPatchSchema = z
       .optional(),
   })
   .strict()
+
+// ─── Calendar preferences ────────────────────────────────────────────────
+// Persisted as a jsonb blob on calendar_subscriptions.preferences. Each
+// section is optional in the PATCH payload so the page can save incremental
+// changes without re-sending the whole object.
+
+const REMINDER_KEY = [
+  "critical",
+  "optionsEarnings",
+  "advisorCalls",
+  "personalEvents",
+] as const
+
+const reminderConfigSchema = z
+  .object({
+    leadMinutes: z.array(z.number().int().min(0).max(60 * 24 * 30)).max(8),
+    email: z.boolean(),
+    push: z.boolean(),
+    sms: z.boolean(),
+  })
+  .strict()
+
+export const calendarPreferencesPatchSchema = z
+  .object({
+    positionDerivedEvents: z
+      .object({
+        macroCalendar: z.boolean(),
+        earnings: z.boolean(),
+        heldPositions: z.boolean(),
+        advisorTouchpoints: z.boolean(),
+        reportDeliveries: z.boolean(),
+        complianceRenewals: z.boolean(),
+      })
+      .partial()
+      .strict()
+      .optional(),
+    reminders: z
+      .record(z.enum(REMINDER_KEY), reminderConfigSchema)
+      .optional(),
+    display: z
+      .object({
+        timezone: z.string().min(1).max(64),
+        weekStart: z.enum(["monday", "sunday"]),
+        showPast14Days: z.boolean(),
+        compactMode: z.boolean(),
+      })
+      .partial()
+      .strict()
+      .optional(),
+  })
+  .strict()

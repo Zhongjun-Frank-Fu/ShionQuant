@@ -423,6 +423,198 @@
   .portal-foot-meta a { color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
   .portal-foot-meta a:hover { color: #fff; }
 
+  /* SQ-CAL-SETTINGS-V1 additions ────────────────────────────────────── */
+  .sec-sub {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--silver);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  body.lang-zh .sec-sub { font-family: var(--sans-zh); text-transform: none; letter-spacing: 0.04em; }
+  .sec-hint {
+    font-family: var(--sans-en);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    font-weight: 300;
+    line-height: 1.55;
+    margin: -0.3rem 0 0.7rem;
+  }
+  body.lang-zh .sec-hint { font-family: var(--sans-zh); }
+
+  /* Feeds — stacked rows */
+  .feed-row { padding: 0.95rem 1.2rem; border-top: 1px solid var(--rule); }
+  .feed-row:first-child { border-top: none; }
+  .feed-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 0.45rem;
+    font-weight: 500;
+  }
+  body.lang-zh .feed-label { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+  .feed-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.54rem;
+    background: rgba(35,71,212,0.10);
+    color: var(--royal);
+    padding: 0.12rem 0.42rem;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    margin-left: 0.4rem;
+    font-weight: 500;
+    vertical-align: middle;
+  }
+
+  /* Calendar categories — chip grid */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  @media (max-width: 640px) { .cat-grid { grid-template-columns: 1fr; } }
+  .cat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .cat-grid > .cat-row:nth-child(-n+2) { border-top: none; }
+  @media (max-width: 640px) {
+    .cat-grid > .cat-row:nth-child(-n+2) { border-top: 1px solid var(--rule); }
+    .cat-grid > .cat-row:first-child { border-top: none; }
+  }
+  .cat-row:nth-child(odd):not(:last-child) { border-right: 1px solid var(--rule); }
+  @media (max-width: 640px) { .cat-row:nth-child(odd):not(:last-child) { border-right: none; } }
+  .cat-chip {
+    width: 12px; height: 12px; border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
+  }
+  .cat-info { flex: 1; min-width: 0; }
+  .cat-name {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink);
+    font-weight: 500;
+    margin-bottom: 0.12rem;
+  }
+  body.lang-zh .cat-name { font-family: var(--sans-zh); }
+  .cat-meta {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    color: var(--silver);
+  }
+  .cat-meta.on { color: var(--gain); }
+  .cat-meta.off { color: var(--silver); }
+  body.lang-zh .cat-meta { font-family: var(--sans-zh); letter-spacing: 0; }
+
+  /* Reminder rows — interactive */
+  .rem-row.interactive { grid-template-columns: 1fr auto; cursor: default; }
+  .rem-pill.clickable {
+    cursor: pointer;
+    border: 1px solid transparent;
+    user-select: none;
+    transition: transform 0.12s, background 0.15s;
+  }
+  .rem-pill.clickable:hover { transform: translateY(-1px); }
+  .rem-pill.clickable:active { transform: translateY(0); }
+  .rem-time.clickable {
+    cursor: pointer;
+    padding: 0.32rem 0.65rem;
+    border-radius: 3px;
+    background: var(--bg-soft);
+    color: var(--ink-mid);
+    transition: background 0.15s, color 0.15s;
+    border: 1px solid transparent;
+  }
+  .rem-time.clickable:hover { background: rgba(35,71,212,0.08); color: var(--royal); border-color: var(--rule-strong); }
+  .rem-time.off { color: var(--silver); font-style: italic; }
+
+  /* External calendar disabled state */
+  .int-row.int-disabled { opacity: 0.5; }
+  .int-row.int-disabled .int-icon { filter: saturate(0.4); }
+  .int-row.int-disabled .row-action {
+    cursor: not-allowed;
+    color: var(--silver);
+  }
+  .int-row.int-disabled .row-action:hover { text-decoration: none; }
+
+  /* Advanced — select element shared style */
+  .adv-select {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink);
+    background: var(--bg-soft);
+    border: 1px solid transparent;
+    padding: 0.45rem 1.6rem 0.45rem 0.7rem;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path fill=%22none%22 stroke=%22%238896b8%22 stroke-width=%221.5%22 d=%22M1 1l4 4 4-4%22/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+  }
+  body.lang-zh .adv-select { font-family: var(--sans-zh); }
+
+  /* Save bar — disabled button state */
+  .ha-btn:disabled,
+  .ha-btn.primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  .ha-btn:disabled:hover { border-color: var(--rule); color: var(--ink-soft); }
+  .ha-btn.primary:disabled:hover { background: var(--royal); border-color: var(--royal); }
+
+  /* Loading + error states for data-rebuild containers */
+  .rebuild-loading {
+    padding: 1.4rem 1.2rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--silver);
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+  body.lang-zh .rebuild-loading { font-family: var(--sans-zh); letter-spacing: 0; }
+  .rebuild-error {
+    padding: 1rem 1.2rem;
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    color: var(--loss);
+    background: rgba(196,82,82,0.04);
+    border-left: 2px solid var(--loss);
+  }
+  body.lang-zh .rebuild-error { font-family: var(--sans-zh); }
+
+  /* Toast — appears after save / rotate */
+  .sq-toast {
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--sans-en);
+    font-size: 0.74rem;
+    padding: 0.7rem 1rem;
+    border-radius: 4px;
+    box-shadow: 0 12px 32px rgba(13,16,32,0.25);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.25s cubic-bezier(0.25,1,0.5,1);
+  }
+  body.lang-zh .sq-toast { font-family: var(--sans-zh); }
+  .sq-toast.show { opacity: 1; transform: translateY(0); }
+  .sq-toast.err { background: var(--loss); }
+
   @media (max-width: 1180px) { .portal-tabs { gap: 1.6rem; } .portal-tabs a { font-size: 0.7rem; } }
   @media (max-width: 1024px) {
     .portal-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 0.8rem; }
@@ -476,247 +668,131 @@
       <span class="zh">日历<em>偏好</em></span>
     </h1>
     <p class="pg-sub">
-      <span class="en-inline">What syncs to your timeline, where reminders go, and which external calendars receive a feed.</span>
-      <span class="zh-inline">哪些事件出现在时间线上、提醒发送至何处、哪些外部日历接收订阅。</span>
+      <span class="en-inline">What syncs to your timeline, where reminders go, and how the feed is exposed to external readers.</span>
+      <span class="zh-inline">哪些事件出现在时间线上、提醒发送至何处、外部阅读器如何订阅。</span>
     </p>
   </div>
 
-  <!-- 1. ICS FEED -->
+  <!-- 1. CALENDAR FEEDS — ICS + RSS, both bound from backend -->
   <section class="sec">
     <div class="sec-head">
-      <h2 class="sec-title"><span class="en">ICS <em>feed</em></span><span class="zh">ICS <em>订阅</em></span></h2>
+      <h2 class="sec-title"><span class="en">Calendar <em>feeds</em></span><span class="zh">日历<em>订阅</em></span></h2>
     </div>
-    <div class="card">
-      <div class="ics-row">
-        <div class="ics-url-wrap">
-          <input class="ics-url" type="text" readonly value="webcal://portal.intelligenceinvestment.com/ics/0042/4f2a91…d83b.ics">
-          <button class="ics-copy"><span class="en-inline">Copy</span><span class="zh-inline">复制</span></button>
-        </div>
-        <div class="ics-meta">
-          <span class="en-inline">Last fetched <strong>22 Apr · 16:14 ET</strong> · works with Google Calendar, Apple Calendar, Outlook</span>
-          <span class="zh-inline">上次拉取 <strong>4/22 · 16:14 ET</strong> · 支持 Google Calendar / Apple Calendar / Outlook</span>
-        </div>
-      </div>
-    </div>
+    <div class="card" data-rebuild="feeds"></div>
   </section>
 
-  <!-- 2. WHAT SYNCS -->
+  <!-- 2. POSITION-DERIVED EVENTS — 6 toggles -->
   <section class="sec">
     <div class="sec-head">
-      <h2 class="sec-title"><span class="en">What <em>syncs</em></span><span class="zh">同步<em>内容</em></span></h2>
+      <h2 class="sec-title">
+        <span class="en">Position-derived <em>events</em></span><span class="zh">仓位<em>衍生事件</em></span>
+      </h2>
+      <span class="sec-sub" data-bind="pde.activeCount"></span>
     </div>
-    <div class="card">
-      <div class="row">
-        <div class="row-info">
-          <div class="row-name">
-            <span class="en-inline">Position-derived events</span><span class="zh-inline">仓位衍生事件</span>
-            <span class="pill">9 active</span>
-          </div>
-          <div class="row-hint"><span class="en-inline">Options expiries · bond coupons · dividend ex-dates</span><span class="zh-inline">期权到期 · 债券付息 · 除息日</span></div>
-        </div>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <div class="row">
-        <div class="row-info">
-          <div class="row-name"><span class="en-inline">Macro calendar</span><span class="zh-inline">宏观日历</span></div>
-          <div class="row-hint"><span class="en-inline">Fed, CPI, NFP — only if portfolio sensitivity &gt; 25 bps</span><span class="zh-inline">Fed / CPI / 非农 — 仅敏感度 &gt; 25 bps 的事件</span></div>
-        </div>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <div class="row">
-        <div class="row-info">
-          <div class="row-name"><span class="en-inline">Earnings · held positions</span><span class="zh-inline">财报 · 持仓</span></div>
-          <div class="row-hint"><span class="en-inline">Quarterly earnings for held + watch-list tickers</span><span class="zh-inline">已持仓与关注清单的季度财报</span></div>
-        </div>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <div class="row">
-        <div class="row-info">
-          <div class="row-name"><span class="en-inline">Advisor touchpoints</span><span class="zh-inline">顾问会议</span></div>
-          <div class="row-hint"><span class="en-inline">Quarterly reviews, post-event debriefs, ad-hoc sessions</span><span class="zh-inline">季度复盘、事后简报、临时策略会议</span></div>
-        </div>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <div class="row">
-        <div class="row-info">
-          <div class="row-name"><span class="en-inline">Report deliveries</span><span class="zh-inline">报告交付</span></div>
-          <div class="row-hint"><span class="en-inline">Monthly risk attribution, quarterly review delivery dates</span><span class="zh-inline">月度风险归因、季度复盘交付日</span></div>
-        </div>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-      </div>
-      <div class="row">
-        <div class="row-info">
-          <div class="row-name"><span class="en-inline">Compliance &amp; renewals</span><span class="zh-inline">合规与续约</span></div>
-          <div class="row-hint"><span class="en-inline">KYC refresh, W-8BEN renewal, engagement expiry</span><span class="zh-inline">KYC 更新 · W-8BEN 续期 · 合作到期</span></div>
-        </div>
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
-      </div>
-    </div>
+    <div class="card" data-rebuild="pde"></div>
   </section>
 
-  <!-- 3. REMINDERS -->
+  <!-- 3. CALENDAR CATEGORIES — the six event sources with color chips -->
   <section class="sec">
     <div class="sec-head">
-      <h2 class="sec-title"><span class="en">How you're <em>reminded</em></span><span class="zh"><em>提醒</em>方式</span></h2>
+      <h2 class="sec-title">
+        <span class="en">Calendar <em>categories</em></span><span class="zh">日历<em>类别</em></span>
+      </h2>
     </div>
-    <div class="card">
-      <div class="rem-row">
-        <div>
-          <div class="rem-name"><span class="en-inline">Critical events (Fed, top-3 earnings)</span><span class="zh-inline">关键事件（Fed、Top3 财报）</span></div>
-          <div class="rem-channels">
-            <span class="rem-pill on">EMAIL</span>
-            <span class="rem-pill on">PUSH</span>
-            <span class="rem-pill on">SMS</span>
-          </div>
-        </div>
-        <div class="rem-time">1d · 3h · 30m</div>
-      </div>
-      <div class="rem-row">
-        <div>
-          <div class="rem-name"><span class="en-inline">Options expiries &amp; earnings</span><span class="zh-inline">期权到期与财报</span></div>
-          <div class="rem-channels">
-            <span class="rem-pill on">EMAIL</span>
-            <span class="rem-pill on">PUSH</span>
-            <span class="rem-pill off">SMS</span>
-          </div>
-        </div>
-        <div class="rem-time">1d before</div>
-      </div>
-      <div class="rem-row">
-        <div>
-          <div class="rem-name"><span class="en-inline">Advisor calls</span><span class="zh-inline">顾问电话</span></div>
-          <div class="rem-channels">
-            <span class="rem-pill on">EMAIL</span>
-            <span class="rem-pill on">PUSH</span>
-            <span class="rem-pill on">SMS</span>
-          </div>
-        </div>
-        <div class="rem-time">1d · 30m</div>
-      </div>
-      <div class="rem-row">
-        <div>
-          <div class="rem-name"><span class="en-inline">Personal events (yours)</span><span class="zh-inline">个人事件（自建）</span></div>
-          <div class="rem-channels">
-            <span class="rem-pill off">EMAIL</span>
-            <span class="rem-pill on">PUSH</span>
-            <span class="rem-pill off">SMS</span>
-          </div>
-        </div>
-        <div class="rem-time">30m before</div>
-      </div>
-    </div>
+    <p class="sec-hint">
+      <span class="en-inline">Each position-derived event lands on the timeline with the color shown here. Disabled categories are hidden from the timeline + ICS / RSS feeds.</span>
+      <span class="zh-inline">仓位衍生事件按下方颜色显示在时间线上；停用的类别将从时间线及 ICS / RSS 订阅中隐藏。</span>
+    </p>
+    <div class="card" data-rebuild="categories"></div>
   </section>
 
-  <!-- 4. INTEGRATIONS -->
+  <!-- 4. REMINDERS & CRITICAL EVENTS — editable time + channels -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2 class="sec-title">
+        <span class="en">Reminders &amp; <em>critical events</em></span><span class="zh">提醒与<em>关键事件</em></span>
+      </h2>
+    </div>
+    <p class="sec-hint">
+      <span class="en-inline">Click a time chip to cycle through presets; click a channel pill to toggle email, push, or SMS.</span>
+      <span class="zh-inline">点击时间按钮在预设之间切换；点击 EMAIL / PUSH / SMS 标签可开关相应通道。</span>
+    </p>
+    <div class="card" data-rebuild="reminders"></div>
+  </section>
+
+  <!-- 5. EXTERNAL CALENDARS — all disabled until features ship -->
   <section class="sec">
     <div class="sec-head">
       <h2 class="sec-title"><span class="en">External <em>calendars</em></span><span class="zh">外部<em>日历</em></span></h2>
+      <span class="sec-sub">
+        <span class="en-inline">Coming soon</span><span class="zh-inline">即将推出</span>
+      </span>
     </div>
     <div class="card">
-      <div class="int-row">
+      <div class="int-row int-disabled">
         <div class="int-icon gcal">G</div>
         <div class="int-info">
           <div class="int-name">Google Calendar</div>
-          <div class="int-status connected"><span class="en-inline">Connected · w.chen@…</span><span class="zh-inline">已连接 · w.chen@…</span></div>
+          <div class="int-status"><span class="en-inline">Direct OAuth sync planned — use the ICS feed for now</span><span class="zh-inline">直连 OAuth 暂未上线 · 请先使用上方 ICS 订阅</span></div>
         </div>
-        <button class="row-action" style="color:var(--silver);"><span class="en-inline">Disconnect</span><span class="zh-inline">断开</span></button>
+        <button class="row-action" disabled><span class="en-inline">Connect</span><span class="zh-inline">连接</span></button>
       </div>
-      <div class="int-row">
+      <div class="int-row int-disabled">
         <div class="int-icon outlook">O</div>
         <div class="int-info">
           <div class="int-name">Outlook · Microsoft 365</div>
-          <div class="int-status"><span class="en-inline">Not connected</span><span class="zh-inline">未连接</span></div>
+          <div class="int-status"><span class="en-inline">Direct OAuth sync planned — use the ICS feed for now</span><span class="zh-inline">直连 OAuth 暂未上线 · 请先使用上方 ICS 订阅</span></div>
         </div>
-        <button class="row-action"><span class="en-inline">Connect</span><span class="zh-inline">连接</span></button>
+        <button class="row-action" disabled><span class="en-inline">Connect</span><span class="zh-inline">连接</span></button>
       </div>
-      <div class="int-row">
+      <div class="int-row int-disabled">
         <div class="int-icon apple">⌘</div>
         <div class="int-info">
           <div class="int-name">Apple Calendar · iCloud</div>
           <div class="int-status"><span class="en-inline">Use the ICS feed above</span><span class="zh-inline">使用上方 ICS 订阅</span></div>
         </div>
       </div>
+      <div class="int-row int-disabled">
+        <div class="int-icon notion">N</div>
+        <div class="int-info">
+          <div class="int-name">Notion · personal database</div>
+          <div class="int-status"><span class="en-inline">RSS works today — direct database sync planned</span><span class="zh-inline">可使用 RSS 订阅 · 数据库直连即将推出</span></div>
+        </div>
+        <button class="row-action" disabled><span class="en-inline">Connect</span><span class="zh-inline">连接</span></button>
+      </div>
     </div>
   </section>
 
-  <!-- ADVANCED disclosure -->
+  <!-- 6. ADVANCED — display preferences, persisted -->
   <section class="sec">
-    <details class="advanced">
+    <details class="advanced" id="adv-disclosure">
       <summary>
         <span class="en-inline">Advanced</span><span class="zh-inline">进阶</span>
         <span class="adv-hint">
-          <span class="en-inline">· timezone, week start, compact mode, Notion integration</span>
-          <span class="zh-inline">· 时区、周起始、紧凑模式、Notion 集成</span>
+          <span class="en-inline">· timezone, week start, past-events visibility, compact mode</span>
+          <span class="zh-inline">· 时区、周起始、历史事件、紧凑模式</span>
         </span>
       </summary>
-      <div class="adv-body">
-
-        <h4><span class="en-inline">Display</span><span class="zh-inline">显示</span></h4>
-        <div class="row" style="border-top:1px solid var(--rule);">
-          <div class="row-info">
-            <div class="row-name"><span class="en-inline">Default timezone</span><span class="zh-inline">默认时区</span></div>
-          </div>
-          <select style="font-family:var(--sans-en); font-size:0.78rem; color:var(--ink); background:var(--bg-soft); border:1px solid transparent; padding:0.45rem 1.6rem 0.45rem 0.7rem; border-radius:3px; outline:none; cursor:pointer; appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path fill=%22none%22 stroke=%22%238896b8%22 stroke-width=%221.5%22 d=%22M1 1l4 4 4-4%22/></svg>'); background-repeat:no-repeat; background-position:right 0.6rem center;">
-            <option>America/New_York · ET</option>
-            <option>Asia/Hong_Kong · HKT</option>
-            <option>Asia/Shanghai · CST</option>
-            <option>UTC</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="row-info">
-            <div class="row-name"><span class="en-inline">First day of week</span><span class="zh-inline">每周起始日</span></div>
-          </div>
-          <select style="font-family:var(--sans-en); font-size:0.78rem; color:var(--ink); background:var(--bg-soft); border:1px solid transparent; padding:0.45rem 1.6rem 0.45rem 0.7rem; border-radius:3px; outline:none; cursor:pointer; appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path fill=%22none%22 stroke=%22%238896b8%22 stroke-width=%221.5%22 d=%22M1 1l4 4 4-4%22/></svg>'); background-repeat:no-repeat; background-position:right 0.6rem center;">
-            <option>Monday</option>
-            <option>Sunday</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="row-info">
-            <div class="row-name"><span class="en-inline">Show past 14 days</span><span class="zh-inline">显示过去 14 天</span></div>
-            <div class="row-hint"><span class="en-inline">Otherwise the timeline starts from today</span><span class="zh-inline">否则时间线从今日开始</span></div>
-          </div>
-          <label class="switch"><input type="checkbox"><span class="slider"></span></label>
-        </div>
-        <div class="row">
-          <div class="row-info">
-            <div class="row-name"><span class="en-inline">Compact mode</span><span class="zh-inline">紧凑模式</span></div>
-            <div class="row-hint"><span class="en-inline">Tighter spacing, smaller dates</span><span class="zh-inline">更紧凑间距、更小日期字号</span></div>
-          </div>
-          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-        </div>
-
-        <h4><span class="en-inline">More integrations</span><span class="zh-inline">更多集成</span></h4>
-        <div class="int-row" style="border-top:1px solid var(--rule);">
-          <div class="int-icon notion">N</div>
-          <div class="int-info">
-            <div class="int-name">Notion · personal database</div>
-            <div class="int-status"><span class="en-inline">Beta · not connected</span><span class="zh-inline">Beta · 未连接</span></div>
-          </div>
-          <button class="row-action"><span class="en-inline">Connect</span><span class="zh-inline">连接</span></button>
-        </div>
-
-      </div>
+      <div class="adv-body" data-rebuild="advanced"></div>
     </details>
   </section>
 
   <!-- SAVE BAR -->
   <div class="save-bar">
-    <div class="save-status unsaved"><span class="en-inline">3 unsaved changes</span><span class="zh-inline">3 处改动未保存</span></div>
+    <div class="save-status" data-bind="save.status"><span class="en-inline">All changes saved</span><span class="zh-inline">所有改动已保存</span></div>
     <div class="save-actions">
-      <a href="Shion Quant Schedules.html" class="ha-btn"><span class="en-inline">Discard</span><span class="zh-inline">放弃</span></a>
-      <button class="ha-btn primary"><span class="en-inline">Save</span><span class="zh-inline">保存</span></button>
+      <button class="ha-btn" id="btn-discard" disabled><span class="en-inline">Discard</span><span class="zh-inline">放弃</span></button>
+      <button class="ha-btn primary" id="btn-save" disabled><span class="en-inline">Save</span><span class="zh-inline">保存</span></button>
     </div>
   </div>
 
-  <!-- RESET — small footer link -->
+  <!-- RESET — small footer link, rotates ICS+RSS token -->
   <div class="reset-note">
     <p>
-      <span class="en-inline">Reset clears all preferences to defaults and rotates the ICS feed token. Existing subscribers will need to re-subscribe.</span>
-      <span class="zh-inline">重置将清除所有偏好并轮换 ICS token。原订阅者需要重新订阅。</span>
+      <span class="en-inline">Rotate the feed token to invalidate the current ICS + RSS URLs (existing subscribers will need to re-subscribe).</span>
+      <span class="zh-inline">轮换订阅 token 将作废当前 ICS / RSS 链接，原订阅者需重新订阅。</span>
     </p>
-    <button class="reset-link"><span class="en-inline">Reset preferences</span><span class="zh-inline">重置设置</span></button>
+    <button class="reset-link" id="btn-rotate"><span class="en-inline">Rotate feed token</span><span class="zh-inline">轮换 Token</span></button>
   </div>
 
 </main>
@@ -1121,6 +1197,563 @@
       console.warn('[user-identity] fetch failed:', err.message || err);
     }
   })();
+})();
+</script>
+
+<script>
+/* SQ-CAL-SETTINGS-V1 — wires the Calendar Settings page to
+ * GET /schedules/settings + PATCH /schedules/preferences + POST /schedules/ics/rotate.
+ *
+ * Sections rendered:
+ *   1. feeds      — ICS (webcal) + RSS URLs with Copy buttons
+ *   2. pde        — six position-derived-event toggles
+ *   3. categories — six color chips reflecting on/off state
+ *   4. reminders  — four rows, each with clickable lead-time chip + 3 channel pills
+ *   5. advanced   — timezone / week start / past-events / compact mode (persisted)
+ *
+ * Dirty-tracking: every user edit goes through markDirty(section, patch).
+ * The Save button POSTs the union of pending patches, then resets baseline.
+ * The Discard button reverts in-memory state to the last saved baseline.
+ */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  // ─── State ─────────────────────────────────────────────────────────────
+  let preferences = null;       // current (possibly-dirty) preferences
+  let baseline = null;          // last server-confirmed preferences
+  let pending = {};             // { positionDerivedEvents?, reminders?, display? }
+  let icsSubscription = null;   // { icsWebcalUrl, rssUrl, ... }
+
+  // ─── Category metadata (label + color + hint, both languages) ─────────
+  const PDE_KEYS = [
+    'macroCalendar', 'earnings', 'heldPositions',
+    'advisorTouchpoints', 'reportDeliveries', 'complianceRenewals',
+  ];
+  const CATEGORY_META = {
+    macroCalendar: {
+      color: '#2347d4',
+      labelEn: 'Macro calendar',
+      labelZh: '宏观日历',
+      hintEn: 'Fed · CPI · NFP — only where portfolio sensitivity > 25 bps',
+      hintZh: 'Fed / CPI / 非农 — 仅敏感度 > 25 bps 的事件',
+    },
+    earnings: {
+      color: '#c8a84b',
+      labelEn: 'Earnings',
+      labelZh: '财报',
+      hintEn: 'Quarterly earnings for held + watch-list tickers',
+      hintZh: '已持仓与关注清单的季度财报',
+    },
+    heldPositions: {
+      color: '#2d8a5d',
+      labelEn: 'Held positions',
+      labelZh: '持仓事件',
+      hintEn: 'Options expiries · bond coupons · dividend ex-dates',
+      hintZh: '期权到期 · 债券付息 · 除息日',
+    },
+    advisorTouchpoints: {
+      color: '#7e57c2',
+      labelEn: 'Advisor touchpoints',
+      labelZh: '顾问会议',
+      hintEn: 'Quarterly reviews · post-event debriefs · ad-hoc sessions',
+      hintZh: '季度复盘 · 事后简报 · 临时策略会议',
+    },
+    reportDeliveries: {
+      color: '#00897b',
+      labelEn: 'Report deliveries',
+      labelZh: '报告交付',
+      hintEn: 'Monthly attribution · quarterly review delivery dates',
+      hintZh: '月度归因 · 季度复盘交付日',
+    },
+    complianceRenewals: {
+      color: '#c45252',
+      labelEn: 'Compliance renewals',
+      labelZh: '合规续约',
+      hintEn: 'KYC refresh · W-8BEN renewal · engagement expiry',
+      hintZh: 'KYC 更新 · W-8BEN 续期 · 合作到期',
+    },
+  };
+
+  // ─── Reminder metadata ─────────────────────────────────────────────────
+  const REMINDER_KEYS = ['critical', 'optionsEarnings', 'advisorCalls', 'personalEvents'];
+  const REMINDER_META = {
+    critical: {
+      labelEn: 'Critical events',
+      labelZh: '关键事件',
+      hintEn: 'Fed, top-3 earnings, anything flagged critical',
+      hintZh: 'Fed · Top3 财报 · 重要标记事件',
+      presets: [[1440, 180, 30], [1440, 30], [1440], [180], []],
+    },
+    optionsEarnings: {
+      labelEn: 'Options expiries & earnings',
+      labelZh: '期权到期与财报',
+      hintEn: 'Held tickers; expiries, ex-dates, earnings calls',
+      hintZh: '已持仓标的的到期 / 除息 / 财报',
+      presets: [[4320, 1440], [1440], [180], [60], []],
+    },
+    advisorCalls: {
+      labelEn: 'Advisor calls',
+      labelZh: '顾问电话',
+      hintEn: 'Quarterly reviews, debriefs, ad-hoc sessions',
+      hintZh: '季度复盘、简报、临时电话',
+      presets: [[1440, 30], [1440], [30], [60], []],
+    },
+    personalEvents: {
+      labelEn: 'Personal events',
+      labelZh: '个人事件',
+      hintEn: 'Events you create on the Schedules page',
+      hintZh: '在「日程安排」页面手动添加的事件',
+      presets: [[60], [30], [15], [5], []],
+    },
+  };
+
+  // ─── Format helpers ────────────────────────────────────────────────────
+  function fmtLead(mins) {
+    if (mins >= 1440) return `${Math.round(mins / 1440)}d`;
+    if (mins >= 60)   return `${Math.round(mins / 60)}h`;
+    return `${mins}m`;
+  }
+  function fmtLeadList(arr, isZh) {
+    if (!arr || arr.length === 0) return isZh ? '不提醒' : 'No reminder';
+    return arr.map(fmtLead).join(' · ');
+  }
+  function arraysEqual(a, b) {
+    return a.length === b.length && a.every((v, i) => v === b[i]);
+  }
+  function deepClone(x) { return JSON.parse(JSON.stringify(x)); }
+
+  // ─── Dirty tracking ────────────────────────────────────────────────────
+  function diffCount() {
+    let n = 0;
+    for (const section of Object.keys(pending)) {
+      for (const k of Object.keys(pending[section])) n += 1;
+    }
+    return n;
+  }
+  function markDirty() {
+    // Recompute the pending diff against baseline to keep the source of
+    // truth simple (no per-edit accounting). A field that's been edited
+    // and then reverted to the baseline value silently disappears from
+    // pending — which is the right behavior.
+    pending = {};
+    for (const k of PDE_KEYS) {
+      if (preferences.positionDerivedEvents[k] !== baseline.positionDerivedEvents[k]) {
+        if (!pending.positionDerivedEvents) pending.positionDerivedEvents = {};
+        pending.positionDerivedEvents[k] = preferences.positionDerivedEvents[k];
+      }
+    }
+    for (const k of REMINDER_KEYS) {
+      const a = preferences.reminders[k], b = baseline.reminders[k];
+      if (a.email !== b.email || a.push !== b.push || a.sms !== b.sms || !arraysEqual(a.leadMinutes, b.leadMinutes)) {
+        if (!pending.reminders) pending.reminders = {};
+        pending.reminders[k] = deepClone(a);
+      }
+    }
+    for (const k of ['timezone', 'weekStart', 'showPast14Days', 'compactMode']) {
+      if (preferences.display[k] !== baseline.display[k]) {
+        if (!pending.display) pending.display = {};
+        pending.display[k] = preferences.display[k];
+      }
+    }
+    renderSaveBar();
+  }
+
+  // ─── Toast ─────────────────────────────────────────────────────────────
+  const toastEl = document.createElement('div');
+  toastEl.className = 'sq-toast';
+  document.body.appendChild(toastEl);
+  let toastTimer = null;
+  function toast(msg, opts) {
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('err', !!(opts && opts.error));
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+  }
+
+  // ─── Renderers ─────────────────────────────────────────────────────────
+  function setRebuild(key, html) {
+    const el = document.querySelector(`[data-rebuild="${key}"]`);
+    if (el) el.innerHTML = html;
+    return el;
+  }
+  function showLoading(key) {
+    setRebuild(key, '<div class="rebuild-loading"><span class="en-inline">Loading…</span><span class="zh-inline">加载中…</span></div>');
+  }
+  function showError(key, msg) {
+    setRebuild(key, `<div class="rebuild-error">${msg}</div>`);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  }
+
+  function renderFeeds() {
+    if (!icsSubscription) return;
+    const ics = icsSubscription.icsWebcalUrl || icsSubscription.icsUrl || '';
+    const rss = icsSubscription.rssUrl || '';
+    const last = icsSubscription.lastFetchedAt
+      ? new Date(icsSubscription.lastFetchedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+      : '—';
+    const count = icsSubscription.fetchCount ?? 0;
+    setRebuild('feeds', `
+      <div class="feed-row">
+        <div class="feed-label">
+          <span class="en-inline">ICS · calendar apps</span><span class="zh-inline">ICS · 日历应用</span>
+          <span class="feed-tag">webcal://</span>
+        </div>
+        <div class="ics-url-wrap">
+          <input class="ics-url" type="text" readonly value="${escapeHtml(ics)}" id="feed-input-ics">
+          <button class="ics-copy" data-copy="ics"><span class="en-inline">Copy</span><span class="zh-inline">复制</span></button>
+        </div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-label">
+          <span class="en-inline">RSS · readers + Notion + Slack</span><span class="zh-inline">RSS · 阅读器 / Notion / Slack</span>
+          <span class="feed-tag">RSS 2.0</span>
+        </div>
+        <div class="ics-url-wrap">
+          <input class="ics-url" type="text" readonly value="${escapeHtml(rss)}" id="feed-input-rss">
+          <button class="ics-copy" data-copy="rss"><span class="en-inline">Copy</span><span class="zh-inline">复制</span></button>
+        </div>
+      </div>
+      <div class="feed-row" style="padding-top:0.4rem;">
+        <div class="ics-meta">
+          <span class="en-inline">Last fetched <strong>${escapeHtml(last)}</strong> · ${count} fetches total · token rotation invalidates both</span>
+          <span class="zh-inline">上次拉取 <strong>${escapeHtml(last)}</strong> · 累计 ${count} 次 · 轮换 token 会同时作废 ICS 与 RSS</span>
+        </div>
+      </div>
+    `);
+    // Wire copy buttons
+    document.querySelectorAll('[data-copy]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const key = btn.getAttribute('data-copy');
+        const input = document.getElementById('feed-input-' + key);
+        try {
+          await navigator.clipboard.writeText(input.value);
+          toast(document.body.classList.contains('lang-zh') ? '已复制到剪贴板' : 'Copied to clipboard');
+        } catch {
+          input.select();
+          document.execCommand('copy');
+          toast(document.body.classList.contains('lang-zh') ? '已复制' : 'Copied');
+        }
+      });
+    });
+  }
+
+  function renderPDE() {
+    const rows = PDE_KEYS.map((key) => {
+      const meta = CATEGORY_META[key];
+      const checked = preferences.positionDerivedEvents[key] ? 'checked' : '';
+      return `
+        <div class="row">
+          <div class="row-info">
+            <div class="row-name">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${meta.color};margin-right:0.45rem;vertical-align:middle;"></span>
+              <span class="en-inline">${escapeHtml(meta.labelEn)}</span><span class="zh-inline">${escapeHtml(meta.labelZh)}</span>
+            </div>
+            <div class="row-hint">
+              <span class="en-inline">${escapeHtml(meta.hintEn)}</span><span class="zh-inline">${escapeHtml(meta.hintZh)}</span>
+            </div>
+          </div>
+          <label class="switch"><input type="checkbox" data-pde="${key}" ${checked}><span class="slider"></span></label>
+        </div>
+      `;
+    }).join('');
+    setRebuild('pde', rows);
+    document.querySelectorAll('[data-pde]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const key = input.getAttribute('data-pde');
+        preferences.positionDerivedEvents[key] = input.checked;
+        markDirty();
+        renderCategories();
+        renderPDECount();
+      });
+    });
+    renderPDECount();
+  }
+  function renderPDECount() {
+    const n = PDE_KEYS.filter((k) => preferences.positionDerivedEvents[k]).length;
+    const el = document.querySelector('[data-bind="pde.activeCount"]');
+    if (el) {
+      el.innerHTML = `<span class="en-inline">${n} of 6 active</span><span class="zh-inline">${n} / 6 启用</span>`;
+    }
+  }
+
+  function renderCategories() {
+    const cells = PDE_KEYS.map((key) => {
+      const meta = CATEGORY_META[key];
+      const on = preferences.positionDerivedEvents[key];
+      return `
+        <div class="cat-row">
+          <div class="cat-chip" style="background:${meta.color};"></div>
+          <div class="cat-info">
+            <div class="cat-name">
+              <span class="en-inline">${escapeHtml(meta.labelEn)}</span><span class="zh-inline">${escapeHtml(meta.labelZh)}</span>
+            </div>
+            <div class="cat-meta ${on ? 'on' : 'off'}">
+              ${on
+                ? '<span class="en-inline">SYNCED</span><span class="zh-inline">已同步</span>'
+                : '<span class="en-inline">HIDDEN</span><span class="zh-inline">已隐藏</span>'}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    setRebuild('categories', `<div class="cat-grid">${cells}</div>`);
+  }
+
+  function renderReminders() {
+    const rows = REMINDER_KEYS.map((key) => {
+      const meta = REMINDER_META[key];
+      const cfg = preferences.reminders[key];
+      const isZh = document.body.classList.contains('lang-zh');
+      const timeLabel = fmtLeadList(cfg.leadMinutes, isZh);
+      const timeOff = cfg.leadMinutes.length === 0 ? 'off' : '';
+      return `
+        <div class="rem-row interactive">
+          <div>
+            <div class="rem-name">
+              <span class="en-inline">${escapeHtml(meta.labelEn)}</span><span class="zh-inline">${escapeHtml(meta.labelZh)}</span>
+            </div>
+            <div class="row-hint" style="margin-top:0.18rem;">
+              <span class="en-inline">${escapeHtml(meta.hintEn)}</span><span class="zh-inline">${escapeHtml(meta.hintZh)}</span>
+            </div>
+            <div class="rem-channels" style="margin-top:0.45rem;">
+              ${['email', 'push', 'sms'].map((ch) =>
+                `<span class="rem-pill clickable ${cfg[ch] ? 'on' : 'off'}" data-channel="${key}:${ch}">${ch.toUpperCase()}</span>`
+              ).join('')}
+            </div>
+          </div>
+          <button class="rem-time clickable ${timeOff}" data-time="${key}" title="${isZh ? '点击切换预设时间' : 'Click to cycle preset reminder times'}">${escapeHtml(timeLabel)}</button>
+        </div>
+      `;
+    }).join('');
+    setRebuild('reminders', rows);
+    // Channel toggle
+    document.querySelectorAll('[data-channel]').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const [key, ch] = pill.getAttribute('data-channel').split(':');
+        preferences.reminders[key][ch] = !preferences.reminders[key][ch];
+        markDirty();
+        renderReminders();
+      });
+    });
+    // Time cycle through presets
+    document.querySelectorAll('[data-time]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-time');
+        const presets = REMINDER_META[key].presets;
+        const current = preferences.reminders[key].leadMinutes;
+        // Find index of current; if not found, start at 0.
+        let idx = presets.findIndex((p) => arraysEqual(p, current));
+        idx = idx === -1 ? 0 : (idx + 1) % presets.length;
+        preferences.reminders[key].leadMinutes = deepClone(presets[idx]);
+        markDirty();
+        renderReminders();
+      });
+    });
+  }
+
+  function renderAdvanced() {
+    const d = preferences.display;
+    const tzOptions = [
+      ['America/New_York', 'America/New_York · ET'],
+      ['Asia/Hong_Kong',   'Asia/Hong_Kong · HKT'],
+      ['Asia/Shanghai',    'Asia/Shanghai · CST'],
+      ['Europe/London',    'Europe/London · GMT'],
+      ['UTC',              'UTC'],
+    ];
+    const tzHtml = tzOptions.map(([v, label]) =>
+      `<option value="${v}" ${v === d.timezone ? 'selected' : ''}>${label}</option>`
+    ).join('');
+    setRebuild('advanced', `
+      <h4><span class="en-inline">Display</span><span class="zh-inline">显示</span></h4>
+      <div class="row" style="border-top:1px solid var(--rule);">
+        <div class="row-info"><div class="row-name"><span class="en-inline">Default timezone</span><span class="zh-inline">默认时区</span></div></div>
+        <select class="adv-select" data-adv="timezone">${tzHtml}</select>
+      </div>
+      <div class="row">
+        <div class="row-info"><div class="row-name"><span class="en-inline">First day of week</span><span class="zh-inline">每周起始日</span></div></div>
+        <select class="adv-select" data-adv="weekStart">
+          <option value="monday" ${d.weekStart === 'monday' ? 'selected' : ''}>Monday</option>
+          <option value="sunday" ${d.weekStart === 'sunday' ? 'selected' : ''}>Sunday</option>
+        </select>
+      </div>
+      <div class="row">
+        <div class="row-info">
+          <div class="row-name"><span class="en-inline">Show past 14 days</span><span class="zh-inline">显示过去 14 天</span></div>
+          <div class="row-hint"><span class="en-inline">Otherwise the timeline starts from today</span><span class="zh-inline">否则时间线从今日开始</span></div>
+        </div>
+        <label class="switch"><input type="checkbox" data-adv="showPast14Days" ${d.showPast14Days ? 'checked' : ''}><span class="slider"></span></label>
+      </div>
+      <div class="row">
+        <div class="row-info">
+          <div class="row-name"><span class="en-inline">Compact mode</span><span class="zh-inline">紧凑模式</span></div>
+          <div class="row-hint"><span class="en-inline">Tighter spacing, smaller dates</span><span class="zh-inline">更紧凑间距、更小日期字号</span></div>
+        </div>
+        <label class="switch"><input type="checkbox" data-adv="compactMode" ${d.compactMode ? 'checked' : ''}><span class="slider"></span></label>
+      </div>
+    `);
+    document.querySelectorAll('[data-adv]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const key = input.getAttribute('data-adv');
+        const val = input.type === 'checkbox' ? input.checked : input.value;
+        preferences.display[key] = val;
+        markDirty();
+      });
+    });
+  }
+
+  function renderSaveBar() {
+    const status = document.querySelector('[data-bind="save.status"]');
+    const save = document.getElementById('btn-save');
+    const discard = document.getElementById('btn-discard');
+    const n = diffCount();
+    if (status) {
+      status.classList.toggle('unsaved', n > 0);
+      status.innerHTML = n === 0
+        ? '<span class="en-inline">All changes saved</span><span class="zh-inline">所有改动已保存</span>'
+        : `<span class="en-inline">${n} unsaved change${n === 1 ? '' : 's'}</span><span class="zh-inline">${n} 处改动未保存</span>`;
+    }
+    if (save) save.disabled = n === 0;
+    if (discard) discard.disabled = n === 0;
+  }
+
+  function renderAll() {
+    renderFeeds();
+    renderPDE();
+    renderCategories();
+    renderReminders();
+    renderAdvanced();
+    renderSaveBar();
+  }
+
+  // ─── Network ───────────────────────────────────────────────────────────
+  async function loadSettings() {
+    ['feeds', 'pde', 'categories', 'reminders', 'advanced'].forEach(showLoading);
+    try {
+      const res = await fetch(API_BASE + '/schedules/settings', { credentials: 'include' });
+      if (!res.ok) {
+        const status = res.status;
+        const msg = status === 401
+          ? '<span class="en-inline">Sign in to view preferences</span><span class="zh-inline">请先登录后查看</span>'
+          : `<span class="en-inline">Failed to load (${status})</span><span class="zh-inline">加载失败 (${status})</span>`;
+        ['feeds', 'pde', 'categories', 'reminders', 'advanced'].forEach((k) => showError(k, msg));
+        return;
+      }
+      const data = await res.json();
+      preferences = data.preferences;
+      icsSubscription = data.icsSubscription;
+      baseline = deepClone(preferences);
+      pending = {};
+      renderAll();
+    } catch (err) {
+      const msg = `<span class="en-inline">Network error: ${escapeHtml(err.message || String(err))}</span><span class="zh-inline">网络错误：${escapeHtml(err.message || String(err))}</span>`;
+      ['feeds', 'pde', 'categories', 'reminders', 'advanced'].forEach((k) => showError(k, msg));
+    }
+  }
+
+  async function save() {
+    if (diffCount() === 0) return;
+    const save = document.getElementById('btn-save');
+    if (save) save.disabled = true;
+    try {
+      const res = await fetch(API_BASE + '/schedules/preferences', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pending),
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        toast((document.body.classList.contains('lang-zh') ? '保存失败：' : 'Save failed: ') + err, { error: true });
+        if (save) save.disabled = false;
+        return;
+      }
+      const data = await res.json();
+      preferences = data.preferences;
+      baseline = deepClone(preferences);
+      pending = {};
+      renderAll();
+      toast(document.body.classList.contains('lang-zh') ? '已保存' : 'Saved');
+    } catch (err) {
+      toast((document.body.classList.contains('lang-zh') ? '网络错误：' : 'Network error: ') + (err.message || err), { error: true });
+      if (save) save.disabled = false;
+    }
+  }
+
+  function discard() {
+    if (diffCount() === 0) return;
+    preferences = deepClone(baseline);
+    pending = {};
+    renderAll();
+    toast(document.body.classList.contains('lang-zh') ? '已放弃改动' : 'Changes discarded');
+  }
+
+  async function rotateToken() {
+    const isZh = document.body.classList.contains('lang-zh');
+    const ok = window.confirm(isZh
+      ? '确认要轮换订阅 Token？\n现有 ICS / RSS 链接将失效，原订阅者需要重新订阅。'
+      : 'Rotate feed token?\nExisting ICS / RSS URLs will become invalid; subscribers will need to re-subscribe.');
+    if (!ok) return;
+    try {
+      const res = await fetch(API_BASE + '/schedules/ics/rotate', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      if (!res.ok) {
+        toast((isZh ? '轮换失败：' : 'Rotate failed: ') + res.status, { error: true });
+        return;
+      }
+      const data = await res.json();
+      icsSubscription = {
+        ...icsSubscription,
+        icsUrl: data.icsUrl,
+        icsWebcalUrl: data.icsWebcalUrl,
+        rssUrl: data.rssUrl,
+        lastFetchedAt: null,
+        fetchCount: 0,
+      };
+      renderFeeds();
+      toast(isZh ? '已生成新链接' : 'New feed URLs generated');
+    } catch (err) {
+      toast((isZh ? '网络错误：' : 'Network error: ') + (err.message || err), { error: true });
+    }
+  }
+
+  // ─── Wire static buttons ───────────────────────────────────────────────
+  document.getElementById('btn-save').addEventListener('click', save);
+  document.getElementById('btn-discard').addEventListener('click', discard);
+  document.getElementById('btn-rotate').addEventListener('click', rotateToken);
+
+  // Re-render reminders when language toggles (so EN/ZH labels for "No reminder" update).
+  const langButtons = document.querySelectorAll('.lang-btn');
+  langButtons.forEach((b) => b.addEventListener('click', () => {
+    if (preferences) {
+      renderReminders();
+    }
+  }));
+
+  // Warn before leaving with unsaved changes.
+  window.addEventListener('beforeunload', (e) => {
+    if (diffCount() > 0) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  loadSettings();
 })();
 </script>
 

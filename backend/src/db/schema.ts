@@ -565,6 +565,52 @@ export const eventReminders = pgTable(
   (t) => [index("event_reminders_pending_idx").on(t.eventId).where(sql`status = 'pending'`)],
 )
 
+/**
+ * Calendar Settings — preferences persisted on `calendar_subscriptions.preferences`
+ * (added 2026-05). One blob per client; renderers + schedulers read this to
+ * decide what events flow into the timeline + how reminders are dispatched.
+ *
+ * Channel toggles are independent of the ICS feed itself — disabling SMS
+ * doesn't change what the calendar app sees, only how we push reminders.
+ */
+export type CalendarReminderKey =
+  | "critical"
+  | "optionsEarnings"
+  | "advisorCalls"
+  | "personalEvents"
+
+export interface CalendarReminderConfig {
+  /** Lead times before the event, expressed in minutes. Empty = no reminder. */
+  leadMinutes: number[]
+  email: boolean
+  push: boolean
+  sms: boolean
+}
+
+export interface CalendarPreferences {
+  /** Which position-derived event sources flow into the timeline + feeds. */
+  positionDerivedEvents: {
+    macroCalendar: boolean
+    earnings: boolean
+    heldPositions: boolean
+    advisorTouchpoints: boolean
+    reportDeliveries: boolean
+    complianceRenewals: boolean
+  }
+  /** Per-reminder-bucket channel + lead-time configuration. */
+  reminders: Record<CalendarReminderKey, CalendarReminderConfig>
+  /** Advanced display preferences. */
+  display: {
+    /** IANA tz, e.g. "America/New_York" or "Asia/Hong_Kong". */
+    timezone: string
+    weekStart: "monday" | "sunday"
+    /** Show events from the past 14 days, else timeline starts today. */
+    showPast14Days: boolean
+    /** Tighter spacing in the timeline. */
+    compactMode: boolean
+  }
+}
+
 export const calendarSubscriptions = pgTable("calendar_subscriptions", {
   clientId: uuid("client_id")
     .primaryKey()
@@ -573,6 +619,9 @@ export const calendarSubscriptions = pgTable("calendar_subscriptions", {
   lastFetchedAt: ts("last_fetched_at"),
   fetchCount: bigint("fetch_count", { mode: "number" }).notNull().default(0),
   createdAt: ts("created_at").notNull().defaultNow(),
+  // Calendar Settings preferences (added 2026-05). Optional — falls back to
+  // server-side defaults when null.
+  preferences: jsonb("preferences").$type<CalendarPreferences>(),
 })
 
 // ╔═══════════════════════════════════════════════════════════════════════════╗

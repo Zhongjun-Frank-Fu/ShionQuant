@@ -37,6 +37,7 @@ import {
   events,
   positions,
   profiles,
+  type CalendarPreferences,
 } from "../../db/client.js"
 import { audit } from "../../lib/audit.js"
 import {
@@ -49,6 +50,7 @@ import { buildIcsCalendar, type IcsEvent } from "../../lib/ics.js"
 import { extractIp } from "../../lib/ip.js"
 import { authMiddleware } from "../../middleware/auth.js"
 import {
+  calendarPreferencesPatchSchema,
   eventCreateSchema,
   eventPatchSchema,
   eventsListQuerySchema,
@@ -278,15 +280,96 @@ app.delete("/events/:id", authMiddleware, async (c) => {
 const DEFAULT_LEAD_MINUTES = 60
 const DEFAULT_CHANNELS = ["email"] as const
 
+/**
+ * Server-side defaults for calendar preferences — used when the client has
+ * no row yet (or `preferences` is null). Mirrors what the seed inserts so
+ * fresh accounts get the same baseline as seeded ones.
+ */
+export const DEFAULT_CALENDAR_PREFERENCES: CalendarPreferences = {
+  positionDerivedEvents: {
+    macroCalendar: true,
+    earnings: true,
+    heldPositions: true,
+    advisorTouchpoints: true,
+    reportDeliveries: true,
+    complianceRenewals: false,
+  },
+  reminders: {
+    critical:        { leadMinutes: [60 * 24, 180, 30], email: true,  push: true,  sms: true  },
+    optionsEarnings: { leadMinutes: [60 * 24],          email: true,  push: true,  sms: false },
+    advisorCalls:    { leadMinutes: [60 * 24, 30],      email: true,  push: true,  sms: true  },
+    personalEvents:  { leadMinutes: [30],               email: false, push: true,  sms: false },
+  },
+  display: {
+    timezone: "America/New_York",
+    weekStart: "monday",
+    showPast14Days: false,
+    compactMode: true,
+  },
+}
+
+/**
+ * Merge a partial preferences object onto the defaults — so the API always
+ * returns a fully-populated shape regardless of when the row was created
+ * (older rows may only carry a subset of keys).
+ */
+function fillPreferences(prefs: Partial<CalendarPreferences> | null | undefined): CalendarPreferences {
+  const base = DEFAULT_CALENDAR_PREFERENCES
+  if (!prefs) return base
+  return {
+    positionDerivedEvents: { ...base.positionDerivedEvents, ...(prefs.positionDerivedEvents ?? {}) },
+    reminders: {
+      critical:        { ...base.reminders.critical,        ...(prefs.reminders?.critical ?? {}) },
+      optionsEarnings: { ...base.reminders.optionsEarnings, ...(prefs.reminders?.optionsEarnings ?? {}) },
+      advisorCalls:    { ...base.reminders.advisorCalls,    ...(prefs.reminders?.advisorCalls ?? {}) },
+      personalEvents:  { ...base.reminders.personalEvents,  ...(prefs.reminders?.personalEvents ?? {}) },
+    },
+    display: { ...base.display, ...(prefs.display ?? {}) },
+  }
+}
+
+/**
+ * Build the absolute URL for an ICS/RSS feed. Uses the request URL so the
+ * page renders the same origin it was loaded from (handles preview + prod
+ * deploys without extra config).
+ */
+function feedUrls(c: import("hono").Context, token: string) {
+  const url = new URL(c.req.url)
+  const base = `${url.protocol}//${url.host}/api/v1/schedules`
+  return {
+    icsUrl: `${base}/ics/${token}`,
+    icsWebcalUrl: `webcal://${url.host}/api/v1/schedules/ics/${token}`,
+    rssUrl: `${base}/rss/${token}`,
+  }
+}
+
+/**
+ * Lazily ensure a calendar_subscriptions row exists for this client. Used by
+ * settings GET / PATCH so the page can read + write preferences before the
+ * user has ever called /ics/rotate.
+ */
+async function ensureSubscription(clientId: string) {
+  const existing = await db.query.calendarSubscriptions.findFirst({
+    where: eq(calendarSubscriptions.clientId, clientId),
+  })
+  if (existing) return existing
+  const [inserted] = await db
+    .insert(calendarSubscriptions)
+    .values({
+      clientId,
+      icsToken: randomBytes(24).toString("base64url"),
+    })
+    .returning()
+  return inserted!
+}
+
 app.get("/settings", authMiddleware, async (c) => {
   const client = requireClient(c)
 
   const profile = await db.query.profiles.findFirst({
     where: eq(profiles.clientId, client.id),
   })
-  const sub = await db.query.calendarSubscriptions.findFirst({
-    where: eq(calendarSubscriptions.clientId, client.id),
-  })
+  const sub = await ensureSubscription(client.id)
 
   return c.json({
     ok: true,
@@ -296,17 +379,65 @@ app.get("/settings", authMiddleware, async (c) => {
       defaultLeadMinutes: DEFAULT_LEAD_MINUTES,
       defaultChannels: DEFAULT_CHANNELS,
     },
-    icsSubscription: sub
-      ? {
-          // Build the URL so the frontend has it ready for "Copy" buttons.
-          // Don't expose the token in the GET — only when freshly rotated.
-          hasToken: true,
-          lastFetchedAt: sub.lastFetchedAt,
-          fetchCount: sub.fetchCount,
-          createdAt: sub.createdAt,
-        }
-      : { hasToken: false },
+    preferences: fillPreferences(sub.preferences),
+    icsSubscription: {
+      hasToken: true,
+      ...feedUrls(c, sub.icsToken),
+      lastFetchedAt: sub.lastFetchedAt,
+      fetchCount: sub.fetchCount,
+      createdAt: sub.createdAt,
+    },
   })
+})
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PATCH /api/v1/schedules/preferences  — calendar-page settings
+// ═══════════════════════════════════════════════════════════════════════════
+
+app.patch("/preferences", authMiddleware, async (c) => {
+  const client = requireClient(c)
+  const user = c.get("user")
+  const ip = extractIp(c)
+  const userAgent = c.req.header("user-agent") ?? null
+
+  const body = calendarPreferencesPatchSchema.parse(await c.req.json())
+
+  const sub = await ensureSubscription(client.id)
+  const current = fillPreferences(sub.preferences)
+
+  // Deep-merge: a single PATCH can carry just one section; keep the rest.
+  const next: CalendarPreferences = {
+    positionDerivedEvents: {
+      ...current.positionDerivedEvents,
+      ...(body.positionDerivedEvents ?? {}),
+    },
+    reminders: {
+      ...current.reminders,
+      ...(body.reminders ?? {}),
+    },
+    display: {
+      ...current.display,
+      ...(body.display ?? {}),
+    },
+  }
+
+  await db
+    .update(calendarSubscriptions)
+    .set({ preferences: next })
+    .where(eq(calendarSubscriptions.clientId, client.id))
+
+  await audit({
+    action: "schedules.preferences.update",
+    userId: user.id,
+    clientId: client.id,
+    ip,
+    userAgent,
+    metadata: {
+      changed: Object.keys(body),
+    },
+  })
+
+  return c.json({ ok: true, preferences: next })
 })
 
 app.patch("/settings", authMiddleware, async (c) => {
@@ -393,11 +524,7 @@ app.post("/ics/rotate", authMiddleware, async (c) => {
     resourceId: client.id,
   })
 
-  // Build absolute URL using the request's host. Frontend can override.
-  const url = new URL(c.req.url)
-  const feedUrl = `${url.protocol}//${url.host}/api/v1/schedules/ics/${newToken}`
-
-  return c.json({ ok: true, token: newToken, feedUrl })
+  return c.json({ ok: true, token: newToken, ...feedUrls(c, newToken) })
 })
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -472,6 +599,64 @@ app.get("/ics/:token", async (c) => {
   return c.body(ics)
 })
 
+// ═══════════════════════════════════════════════════════════════════════════
+// GET /api/v1/schedules/rss/:token  — PUBLIC RSS 2.0 feed, no auth
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Token-gated RSS 2.0 feed of the same events the ICS endpoint returns.
+ * Calendars want iCalendar; news-style readers / Notion / Slack RSS bots
+ * want XML. We expose both off the same token so a single rotate covers
+ * everywhere the user has the URL stashed.
+ */
+app.get("/rss/:token", async (c) => {
+  const token = c.req.param("token")
+  if (!token || token.length < 16) return emptyRss(c)
+
+  const sub = await db.query.calendarSubscriptions.findFirst({
+    where: eq(calendarSubscriptions.icsToken, token),
+  })
+  if (!sub) return emptyRss(c)
+
+  // Pull the next 90 days only — RSS readers don't want a 2-year backlog.
+  const lower = new Date(Date.now() - 14 * 24 * 60 * 60_000)
+  const upper = new Date(Date.now() + 90 * 24 * 60 * 60_000)
+
+  const rows = await db
+    .select()
+    .from(events)
+    .where(
+      and(
+        eq(events.clientId, sub.clientId),
+        eq(events.isArchived, false),
+        gte(events.startsAt, lower),
+        lte(events.startsAt, upper),
+      ),
+    )
+    .orderBy(asc(events.startsAt))
+    .limit(50)
+
+  const url = new URL(c.req.url)
+  const selfHref = `${url.protocol}//${url.host}${url.pathname}`
+  const xml = buildRssFeed({
+    title: "Shion Quant · Schedule",
+    description: "Upcoming events from your Shion Quant client portal.",
+    selfHref,
+    items: rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      description: r.description ?? "",
+      pubDate: r.startsAt,
+      category: r.eventType,
+      isCritical: r.isCritical,
+    })),
+  })
+
+  c.header("Content-Type", "application/rss+xml; charset=utf-8")
+  c.header("Cache-Control", "private, max-age=300")
+  return c.body(xml)
+})
+
 export default app
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -511,4 +696,75 @@ function emptyCalendar(c: import("hono").Context) {
   c.header("Content-Type", "text/calendar; charset=utf-8")
   c.header("Cache-Control", "private, max-age=60")
   return c.body(ics)
+}
+
+function emptyRss(c: import("hono").Context) {
+  const url = new URL(c.req.url)
+  const xml = buildRssFeed({
+    title: "Shion Quant · Schedule",
+    description: "Upcoming events from your Shion Quant client portal.",
+    selfHref: `${url.protocol}//${url.host}${url.pathname}`,
+    items: [],
+  })
+  c.header("Content-Type", "application/rss+xml; charset=utf-8")
+  c.header("Cache-Control", "private, max-age=60")
+  return c.body(xml)
+}
+
+// ─── RSS 2.0 serializer ─────────────────────────────────────────────────
+// Kept inline rather than a separate module — it's ~30 lines and only the
+// schedules feed uses it. Escapes &, <, > so titles + descriptions are
+// XML-safe; no CDATA needed at this size.
+
+interface RssItem {
+  id: string
+  title: string
+  description: string
+  pubDate: Date
+  category: string
+  isCritical: boolean
+}
+
+function xmlEscape(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+}
+
+function rfc822(d: Date) {
+  // RSS uses RFC 822 timestamps. Date.toUTCString() emits the exact format.
+  return d.toUTCString()
+}
+
+function buildRssFeed(opts: {
+  title: string
+  description: string
+  selfHref: string
+  items: RssItem[]
+}): string {
+  const now = rfc822(new Date())
+  const items = opts.items
+    .map((it) => `    <item>
+      <title>${xmlEscape((it.isCritical ? "★ " : "") + it.title)}</title>
+      <description>${xmlEscape(it.description)}</description>
+      <pubDate>${rfc822(it.pubDate)}</pubDate>
+      <category>${xmlEscape(it.category)}</category>
+      <guid isPermaLink="false">${xmlEscape(it.id)}</guid>
+    </item>`)
+    .join("\n")
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${xmlEscape(opts.title)}</title>
+    <link>${xmlEscape(opts.selfHref)}</link>
+    <atom:link href="${xmlEscape(opts.selfHref)}" rel="self" type="application/rss+xml"/>
+    <description>${xmlEscape(opts.description)}</description>
+    <lastBuildDate>${now}</lastBuildDate>
+    <ttl>5</ttl>
+${items}
+  </channel>
+</rss>
+`
 }

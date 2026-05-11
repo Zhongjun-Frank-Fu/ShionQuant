@@ -501,11 +501,15 @@ create index event_reminders_pending_idx on event_reminders (event_id)
 
 
 -- ICS subscription token (one per client, rotatable)
+-- preferences (added 2026-05): jsonb blob driving the Calendar Settings page —
+-- which position-derived event sources sync, per-bucket reminder channels,
+-- and display options. Schema mirrored in db/schema.ts (CalendarPreferences).
 create table calendar_subscriptions (
   client_id       uuid primary key references clients(id) on delete cascade,
   ics_token       text not null unique,     -- bearer-style, in URL
   last_fetched_at timestamptz,
   fetch_count     bigint not null default 0,
+  preferences     jsonb,
   created_at      timestamptz not null default now()
 );
 
