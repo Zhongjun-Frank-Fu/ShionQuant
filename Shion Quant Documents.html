@@ -427,8 +427,8 @@
         <span class="zh">文件<em>仓库</em></span>
       </h1>
       <p class="pg-meta">
-        <span class="en-inline"><strong>32 files</strong> · 6 categories</span>
-        <span class="zh-inline"><strong>32 份文件</strong> · 6 个类别</span>
+        <span class="en-inline" data-bind="header.subEn"><strong>—</strong></span>
+        <span class="zh-inline" data-bind="header.subZh"><strong>—</strong></span>
         <span class="dot">·</span>
         <span class="en-inline">7-year retention · AES-256</span>
         <span class="zh-inline">保留 7 年 · AES-256</span>
@@ -443,271 +443,20 @@
     </div>
   </div>
 
-  <div class="pending">
-    <div class="pending-text">
-      <span class="en-inline"><strong>Awaiting your signature.</strong> 2026 Engagement Renewal Addendum · due 5 May.</span>
-      <span class="zh-inline"><strong>待您签署。</strong>2026 年合作续约附录 · 截止 5 月 5 日。</span>
-    </div>
-    <a href="Shion Quant Sign Document.html" class="pending-action">
-      <span class="en-inline">Review &amp; sign</span><span class="zh-inline">查看并签署</span>
-    </a>
-  </div>
-
   <div class="filter-bar">
     <label class="search">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" placeholder="Search title, broker, year…" aria-label="Search documents">
+      <input type="text" placeholder="Search title, broker, year…" aria-label="Search documents" data-bind-input="documents.search">
     </label>
-    <div class="chips">
-      <button class="chip active"><span class="en-inline">All</span><span class="zh-inline">全部</span></button>
-      <button class="chip"><span class="en-inline">Recent</span><span class="zh-inline">最近</span></button>
-      <button class="chip"><span class="en-inline">Tax</span><span class="zh-inline">税务</span></button>
-    </div>
+    <div class="chips" data-rebuild="filter.chips"></div>
   </div>
 
-  <!-- 1. STATEMENTS -->
-  <div class="cat">
-    <div class="cat-head">
-      <h3 class="cat-title"><span class="en-inline">Account statements</span><span class="zh-inline">账户对账单</span></h3>
-      <span class="cat-count">12</span>
-    </div>
-    <div class="doc-list">
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>IBKR</strong><span class="en-inline">March 2026 Account Statement</span><span class="zh-inline">2026 年 3 月账户对账单</span></div>
-          <div class="doc-meta">
-            <span class="src">Interactive Brokers</span>
-            <span class="bullet">·</span>
-            <span class="en-inline">18 pp · 2.4 MB</span>
-            <span class="zh-inline">18 页 · 2.4 MB</span>
-          </div>
-        </div>
-        <div class="doc-date">24 Apr</div>
-        <div class="doc-action" title="Download"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>CB-PRIME</strong><span class="en-inline">March 2026 Custody Statement</span><span class="zh-inline">2026 年 3 月托管对账单</span></div>
-          <div class="doc-meta">
-            <span class="src">Coinbase Prime</span>
-            <span class="bullet">·</span>
-            <span class="en-inline">6 pp · 0.8 MB</span>
-            <span class="zh-inline">6 页 · 0.8 MB</span>
-          </div>
-        </div>
-        <div class="doc-date">24 Apr</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <details class="cat-more">
-        <summary><span class="en-inline">10 earlier statements</span><span class="zh-inline">10 份较早对账单</span></summary>
-        <a href="Shion Quant Document Viewer.html" class="doc-row">
-          <div class="doc-icon">PDF</div>
-          <div class="doc-info">
-            <div class="doc-title"><strong>IBKR</strong><span class="en-inline">February 2026 Account Statement</span><span class="zh-inline">2026 年 2 月账户对账单</span></div>
-            <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">17 pp · 2.3 MB</span><span class="zh-inline">17 页 · 2.3 MB</span></div>
-          </div>
-          <div class="doc-date">28 Mar</div>
-          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        </a>
-        <a href="Shion Quant Document Viewer.html" class="doc-row">
-          <div class="doc-icon">PDF</div>
-          <div class="doc-info">
-            <div class="doc-title"><strong>IBKR</strong><span class="en-inline">January 2026 Account Statement</span><span class="zh-inline">2026 年 1 月账户对账单</span></div>
-            <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">16 pp · 2.2 MB</span><span class="zh-inline">16 页 · 2.2 MB</span></div>
-          </div>
-          <div class="doc-date">28 Feb</div>
-          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        </a>
-        <a href="Shion Quant Document Viewer.html" class="doc-row">
-          <div class="doc-icon">PDF</div>
-          <div class="doc-info">
-            <div class="doc-title"><strong>IBKR</strong><span class="en-inline">2025 Annual Activity Statement</span><span class="zh-inline">2025 年度活动报告</span></div>
-            <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">84 pp · 11.2 MB</span><span class="zh-inline">84 页 · 11.2 MB</span></div>
-          </div>
-          <div class="doc-date">15 Jan</div>
-          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        </a>
-      </details>
-    </div>
-  </div>
-
-  <!-- 2. TAX -->
-  <div class="cat">
-    <div class="cat-head">
-      <h3 class="cat-title"><span class="en-inline">Tax documents</span><span class="zh-inline">税务文件</span></h3>
-      <span class="cat-count">5 · TY 2025</span>
-    </div>
-    <div class="doc-list">
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon tax">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>1099</strong><span class="en-inline">2025 Composite 1099 (B + DIV + INT)</span><span class="zh-inline">2025 年综合 1099 (B + DIV + INT)</span></div>
-          <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">12 pp · filed 12 Apr</span><span class="zh-inline">12 页 · 已申报 4/12</span></div>
-        </div>
-        <div class="doc-date">28 Feb</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon tax">XLSX</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>SCH-D</strong><span class="en-inline">2025 Schedule D Worksheet</span><span class="zh-inline">2025 Schedule D 工作表</span></div>
-          <div class="doc-meta"><span class="src">INTELLIGENCE INVESTMENT</span><span class="bullet">·</span><span class="en-inline">8 sheets · for accountant</span><span class="zh-inline">8 个工作表 · 供会计师</span></div>
-        </div>
-        <div class="doc-date">5 Mar</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <details class="cat-more">
-        <summary><span class="en-inline">3 more · K-1, FBAR, prior years</span><span class="zh-inline">还有 3 份 · K-1、FBAR、往年</span></summary>
-        <a href="Shion Quant Document Viewer.html" class="doc-row">
-          <div class="doc-icon tax">PDF</div>
-          <div class="doc-info">
-            <div class="doc-title"><strong>K-1</strong><span class="en-inline">2024 Schedule K-1 (BX Partnership)</span><span class="zh-inline">2024 K-1（BX 合伙）</span></div>
-            <div class="doc-meta"><span class="src">BX Partners LLC</span><span class="bullet">·</span><span class="en-inline">16 pp · TY 2024</span><span class="zh-inline">16 页 · 2024 税务年度</span></div>
-          </div>
-          <div class="doc-date">22 Mar</div>
-          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        </a>
-        <a href="Shion Quant Document Viewer.html" class="doc-row">
-          <div class="doc-icon tax">PDF</div>
-          <div class="doc-info">
-            <div class="doc-title"><strong>FBAR</strong><span class="en-inline">2025 Foreign Account Reporting</span><span class="zh-inline">2025 海外账户申报</span></div>
-            <div class="doc-meta"><span class="src">INTELLIGENCE INVESTMENT</span><span class="bullet">·</span><span class="en-inline">4 pp · submit by 15 Oct</span><span class="zh-inline">4 页 · 10/15 前提交</span></div>
-          </div>
-          <div class="doc-date">10 Apr</div>
-          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        </a>
-      </details>
-    </div>
-  </div>
-
-  <!-- 3. ENGAGEMENT (with pending highlight) -->
-  <div class="cat">
-    <div class="cat-head">
-      <h3 class="cat-title"><span class="en-inline">Engagement &amp; service</span><span class="zh-inline">合作与服务</span></h3>
-      <span class="cat-count"><span class="en-inline">3 · 1 awaiting sig</span><span class="zh-inline">3 · 1 待签</span></span>
-    </div>
-    <div class="doc-list">
-      <a href="Shion Quant Sign Document.html" class="doc-row" style="background:rgba(200,168,75,0.04);">
-        <div class="doc-icon warn">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>2026</strong><span class="en-inline">Engagement Renewal Addendum</span><span class="zh-inline">续约附录</span><span class="pending-tag">PENDING SIG</span></div>
-          <div class="doc-meta"><span class="src">INTELLIGENCE INVESTMENT</span><span class="bullet">·</span><span class="en-inline">6 pp · due 5 May</span><span class="zh-inline">6 页 · 截止 5/5</span></div>
-        </div>
-        <div class="doc-date">18 Apr</div>
-      </a>
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>MSA</strong><span class="en-inline">Master Engagement Letter</span><span class="zh-inline">主合作协议</span></div>
-          <div class="doc-meta"><span class="src">INTELLIGENCE INVESTMENT</span><span class="bullet">·</span><span class="en-inline">14 pp · countersigned</span><span class="zh-inline">14 页 · 双方签署</span></div>
-        </div>
-        <div class="doc-date">1 Jul 24</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>SOW</strong><span class="en-inline">SPY Wheel Optimization · SOW</span><span class="zh-inline">SPY Wheel 优化研究 · SOW</span></div>
-          <div class="doc-meta"><span class="src">INTELLIGENCE INVESTMENT</span><span class="bullet">·</span><span class="en-inline">4 pp · closed</span><span class="zh-inline">4 页 · 已结案</span></div>
-        </div>
-        <div class="doc-date">14 Mar</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-    </div>
-  </div>
-
-  <!-- 4. CUSTODY -->
-  <div class="cat">
-    <div class="cat-head">
-      <h3 class="cat-title"><span class="en-inline">Custody &amp; brokerage</span><span class="zh-inline">托管与券商</span></h3>
-      <span class="cat-count">4 · all executed</span>
-    </div>
-    <div class="doc-list">
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>IBKR</strong><span class="en-inline">Account Confirmation &amp; Customer Agreement</span><span class="zh-inline">账户确认与客户协议</span></div>
-          <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">42 pp · options level 4</span><span class="zh-inline">42 页 · 期权 L4</span></div>
-        </div>
-        <div class="doc-date">12 Jul 24</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>CB-PRIME</strong><span class="en-inline">Coinbase Prime Custody Agreement</span><span class="zh-inline">Coinbase Prime 托管协议</span></div>
-          <div class="doc-meta"><span class="src">Coinbase Prime</span><span class="bullet">·</span><span class="en-inline">28 pp · qualified custodian</span><span class="zh-inline">28 页 · 合格托管方</span></div>
-        </div>
-        <div class="doc-date">18 Aug 24</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <details class="cat-more">
-        <summary><span class="en-inline">2 more · SIPC, Alpaca</span><span class="zh-inline">还有 2 份 · SIPC、Alpaca</span></summary>
-        <a href="Shion Quant Document Viewer.html" class="doc-row">
-          <div class="doc-icon">PDF</div>
-          <div class="doc-info">
-            <div class="doc-title"><strong>SIPC</strong><span class="en-inline">Securities Investor Protection Coverage</span><span class="zh-inline">SIPC 投资者保护说明</span></div>
-            <div class="doc-meta"><span class="src">SIPC + Lloyd's</span><span class="bullet">·</span><span class="en-inline">excess to $30M</span><span class="zh-inline">至 $30M 额外覆盖</span></div>
-          </div>
-          <div class="doc-date">12 Jul 24</div>
-          <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        </a>
-      </details>
-    </div>
-  </div>
-
-  <!-- 5+6. COMPLIANCE & BANKING — folded together since rarely accessed -->
-  <details class="cat cat-folded">
-    <summary>
-      <h3 class="cat-title"><span class="en-inline">Compliance &amp; banking</span><span class="zh-inline">合规与银行</span></h3>
-      <span class="cat-count"><span class="en-inline">8 · KYC, W-8BEN, wire instructions</span><span class="zh-inline">8 · KYC、W-8BEN、汇款指引</span></span>
-    </summary>
-    <div class="doc-list">
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon kyc">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>KYC</strong><span class="en-inline">Annual KYC Refresh Certificate</span><span class="zh-inline">年度 KYC 更新证书</span></div>
-          <div class="doc-meta"><span class="src">INTELLIGENCE INVESTMENT</span><span class="bullet">·</span><span class="en-inline">next: Jan 2027</span><span class="zh-inline">下次：2027/1</span></div>
-        </div>
-        <div class="doc-date">5 Jan</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon kyc">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>W-8BEN</strong><span class="en-inline">Beneficial Owner Certificate</span><span class="zh-inline">受益所有人证书</span></div>
-          <div class="doc-meta"><span class="src">IRS Form</span><span class="bullet">·</span><span class="en-inline">2 pp · renews 2027</span><span class="zh-inline">2 页 · 2027 年续</span></div>
-        </div>
-        <div class="doc-date">1 Jul 24</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>USD</strong><span class="en-inline">Wire Instructions · IBKR USD Account</span><span class="zh-inline">汇款指引 · IBKR 美元账户</span></div>
-          <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">Citibank intermediary</span><span class="zh-inline">Citibank 中转</span></div>
-        </div>
-        <div class="doc-date">12 Jul 24</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-      <a href="Shion Quant Document Viewer.html" class="doc-row">
-        <div class="doc-icon">PDF</div>
-        <div class="doc-info">
-          <div class="doc-title"><strong>HKD</strong><span class="en-inline">Wire Instructions · HKD Sub-account</span><span class="zh-inline">汇款指引 · 港币子账户</span></div>
-          <div class="doc-meta"><span class="src">Interactive Brokers</span><span class="bullet">·</span><span class="en-inline">CHATS clearing</span><span class="zh-inline">CHATS 清算</span></div>
-        </div>
-        <div class="doc-date">12 Jul 24</div>
-        <div class="doc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      </a>
-    </div>
-  </details>
-
-  <div class="storage-note">
-    <span><strong>4.2 GB</strong> of 50 GB · retained 7 years per IRS / SEC</span>
-    <a href="#"><span class="en-inline">Storage settings ›</span><span class="zh-inline">存储设置 ›</span></a>
-  </div>
+  <!-- ── CATEGORY SECTIONS (live data) ──────────────────────────────────
+       Replaced wholesale by SQ-DOCUMENTS-V1 from GET /api/v1/documents.
+       Five user-facing categories rendered in fixed order; folded docs
+       collapse into a single group at the bottom. See data contract in
+       backend/src/db/schema.ts → DocumentMetadata. -->
+  <div data-rebuild="documents.categories"></div>
 
 </main>
 
@@ -1049,6 +798,314 @@
   });
 })();
 </script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+ * SQ-DOCUMENTS-V1
+ * Live wire-up for the Documents vault list page.
+ *
+ * GET /api/v1/documents → 13–20 docs across 5 categories + a "Folded" group.
+ * The 5 user-facing categories collapse the DB's 7-value enum like this:
+ *
+ *   account_statements  ← statement
+ *   tax_documents       ← tax
+ *   engagement_services ← engagement
+ *   custody_brokerage   ← custody
+ *   compliance_banking  ← compliance + banking + misc
+ *
+ * Docs with `isFolded=true` get pulled out of their normal category and
+ * shown in a single "Folded" group at the bottom of the page. This is
+ * server-controlled — no UI to toggle.
+ *
+ * Filter chips: 5 categories + All. Empty search filters by title.
+ * Failure semantics match the rest of the portal: blank everything on
+ * boot, mark "Not loaded / 未读取" on fetch error.
+ * ───────────────────────────────────────────────────────────────────────── */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const FAILED_EN = 'Not loaded';
+  const FAILED_ZH = '未读取';
+  const _zh = () => document.body.classList.contains('lang-zh');
+  const _failedTxt = () => _zh() ? FAILED_ZH : FAILED_EN;
+  const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
+  }[c]));
+
+  // ─── DB-enum → user-facing-group mapping ────────────────────────────
+  const CATEGORY_GROUPS = [
+    {
+      key: 'account_statements',
+      dbCategories: ['statement'],
+      en: 'Account Statements', zh: '账户对账单',
+    },
+    {
+      key: 'tax_documents',
+      dbCategories: ['tax'],
+      en: 'Tax Documents', zh: '税务文件',
+    },
+    {
+      key: 'engagement_services',
+      dbCategories: ['engagement'],
+      en: 'Engagement Services', zh: '合作与服务',
+    },
+    {
+      key: 'custody_brokerage',
+      dbCategories: ['custody'],
+      en: 'Custody & Brokerage', zh: '托管与券商',
+    },
+    {
+      key: 'compliance_banking',
+      dbCategories: ['compliance', 'banking', 'misc'],
+      en: 'Compliance & Banking', zh: '合规与银行',
+    },
+  ];
+
+  // ─── DOM helpers ────────────────────────────────────────────────────
+  const setBindHtml = (key, html) => {
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => { el.innerHTML = html; });
+  };
+  const setRebuild = (key, html) => {
+    const el = document.querySelector(`[data-rebuild="${key}"]`);
+    if (el) el.innerHTML = html;
+  };
+  function _blankAllBindings() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = '—'; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => { el.innerHTML = ''; });
+  }
+  function _markFailed() {
+    const txt = _failedTxt();
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = txt; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => {
+      el.innerHTML = `<div class="rebuild-failed">${escapeHtml(txt)}</div>`;
+    });
+  }
+
+  // ─── Networking ─────────────────────────────────────────────────────
+  async function fetchDocs() {
+    const res = await fetch(`${API_BASE}/documents?limit=200`, {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      const err = new Error(`HTTP ${res.status} :: ${body.slice(0, 200)}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+
+  // ─── State + filter ─────────────────────────────────────────────────
+  let _allDocs = [];
+  let _activeFilter = 'all';     // 'all' | one of CATEGORY_GROUPS[i].key
+  let _searchText = '';
+  function categoryKeyOf(doc) {
+    for (const g of CATEGORY_GROUPS) if (g.dbCategories.includes(doc.category)) return g.key;
+    return 'compliance_banking'; // safety net
+  }
+
+  // ─── Date format ────────────────────────────────────────────────────
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MONTHS_ZH = ['1 月','2 月','3 月','4 月','5 月','6 月','7 月','8 月','9 月','10 月','11 月','12 月'];
+  function fmtShortDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    const day = d.getUTCDate();
+    const en = `${day} ${MONTHS_EN[d.getUTCMonth()]}`;
+    const zh = `${MONTHS_ZH[d.getUTCMonth()]} ${day} 日`;
+    return _zh() ? zh : en;
+  }
+  function fmtSizeKb(bytes) {
+    if (!bytes) return '—';
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+  function viewerUrl(id) {
+    return `Shion Quant Document Viewer.html?id=${encodeURIComponent(id)}`;
+  }
+
+  // ─── Header subtitle ────────────────────────────────────────────────
+  function renderHeader(docs) {
+    const visibleCount = docs.filter((d) => !d.isFolded).length;
+    const foldedCount = docs.length - visibleCount;
+    const en = `<strong>${docs.length} files</strong> · 5 categories${foldedCount > 0 ? ` · ${foldedCount} folded` : ''}`;
+    const zh = `<strong>${docs.length} 份文件</strong> · 5 个类别${foldedCount > 0 ? ` · ${foldedCount} 份折叠` : ''}`;
+    setBindHtml('header.subEn', en);
+    setBindHtml('header.subZh', zh);
+  }
+
+  // ─── Filter chips ───────────────────────────────────────────────────
+  function renderChips(docs) {
+    const counts = {};
+    for (const d of docs) counts[categoryKeyOf(d)] = (counts[categoryKeyOf(d)] || 0) + 1;
+    const chips = [
+      `<button class="chip${_activeFilter === 'all' ? ' active' : ''}" data-filter="all">
+        <span class="en-inline">All</span><span class="zh-inline">全部</span>
+        <span class="count">${docs.length}</span>
+      </button>`,
+      ...CATEGORY_GROUPS.map((g) => `
+        <button class="chip${_activeFilter === g.key ? ' active' : ''}" data-filter="${g.key}">
+          <span class="en-inline">${escapeHtml(g.en)}</span><span class="zh-inline">${escapeHtml(g.zh)}</span>
+          <span class="count">${counts[g.key] || 0}</span>
+        </button>`),
+    ];
+    setRebuild('filter.chips', chips.join(''));
+    document.querySelectorAll('[data-filter]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        _activeFilter = btn.getAttribute('data-filter') || 'all';
+        document.querySelectorAll('[data-filter]').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderCategories();
+      });
+    });
+  }
+
+  // ─── Search input ───────────────────────────────────────────────────
+  function wireSearch() {
+    const input = document.querySelector('[data-bind-input="documents.search"]');
+    if (!input) return;
+    input.addEventListener('input', () => {
+      _searchText = input.value.trim().toLowerCase();
+      renderCategories();
+    });
+  }
+
+  // ─── Doc row ────────────────────────────────────────────────────────
+  function renderRow(d) {
+    const fmtClass = (d.fileFormat || 'pdf').toLowerCase() === 'pdf' ? '' : 'tax'; // accent for non-pdf
+    const code = d.displayCode ? `<strong>${escapeHtml(d.displayCode)}</strong>` : '';
+    return `
+      <a href="${escapeHtml(viewerUrl(d.id))}" class="doc-row">
+        <div class="doc-icon ${fmtClass}">${escapeHtml((d.fileFormat || 'pdf').toUpperCase())}</div>
+        <div class="doc-info">
+          <div class="doc-title">${code}<span>${escapeHtml(d.title)}</span></div>
+          <div class="doc-meta">
+            <span class="src">${escapeHtml(d.sourceLabel ?? '—')}</span>
+            <span class="bullet">·</span>
+            <span>${d.pages ? `${d.pages} pp` : '—'} · ${escapeHtml(fmtSizeKb(d.fileSizeBytes))}</span>
+          </div>
+        </div>
+        <div class="doc-date">${escapeHtml(fmtShortDate(d.issuedAt))}</div>
+        <div class="doc-action" title="Download" onclick="event.preventDefault();event.stopPropagation();window.location.href='${escapeHtml(viewerUrl(d.id))}'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+      </a>`;
+  }
+
+  // ─── Category sections (5 main + 1 Folded) ─────────────────────────
+  function renderCategories() {
+    // Filter pipeline: filter (chip) → search.
+    const matchesSearch = (d) => {
+      if (!_searchText) return true;
+      const hay = (
+        (d.title || '') + ' ' +
+        (d.displayCode || '') + ' ' +
+        (d.sourceLabel || '') + ' ' +
+        (d.tags || []).join(' ')
+      ).toLowerCase();
+      return hay.includes(_searchText);
+    };
+
+    const filtered = _allDocs.filter(matchesSearch);
+
+    // Partition: visible by category, folded into single group.
+    const byKey = {};
+    const folded = [];
+    for (const d of filtered) {
+      if (d.isFolded) folded.push(d);
+      else {
+        const k = categoryKeyOf(d);
+        (byKey[k] = byKey[k] || []).push(d);
+      }
+    }
+
+    // Filter chip narrows what gets shown but counts always reflect full set.
+    const wantedKeys = _activeFilter === 'all'
+      ? CATEGORY_GROUPS.map((g) => g.key)
+      : [_activeFilter];
+
+    const sections = [];
+    for (const g of CATEGORY_GROUPS) {
+      if (!wantedKeys.includes(g.key)) continue;
+      const docs = (byKey[g.key] || []).sort((a, b) => new Date(b.issuedAt || 0) - new Date(a.issuedAt || 0));
+      if (docs.length === 0) continue;
+      sections.push(`
+        <div class="cat">
+          <div class="cat-head">
+            <h3 class="cat-title"><span class="en-inline">${escapeHtml(g.en)}</span><span class="zh-inline">${escapeHtml(g.zh)}</span></h3>
+            <span class="cat-count">${docs.length}</span>
+          </div>
+          <div class="doc-list">${docs.map(renderRow).join('')}</div>
+        </div>`);
+    }
+
+    // Folded group at the bottom — only if chip is "all" and we have folded docs.
+    if (_activeFilter === 'all' && folded.length > 0) {
+      const visibleFolded = folded.filter(matchesSearch);
+      sections.push(`
+        <details class="cat cat-folded">
+          <summary>
+            <h3 class="cat-title"><span class="en-inline">Folded</span><span class="zh-inline">折叠</span></h3>
+            <span class="cat-count"><span class="en-inline">${visibleFolded.length} · rarely accessed</span><span class="zh-inline">${visibleFolded.length} · 较少访问</span></span>
+          </summary>
+          <div class="doc-list">${visibleFolded.sort((a, b) => new Date(b.issuedAt || 0) - new Date(a.issuedAt || 0)).map(renderRow).join('')}</div>
+        </details>`);
+    }
+
+    if (sections.length === 0) {
+      const msg = _zh() ? '没有匹配的文件' : 'No documents match';
+      setRebuild('documents.categories', `<div class="rebuild-failed">${escapeHtml(msg)}</div>`);
+    } else {
+      setRebuild('documents.categories', sections.join(''));
+    }
+  }
+
+  // ─── boot ───────────────────────────────────────────────────────────
+  async function boot() {
+    _blankAllBindings();
+    try {
+      const data = await fetchDocs();
+      _allDocs = Array.isArray(data.documents) ? data.documents : [];
+      renderHeader(_allDocs);
+      renderChips(_allDocs);
+      wireSearch();
+      renderCategories();
+    } catch (err) {
+      console.warn('[documents] fetch failed:', err.message || err);
+      _markFailed();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
+<style>
+  .rebuild-failed {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    font-family: var(--sans-en);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); letter-spacing: 0.06em; }
+</style>
 
 </body>
 </html>

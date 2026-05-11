@@ -32,6 +32,7 @@
 import { randomUUID } from "node:crypto"
 import { and, count, desc, eq, sql, type SQL } from "drizzle-orm"
 import { Hono } from "hono"
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib"
 
 import {
   db,
@@ -226,6 +227,203 @@ app.get("/:id/url", async (c) => {
 
   return c.json({ ok: true, downloadUrl, expiresAt })
 })
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GET /api/v1/documents/:id/file
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Streams the document's PDF bytes directly through the Worker.
+ *
+ * In production this should fetch from R2 (same flow as /url but server-side
+ * proxied). For now, we generate a deterministic placeholder PDF on-the-fly
+ * via pdf-lib so the dev experience works without any blob storage. The
+ * placeholder includes the document's title, source, key metadata and a
+ * page count matching `documents.pages` — enough to exercise the viewer's
+ * page navigation + zoom flow.
+ *
+ * Auth: same `mfaAuthMiddleware` as the rest of /documents.
+ * Response: application/pdf body, ~10–30 KB per page.
+ */
+app.get("/:id/file", async (c) => {
+  const client = requireClient(c)
+  const user = c.get("user")
+  const ip = extractIp(c)
+  const id = c.req.param("id")
+  const doc = await loadOwnedDoc(id, client.id)
+
+  const pdfBytes = await renderPlaceholderPdf(doc)
+
+  // Best-effort access log; never block the response.
+  void db
+    .insert(documentActions)
+    .values({
+      documentId: doc.id,
+      userId: user.id,
+      action: "view",
+      ip,
+    })
+    .catch(() => null)
+
+  // Copy the bytes into a fresh ArrayBuffer-backed view. pdf-lib's return
+  // type is Uint8Array<ArrayBufferLike> (could be Shared); Response wants
+  // a plain ArrayBuffer-backed view.
+  const buf = new Uint8Array(pdfBytes.byteLength)
+  buf.set(pdfBytes)
+  return new Response(buf, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Length": String(buf.byteLength),
+      // PDFs are deterministic per (doc, page count, title) — cache an hour.
+      "Cache-Control": "private, max-age=3600",
+    },
+  })
+})
+
+/**
+ * Build a placeholder PDF for a document. Page 1 is a "cover" with title +
+ * source + key dates; subsequent pages contain filler prose so the viewer
+ * has something multi-page to render.
+ *
+ * Deterministic given the same document row → safe to cache by id.
+ */
+async function renderPlaceholderPdf(
+  doc: typeof documents.$inferSelect,
+): Promise<Uint8Array> {
+  const pdfDoc = await PDFDocument.create()
+  const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+  const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique)
+
+  const pageCount = Math.max(1, Math.min(doc.pages ?? 3, 30))
+  const PAGE_W = 595 // A4 in points
+  const PAGE_H = 842
+  const ROYAL = rgb(0.137, 0.278, 0.831) // ~ #2347d4
+  const INK = rgb(0.05, 0.063, 0.125) // ~ #0d1020
+  const INK_SOFT = rgb(0.29, 0.314, 0.451) // ~ #4a5070
+  const RULE = rgb(0.78, 0.812, 0.886) // light gray
+
+  for (let i = 0; i < pageCount; i++) {
+    const page = pdfDoc.addPage([PAGE_W, PAGE_H])
+
+    // Header strip
+    page.drawRectangle({ x: 0, y: PAGE_H - 80, width: PAGE_W, height: 80, color: rgb(0.953, 0.961, 0.988) })
+    page.drawText("INTELLIGENCE INVESTMENT", {
+      x: 50, y: PAGE_H - 38, size: 9, font: fontBold, color: ROYAL,
+    })
+    page.drawText(doc.sourceLabel ?? "INTERNAL", {
+      x: 50, y: PAGE_H - 54, size: 8, font: fontRegular, color: INK_SOFT,
+    })
+    // Code badge top-right
+    if (doc.displayCode) {
+      const codeText = doc.displayCode
+      const w = fontBold.widthOfTextAtSize(codeText, 9) + 16
+      page.drawRectangle({
+        x: PAGE_W - 50 - w, y: PAGE_H - 50, width: w, height: 22,
+        color: ROYAL,
+      })
+      page.drawText(codeText, {
+        x: PAGE_W - 50 - w + 8, y: PAGE_H - 44, size: 9, font: fontBold, color: rgb(1, 1, 1),
+      })
+    }
+
+    if (i === 0) {
+      // Cover page
+      let y = PAGE_H - 160
+      page.drawText(doc.title, {
+        x: 50, y, size: 22, font: fontBold, color: INK,
+        maxWidth: PAGE_W - 100, lineHeight: 26,
+      })
+      y -= 50
+      if (doc.description) {
+        page.drawText(doc.description, {
+          x: 50, y, size: 11, font: fontItalic, color: INK_SOFT,
+          maxWidth: PAGE_W - 100, lineHeight: 16,
+        })
+        y -= 60
+      }
+
+      // Meta table
+      page.drawLine({ start: { x: 50, y: y + 10 }, end: { x: PAGE_W - 50, y: y + 10 }, thickness: 1, color: RULE })
+      const metaRows: Array<[string, string]> = [
+        ["Source", doc.sourceLabel ?? "—"],
+        ["Document code", doc.displayCode ?? "—"],
+        ["Issued", doc.issuedAt ? new Date(doc.issuedAt).toISOString().slice(0, 10) : "—"],
+        ["Delivered", doc.deliveredAt ? new Date(doc.deliveredAt).toISOString().slice(0, 10) : "—"],
+        ["Pages", String(pageCount)],
+        ["Size (estimated)", doc.fileSizeBytes ? `${(doc.fileSizeBytes / 1024).toFixed(1)} KB` : "—"],
+        ["SHA-256", doc.sha256 ? `${doc.sha256.slice(0, 12)}…${doc.sha256.slice(-4)}` : "—"],
+        ["Document ID", doc.id.slice(0, 8) + "…"],
+      ]
+      for (const [k, v] of metaRows) {
+        y -= 22
+        page.drawText(k.toUpperCase(), {
+          x: 50, y, size: 7, font: fontBold, color: INK_SOFT,
+        })
+        page.drawText(String(v), {
+          x: 200, y, size: 11, font: fontRegular, color: INK,
+        })
+      }
+
+      // Watermark
+      page.drawText("DEV PLACEHOLDER · NOT FOR DISTRIBUTION", {
+        x: 50, y: 60, size: 8, font: fontBold, color: rgb(0.55, 0.598, 0.7),
+      })
+    } else {
+      // Filler page with section title + lorem-ish prose
+      page.drawText(`Section ${String(i + 1).padStart(2, "0")} · placeholder body`, {
+        x: 50, y: PAGE_H - 130, size: 14, font: fontBold, color: INK,
+      })
+      page.drawLine({
+        start: { x: 50, y: PAGE_H - 140 }, end: { x: 200, y: PAGE_H - 140 },
+        thickness: 1.5, color: ROYAL,
+      })
+
+      const body =
+        "This is a placeholder PDF generated by the Worker for development. " +
+        "Each document in the seed has a minimal multi-page artifact backing it so the " +
+        "Document Viewer can exercise its page-navigation, zoom and download flows " +
+        "without a real R2 bucket. Production deploys would back this endpoint with " +
+        "an R2 GetObject call instead, and the bytes here would never need to be " +
+        "synthesized at request time. The document's actual title, source and key " +
+        "metadata are printed on page 1; pages 2..N exist purely to exercise the " +
+        "renderer."
+      // Naive word wrapping
+      const maxLineChars = 78
+      const words = body.split(" ")
+      let line = ""
+      let y2 = PAGE_H - 180
+      for (const w of words) {
+        if ((line + " " + w).trim().length > maxLineChars) {
+          page.drawText(line.trim(), { x: 50, y: y2, size: 11, font: fontRegular, color: INK })
+          y2 -= 18
+          line = w
+        } else {
+          line = line ? line + " " + w : w
+        }
+      }
+      if (line) {
+        page.drawText(line.trim(), { x: 50, y: y2, size: 11, font: fontRegular, color: INK })
+      }
+    }
+
+    // Footer
+    page.drawLine({
+      start: { x: 50, y: 60 }, end: { x: PAGE_W - 50, y: 60 },
+      thickness: 0.5, color: RULE,
+    })
+    page.drawText(`Page ${i + 1} of ${pageCount}`, {
+      x: 50, y: 42, size: 8, font: fontRegular, color: INK_SOFT,
+    })
+    page.drawText(doc.title, {
+      x: PAGE_W - 50 - fontItalic.widthOfTextAtSize(doc.title, 8), y: 42,
+      size: 8, font: fontItalic, color: INK_SOFT,
+    })
+  }
+
+  return await pdfDoc.save()
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // POST /api/v1/documents/upload-url
@@ -530,6 +728,9 @@ function shapeDoc(d: typeof documents.$inferSelect) {
     pendingDueAt: d.pendingDueAt,
     tags: d.tags,
     taxYear: d.taxYear,
+    // Added 2026-05: UI grouping + sidebar metadata. See schema.ts.
+    isFolded: d.isFolded,
+    metadata: d.metadata,
     createdAt: d.createdAt,
     updatedAt: d.updatedAt,
   }

@@ -21,6 +21,7 @@
     "db:migrate-audit-immutable": "node scripts/db-exec.mjs src/db/migrations/0001_audit_immutable.sql",
     "db:migrate-buying-power": "node scripts/db-exec.mjs src/db/migrations/0002_buying_power.sql",
     "db:migrate-reports-category-metadata": "node scripts/db-exec.mjs src/db/migrations/0003_reports_category_metadata.sql",
+    "db:migrate-documents-folded-metadata": "node scripts/db-exec.mjs src/db/migrations/0004_documents_folded_metadata.sql",
     "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
@@ -35,6 +36,7 @@
     "drizzle-orm": "^0.36.4",
     "hono": "^4.6.14",
     "otpauth": "^9.3.5",
+    "pdf-lib": "^1.17.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {

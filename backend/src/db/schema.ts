@@ -635,6 +635,31 @@ export const customResearchRequests = pgTable("custom_research_requests", {
 // ║  DOCUMENTS VAULT                                                           ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
+/**
+ * Structured DocumentMetadata for the Document Viewer sidebar.
+ * Stored in `documents.metadata` (jsonb). Kept distinct from
+ * EventMetadata because the use case is different (no rendered body,
+ * just sidebar context).
+ */
+export interface DocumentLinkedEntity {
+  kind: "position" | "account" | "report" | "event" | "invoice" | "advisor" | "external"
+  /** Internal id (e.g. position UUID) when kind is one of ours; null/omit for external. */
+  id?: string
+  /** Human-facing label (bilingual or plain). */
+  label: { en: string; zh: string } | string
+  /** Optional short subtitle / detail. */
+  sub?: { en: string; zh: string } | string
+}
+
+export interface DocumentMetadata {
+  /** Entities this document relates to (positions, accounts, advisors, …). */
+  linkedEntities?: DocumentLinkedEntity[]
+  /** Sibling document UUIDs to surface as "Related documents" in the sidebar. */
+  relatedDocumentIds?: string[]
+  /** Free-form notes / issuer details / etc. */
+  [key: string]: unknown
+}
+
 export const documents = pgTable(
   "documents",
   {
@@ -659,6 +684,14 @@ export const documents = pgTable(
     deliveredAt: ts("delivered_at"),
     retentionUntil: date("retention_until"),
     isArchived: boolean("is_archived").notNull().default(false),
+    /**
+     * UI grouping flag. When true, the document collapses into a single
+     * "Folded" group at the bottom of the Documents list page, regardless
+     * of its category. Only changeable via backend write (no UI toggle in MVP).
+     */
+    isFolded: boolean("is_folded").notNull().default(false),
+    /** Structured sidebar metadata (linked entities + related docs). */
+    metadata: jsonb("metadata").$type<DocumentMetadata>(),
     status: text("status")
       .notNull()
       .default("active")

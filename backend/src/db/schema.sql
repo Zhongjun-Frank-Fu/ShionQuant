@@ -630,6 +630,15 @@ create table documents (
   related_event_id uuid references events(id),
   tax_year        integer,
 
+  -- UI grouping flag (added 2026-05). When true, the document collapses
+  -- into a single "Folded" group at the bottom of the Documents list page,
+  -- regardless of its category. Only changeable via backend write.
+  is_folded       boolean not null default false,
+
+  -- Sidebar metadata: { linkedEntities, relatedDocumentIds, ... }
+  -- See backend/src/db/schema.ts DocumentMetadata type.
+  metadata        jsonb,
+
   uploaded_by_user_id uuid references users(id),
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),

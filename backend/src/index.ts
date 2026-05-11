@@ -46,7 +46,12 @@ app.use(
     contentSecurityPolicy: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
+      // cdnjs is allowed for PDF.js (Document Viewer). Operated by
+      // Cloudflare itself, so trust-equivalent to our own origin.
+      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+      // PDF.js spawns a Web Worker; it loads its worker bundle from cdnjs
+      // (or as a blob: URL when bundled), so allow both.
+      workerSrc: ["'self'", "https://cdnjs.cloudflare.com", "blob:"],
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'"],
     },

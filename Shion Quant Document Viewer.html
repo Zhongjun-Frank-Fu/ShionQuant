@@ -96,7 +96,100 @@
   .pg-zoom button:hover { border-color: var(--royal); color: var(--royal); }
   .pg-zoom-val { font-family: var(--mono); font-size: 0.72rem; padding: 0 0.4rem; color: var(--ink-mid); min-width: 3rem; text-align: center; }
 
-  /* PDF PREVIEW (mock) */
+  /* PDF.js canvas viewport. The canvas is sized in JS to match the
+     viewport returned by page.getViewport({ scale }). The stage centers
+     and scrolls horizontally if zoom overflows the column. */
+  .pdf-stage {
+    display: flex; justify-content: center;
+    overflow: auto;
+    padding: 1rem 0 2rem;
+    min-height: 60vh;
+  }
+  .pdf-canvas {
+    display: block;
+    background: #fff;
+    box-shadow: 0 14px 44px rgba(35,71,212,0.08), 0 2px 6px rgba(13,16,32,0.04);
+    border: 1px solid var(--rule);
+    max-width: 100%;
+    height: auto;
+  }
+  .pdf-status {
+    margin: auto;
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  body.lang-zh .pdf-status { font-family: var(--sans-zh); }
+  .pdf-status.failed { color: #c84a32; font-style: normal; }
+
+  /* Linked entities + related documents in the aside. */
+  .linked-list { display: flex; flex-direction: column; }
+  .linked-item {
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--rule);
+    color: var(--ink);
+  }
+  .linked-item:first-child { border-top: none; }
+  .li-label {
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink);
+    line-height: 1.35;
+    font-weight: 400;
+  }
+  body.lang-zh .li-label { font-family: var(--sans-zh); }
+  .li-sub {
+    font-family: var(--sans-en);
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    margin-top: 0.2rem;
+  }
+  body.lang-zh .li-sub { font-family: var(--sans-zh); }
+  .li-kind {
+    font-family: var(--sans-en);
+    font-size: 0.52rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--royal);
+    margin-right: 0.5rem;
+  }
+  body.lang-zh .li-kind { font-family: var(--sans-zh); letter-spacing: 0.06em; text-transform: none; }
+
+  .related-doc {
+    display: block;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+    transition: padding-left 0.2s, color 0.2s;
+  }
+  .related-doc:first-child { border-top: none; }
+  .related-doc:hover { padding-left: 0.3rem; color: var(--royal); }
+  .rd-title { font-family: var(--sans-en); font-size: 0.78rem; line-height: 1.35; }
+  body.lang-zh .rd-title { font-family: var(--sans-zh); }
+  .rd-meta {
+    font-family: var(--sans-en);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 0.25rem;
+  }
+  body.lang-zh .rd-meta { font-family: var(--sans-zh); letter-spacing: 0.04em; text-transform: none; }
+
+  .rebuild-failed {
+    text-align: center;
+    padding: 1rem 0;
+    font-family: var(--sans-en);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    opacity: 0.55;
+    font-style: italic;
+  }
+  body.lang-zh .rebuild-failed { font-family: var(--sans-zh); }
+
+  /* PDF PREVIEW (mock — legacy static demo, not used by JS renderer) */
   .pdf-page {
     background: #fff;
     border: 1px solid var(--rule);
@@ -319,34 +412,28 @@
 <header class="doc-head">
   <div>
     <div class="dh-meta">
-      <span class="tag"><span class="en-inline">Statement</span><span class="zh-inline">对账单</span></span>
-      <span class="item">PDF</span>
+      <span class="tag" data-bind="header.categoryTag">—</span>
+      <span class="item" data-bind="header.format">PDF</span>
       <span>·</span>
-      <span class="item">18 pp</span>
+      <span class="item" data-bind="header.pages">—</span>
       <span>·</span>
-      <span class="item">2.4 MB</span>
+      <span class="item" data-bind="header.size">—</span>
       <span>·</span>
-      <span class="item"><span class="en-inline">Auto-delivered 24 Apr 2026</span><span class="zh-inline">2026/4/24 自动送达</span></span>
+      <span class="item" data-bind="header.delivered">—</span>
     </div>
-    <h1 class="dh-title">
-      <span class="en"><strong>IBKR</strong>March 2026 <em>account statement</em></span>
-      <span class="zh"><strong>IBKR</strong>2026 年 3 月<em>账户对账单</em></span>
-    </h1>
-    <p class="dh-sub">
-      <span class="en-inline">Combined positions, P&amp;L, dividends, fees, FX, and cash movements across the U-account (USD / HKD / CNY sub-accounts). Source-of-record, custodian-issued.</span>
-      <span class="zh-inline">U-账户（美/港/人民币子账户）持仓、盈亏、分红、费用、汇兑与现金流——由托管方签发，作为正式记录。</span>
-    </p>
+    <h1 class="dh-title" data-bind="header.title">—</h1>
+    <p class="dh-sub" data-bind="header.description">—</p>
   </div>
   <div class="dh-actions">
-    <button class="ha-btn">
+    <button class="ha-btn" id="action-print">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
       <span class="en-inline">Print</span><span class="zh-inline">打印</span>
     </button>
-    <button class="ha-btn">
+    <button class="ha-btn" id="action-share">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
       <span class="en-inline">Share</span><span class="zh-inline">分享</span>
     </button>
-    <button class="ha-btn primary">
+    <button class="ha-btn primary" id="action-download">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       <span class="en-inline">Download</span><span class="zh-inline">下载</span>
     </button>
@@ -358,165 +445,58 @@
   <main class="viewer-main">
     <div class="pg-strip">
       <div class="pg-nav">
-        <button class="pg-btn" title="Previous"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <div class="pg-info"><input type="text" value="1"> / 18 <span style="color:var(--silver); margin-left:0.4rem;">pages</span></div>
-        <button class="pg-btn" title="Next"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+        <button class="pg-btn" id="pg-prev" title="Previous">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="pg-info">
+          <input type="text" id="pg-current" value="1" inputmode="numeric"> / <span id="pg-total">—</span>
+          <span style="color:var(--silver); margin-left:0.4rem;" class="en-inline">pages</span>
+          <span style="color:var(--silver); margin-left:0.4rem;" class="zh-inline">页</span>
+        </div>
+        <button class="pg-btn" id="pg-next" title="Next">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
       <div class="pg-zoom">
-        <button>−</button>
-        <span class="pg-zoom-val">100%</span>
-        <button>+</button>
+        <button id="pg-zoom-out">−</button>
+        <span class="pg-zoom-val" id="pg-zoom-val">100%</span>
+        <button id="pg-zoom-in">+</button>
       </div>
     </div>
 
-    <!-- Mock PDF page (cover) -->
-    <div class="pdf-page">
-      <div class="pdf-corner-mark"></div>
-
-      <div class="pdf-letterhead">
-        <div>
-          <div class="pdf-broker">Interactive Brokers LLC</div>
-          <div class="pdf-broker-sub">Two Pickwick Plaza · Greenwich, CT 06830 · Member SIPC</div>
-        </div>
-        <div class="pdf-period">
-          <span class="en-inline">Statement period</span><span class="zh-inline">对账期间</span>
-          <strong>March 1 — 31, 2026</strong>
-        </div>
-      </div>
-
-      <div class="pdf-section-title">Account Summary · U-942-***</div>
-      <div class="pdf-summary-grid">
-        <div class="pdf-cell">
-          <div class="pdf-cl">Beginning Net Liq</div>
-          <div class="pdf-cv">$2,738,544.20</div>
-        </div>
-        <div class="pdf-cell">
-          <div class="pdf-cl">Mark-to-Market</div>
-          <div class="pdf-cv gain">+$84,217.85</div>
-        </div>
-        <div class="pdf-cell">
-          <div class="pdf-cl">Realized P/L</div>
-          <div class="pdf-cv gain">+$3,124.50</div>
-        </div>
-        <div class="pdf-cell">
-          <div class="pdf-cl">Dividends</div>
-          <div class="pdf-cv gain">+$1,847.30</div>
-        </div>
-        <div class="pdf-cell">
-          <div class="pdf-cl">Fees &amp; Interest</div>
-          <div class="pdf-cv loss">−$485.65</div>
-        </div>
-        <div class="pdf-cell">
-          <div class="pdf-cl">Ending Net Liq</div>
-          <div class="pdf-cv">$2,827,248.20</div>
-        </div>
-      </div>
-
-      <div class="pdf-section-title">Top Positions (extract)</div>
-      <table class="pdf-mini-table">
-        <thead>
-          <tr><th>Symbol</th><th>Qty</th><th>Cost</th><th>Mark</th><th>Value</th><th>Unrealized P/L</th></tr>
-        </thead>
-        <tbody>
-          <tr><td class="sym">NVDA</td><td>800</td><td>487.30</td><td>590.85</td><td>$472,680</td><td style="color:var(--gain)">+$82,840</td></tr>
-          <tr><td class="sym">AAPL</td><td>1,500</td><td>178.50</td><td>204.62</td><td>$306,930</td><td style="color:var(--gain)">+$39,180</td></tr>
-          <tr><td class="sym">MSFT</td><td>600</td><td>372.10</td><td>409.40</td><td>$245,640</td><td style="color:var(--gain)">+$22,380</td></tr>
-          <tr><td class="sym">TSM</td><td>900</td><td>142.80</td><td>159.18</td><td>$143,262</td><td style="color:var(--gain)">+$14,742</td></tr>
-          <tr><td class="sym">BRK.B</td><td>280</td><td>392.40</td><td>444.05</td><td>$124,334</td><td style="color:var(--gain)">+$14,462</td></tr>
-        </tbody>
-      </table>
-
-      <div class="pdf-footer">
-        <span>Account: U-942-*** · Customer 0042</span>
-        <span>Page 1 / 18 · Generated 04/01/2026 02:14 ET</span>
+    <!-- PDF canvas (PDF.js renders here). Scrollable container holds the
+         single-page view; switching pages re-renders into the same canvas. -->
+    <div class="pdf-stage" id="pdf-stage">
+      <canvas id="pdf-canvas" class="pdf-canvas"></canvas>
+      <div id="pdf-status" class="pdf-status">
+        <span class="en-inline">Loading PDF…</span><span class="zh-inline">正在加载 PDF…</span>
       </div>
     </div>
-
-    <p class="placeholder-note">
-      <span class="en-inline"><strong>Placeholder preview.</strong> The viewer currently renders only page 1 as a styled mock. A real implementation would stream the actual PDF via PDF.js or a server-side renderer.</span>
-      <span class="zh-inline"><strong>占位预览。</strong>当前只用样式模拟渲染第 1 页。正式实现会通过 PDF.js 或服务端渲染流式加载真实 PDF。</span>
-    </p>
   </main>
 
   <aside class="viewer-aside">
 
     <div class="as-block">
       <div class="as-label"><span class="en-inline">Document Metadata</span><span class="zh-inline">文档元数据</span></div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Type</span><span class="zh-inline">类型</span></span>
-        <span class="mr-val">PDF / 1.7</span>
-      </div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Size</span><span class="zh-inline">大小</span></span>
-        <span class="mr-val">2,447 KB</span>
-      </div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Pages</span><span class="zh-inline">页数</span></span>
-        <span class="mr-val">18</span>
-      </div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Issued</span><span class="zh-inline">签发</span></span>
-        <span class="mr-val">01 Apr 2026</span>
-      </div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Delivered</span><span class="zh-inline">送达</span></span>
-        <span class="mr-val">24 Apr 2026</span>
-      </div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Source</span><span class="zh-inline">来源</span></span>
-        <span class="mr-val">IBKR auto</span>
-      </div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Retention</span><span class="zh-inline">保留</span></span>
-        <span class="mr-val">Until 2033</span>
-      </div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">SHA-256</span></span>
-        <span class="mr-val">3a8f…b219</span>
-      </div>
+      <div class="meta-row"><span class="mr-key"><span class="en-inline">Type</span><span class="zh-inline">类型</span></span><span class="mr-val" data-bind="meta.type">—</span></div>
+      <div class="meta-row"><span class="mr-key"><span class="en-inline">Size</span><span class="zh-inline">大小</span></span><span class="mr-val" data-bind="meta.size">—</span></div>
+      <div class="meta-row"><span class="mr-key"><span class="en-inline">Pages</span><span class="zh-inline">页数</span></span><span class="mr-val" data-bind="meta.pages">—</span></div>
+      <div class="meta-row"><span class="mr-key"><span class="en-inline">Issued</span><span class="zh-inline">签发</span></span><span class="mr-val" data-bind="meta.issued">—</span></div>
+      <div class="meta-row"><span class="mr-key"><span class="en-inline">Delivered</span><span class="zh-inline">送达</span></span><span class="mr-val" data-bind="meta.delivered">—</span></div>
+      <div class="meta-row"><span class="mr-key"><span class="en-inline">Source</span><span class="zh-inline">来源</span></span><span class="mr-val" data-bind="meta.source">—</span></div>
+      <div class="meta-row"><span class="mr-key"><span class="en-inline">Retention</span><span class="zh-inline">保留</span></span><span class="mr-val" data-bind="meta.retention">—</span></div>
+      <div class="meta-row"><span class="mr-key"><span class="en-inline">SHA-256</span><span class="zh-inline">SHA-256</span></span><span class="mr-val" data-bind="meta.sha">—</span></div>
+      <div class="meta-row"><span class="mr-key"><span class="en-inline">Code</span><span class="zh-inline">编号</span></span><span class="mr-val" data-bind="meta.code">—</span></div>
     </div>
 
     <div class="as-block">
       <div class="as-label"><span class="en-inline">Linked entities</span><span class="zh-inline">关联实体</span></div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Tax form</span><span class="zh-inline">关联税表</span></span>
-        <span class="mr-val">1099-B 2025</span>
-      </div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Custody</span><span class="zh-inline">托管账户</span></span>
-        <span class="mr-val">U-942-***</span>
-      </div>
-      <div class="meta-row">
-        <span class="mr-key"><span class="en-inline">Cycle</span><span class="zh-inline">周期</span></span>
-        <span class="mr-val">Monthly · auto</span>
-      </div>
+      <div data-rebuild="meta.linkedEntities"></div>
     </div>
 
     <div class="as-block">
-      <div class="as-label"><span class="en-inline">Quick actions</span><span class="zh-inline">快捷操作</span></div>
-      <div class="actions-stack">
-        <a href="#" class="ha-btn primary"><span class="en-inline">Forward to accountant</span><span class="zh-inline">转发会计</span></a>
-        <a href="#" class="ha-btn"><span class="en-inline">Add note</span><span class="zh-inline">添加备注</span></a>
-        <a href="#" class="ha-btn"><span class="en-inline">Pin to top</span><span class="zh-inline">置顶</span></a>
-      </div>
-    </div>
-
-    <div class="as-block">
-      <div class="as-label"><span class="en-inline">Other months</span><span class="zh-inline">其他月份</span></div>
-      <div class="related-list">
-        <a href="#" class="related-item">
-          <div class="ri-meta">FEB 2026 · 17 pp</div>
-          <div class="ri-title"><span class="en-inline">February account statement</span><span class="zh-inline">2 月账户对账单</span></div>
-        </a>
-        <a href="#" class="related-item">
-          <div class="ri-meta">JAN 2026 · 16 pp</div>
-          <div class="ri-title"><span class="en-inline">January account statement</span><span class="zh-inline">1 月账户对账单</span></div>
-        </a>
-        <a href="#" class="related-item">
-          <div class="ri-meta">2025 · 84 pp</div>
-          <div class="ri-title"><span class="en-inline">2025 annual activity statement</span><span class="zh-inline">2025 年度活动报告</span></div>
-        </a>
-      </div>
+      <div class="as-label"><span class="en-inline">Related documents</span><span class="zh-inline">相关文件</span></div>
+      <div class="related-list" data-rebuild="meta.relatedDocuments"></div>
     </div>
 
   </aside>
@@ -852,6 +832,429 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') wrap.classList.remove('open');
   });
+})();
+</script>
+
+<!-- PDF.js (Mozilla) — served from cdnjs (operated by Cloudflare; same trust as our own origin).
+     Module form ships an ES module; we set workerSrc to the matching worker file. -->
+<script type="module">
+import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.mjs";
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.worker.min.mjs";
+window.__pdfjsLib = pdfjsLib;
+window.dispatchEvent(new Event("pdfjs-ready"));
+</script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+ * SQ-DOC-VIEWER-V1
+ *
+ * Reads ?id=<uuid> from URL, fetches:
+ *   GET /api/v1/documents/:id        → metadata
+ *   GET /api/v1/documents/:id/file   → PDF binary (placeholder in dev,
+ *                                       generated server-side by pdf-lib)
+ *
+ * Renders:
+ *   - header: category tag, format, pages, size, delivered, title, description
+ *   - PDF viewer: single-page render via PDF.js, page nav + zoom (50%–300%)
+ *   - aside: Document Metadata + Linked Entities + Related Documents
+ *
+ * Actions:
+ *   - Download → triggers a real download by fetching the file and saving via Blob URL
+ *   - Print → opens browser print with the PDF in a hidden iframe
+ *   - Share → uses navigator.share() if available, falls back to copy-link
+ *
+ * Disabled in MVP: signing UI (removed entirely), Quick Actions sidebar.
+ * ───────────────────────────────────────────────────────────────────────── */
+(function() {
+  const API_BASE = (() => {
+    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
+    const meta = document.querySelector('meta[name="sq-api-base"]');
+    if (meta && meta.content) return meta.content;
+    const host = window.location.hostname;
+    const isLocal = window.location.protocol === 'file:' ||
+                    host === 'localhost' || host === '127.0.0.1' || host === '';
+    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
+  })();
+
+  const FAILED_EN = 'Not loaded';
+  const FAILED_ZH = '未读取';
+  const _zh = () => document.body.classList.contains('lang-zh');
+  const _failedTxt = () => _zh() ? FAILED_ZH : FAILED_EN;
+  const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',
+  }[c]));
+  const bi = (v) => {
+    if (v == null) return '';
+    if (typeof v === 'string') return v;
+    return _zh() ? (v.zh ?? v.en ?? '') : (v.en ?? v.zh ?? '');
+  };
+
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MONTHS_ZH = ['1 月','2 月','3 月','4 月','5 月','6 月','7 月','8 月','9 月','10 月','11 月','12 月'];
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const en = `${day} ${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+    const zh = `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${day}`;
+    return _zh() ? zh : en;
+  }
+  function fmtSize(bytes) {
+    if (!bytes) return '—';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  }
+
+  const CATEGORY_LABELS = {
+    statement:  { en: 'Statement',  zh: '对账单' },
+    tax:        { en: 'Tax',        zh: '税务' },
+    engagement: { en: 'Engagement', zh: '合作' },
+    custody:    { en: 'Custody',    zh: '托管' },
+    compliance: { en: 'Compliance', zh: '合规' },
+    banking:    { en: 'Banking',    zh: '银行' },
+    misc:       { en: 'Other',      zh: '其它' },
+  };
+
+  // ─── DOM helpers ────────────────────────────────────────────────────
+  const $ = (s) => document.querySelector(s);
+  const setBind = (k, v) => document.querySelectorAll(`[data-bind="${k}"]`).forEach((el) => { el.textContent = v; });
+  const setBindHtml = (k, v) => document.querySelectorAll(`[data-bind="${k}"]`).forEach((el) => { el.innerHTML = v; });
+  const setRebuild = (k, html) => { const el = $(`[data-rebuild="${k}"]`); if (el) el.innerHTML = html; };
+  function _blankAllBindings() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = '—'; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => { el.innerHTML = ''; });
+  }
+  function _markFailed() {
+    const txt = _failedTxt();
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = txt; });
+    document.querySelectorAll('[data-rebuild]').forEach((el) => {
+      el.innerHTML = `<div class="rebuild-failed">${escapeHtml(txt)}</div>`;
+    });
+  }
+
+  // ─── Networking ─────────────────────────────────────────────────────
+  async function fetchDoc(id) {
+    const res = await fetch(`${API_BASE}/documents/${encodeURIComponent(id)}`, {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status} :: ${body.slice(0, 200)}`);
+    }
+    return res.json();
+  }
+
+  // ─── Header / metadata rendering ────────────────────────────────────
+  let _docCache = null;
+  let _relatedCache = []; // populated from a second list fetch when needed
+
+  function renderHeader(doc) {
+    document.title = `${doc.title} · Shion Quant`;
+    const cat = CATEGORY_LABELS[doc.category] || { en: doc.category || '—', zh: '—' };
+    setBindHtml('header.categoryTag', `<span class="en-inline">${escapeHtml(cat.en)}</span><span class="zh-inline">${escapeHtml(cat.zh)}</span>`);
+    setBind('header.format', (doc.fileFormat || 'PDF').toUpperCase());
+    setBind('header.pages', doc.pages != null ? `${doc.pages} pp` : '—');
+    setBind('header.size', fmtSize(doc.fileSizeBytes));
+    setBind('header.delivered', doc.deliveredAt
+      ? (_zh() ? `${fmtDate(doc.deliveredAt)} 送达` : `Delivered ${fmtDate(doc.deliveredAt)}`)
+      : '—');
+    const codeHtml = doc.displayCode ? `<strong>${escapeHtml(doc.displayCode)}</strong>` : '';
+    setBindHtml('header.title', `${codeHtml}<span>${escapeHtml(doc.title)}</span>`);
+    setBind('header.description', doc.description || '—');
+
+    // Sidebar metadata block
+    setBind('meta.type', `${(doc.fileFormat || 'PDF').toUpperCase()}`);
+    setBind('meta.size', fmtSize(doc.fileSizeBytes));
+    setBind('meta.pages', doc.pages != null ? String(doc.pages) : '—');
+    setBind('meta.issued', fmtDate(doc.issuedAt));
+    setBind('meta.delivered', fmtDate(doc.deliveredAt));
+    setBind('meta.source', doc.sourceLabel ?? '—');
+    setBind('meta.retention', doc.retentionUntil ? fmtDate(doc.retentionUntil) : '—');
+    setBind('meta.sha', doc.sha256 ? `${doc.sha256.slice(0, 8)}…${doc.sha256.slice(-4)}` : '—');
+    setBind('meta.code', doc.displayCode || '—');
+
+    // Linked entities (from metadata.linkedEntities)
+    const linked = doc.metadata?.linkedEntities;
+    if (!Array.isArray(linked) || linked.length === 0) {
+      setRebuild('meta.linkedEntities', `<div class="rebuild-failed"><span class="en-inline">None on file</span><span class="zh-inline">暂无关联</span></div>`);
+    } else {
+      setRebuild('meta.linkedEntities', linked.map((e) => `
+        <div class="linked-item">
+          <div class="li-label"><span class="li-kind">${escapeHtml(e.kind || '—')}</span>${escapeHtml(bi(e.label))}</div>
+          ${e.sub ? `<div class="li-sub">${escapeHtml(bi(e.sub))}</div>` : ''}
+        </div>`).join(''));
+    }
+
+    // Related documents — populate after we have the list cache.
+    renderRelated(doc);
+  }
+
+  /** Fetch the full documents list once + cache; used to resolve related IDs. */
+  async function ensureListCache() {
+    if (_relatedCache.length > 0) return;
+    try {
+      const res = await fetch(`${API_BASE}/documents?limit=200`, {
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      _relatedCache = Array.isArray(data.documents) ? data.documents : [];
+    } catch { /* ignored — Related panel will just show "None on file" */ }
+  }
+
+  async function renderRelated(doc) {
+    const ids = doc.metadata?.relatedDocumentIds;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      // Fall back: surface other docs in the same category (newest 3, excluding self).
+      await ensureListCache();
+      const candidates = _relatedCache
+        .filter((d) => d.id !== doc.id && d.category === doc.category)
+        .sort((a, b) => new Date(b.issuedAt || 0) - new Date(a.issuedAt || 0))
+        .slice(0, 3);
+      if (candidates.length === 0) {
+        setRebuild('meta.relatedDocuments', `<div class="rebuild-failed"><span class="en-inline">None on file</span><span class="zh-inline">暂无相关</span></div>`);
+      } else {
+        setRebuild('meta.relatedDocuments', candidates.map((d) => `
+          <a class="related-doc" href="Shion Quant Document Viewer.html?id=${encodeURIComponent(d.id)}">
+            <div class="rd-meta">${escapeHtml(d.displayCode || '—')} · ${escapeHtml(fmtDate(d.issuedAt))}</div>
+            <div class="rd-title">${escapeHtml(d.title)}</div>
+          </a>`).join(''));
+      }
+      return;
+    }
+    await ensureListCache();
+    const byId = new Map(_relatedCache.map((d) => [d.id, d]));
+    const matched = ids.map((id) => byId.get(id)).filter(Boolean);
+    if (matched.length === 0) {
+      setRebuild('meta.relatedDocuments', `<div class="rebuild-failed"><span class="en-inline">None on file</span><span class="zh-inline">暂无相关</span></div>`);
+      return;
+    }
+    setRebuild('meta.relatedDocuments', matched.map((d) => `
+      <a class="related-doc" href="Shion Quant Document Viewer.html?id=${encodeURIComponent(d.id)}">
+        <div class="rd-meta">${escapeHtml(d.displayCode || '—')} · ${escapeHtml(fmtDate(d.issuedAt))}</div>
+        <div class="rd-title">${escapeHtml(d.title)}</div>
+      </a>`).join(''));
+  }
+
+  // ─── PDF.js viewer ──────────────────────────────────────────────────
+  const ZOOM_LEVELS = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0];
+  let _pdfDoc = null;
+  let _currentPage = 1;
+  let _zoomIdx = 2; // default 100%
+  let _renderTask = null;
+
+  function _setStatus(msg, failed = false) {
+    const el = $('#pdf-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.classList.toggle('failed', failed);
+  }
+  function _hideStatus() {
+    const el = $('#pdf-status');
+    if (el) el.style.display = 'none';
+  }
+
+  async function loadPdf(id) {
+    const pdfjsLib = window.__pdfjsLib;
+    if (!pdfjsLib) {
+      await new Promise((r) => window.addEventListener('pdfjs-ready', r, { once: true }));
+    }
+    const lib = window.__pdfjsLib;
+    _setStatus(_zh() ? '正在加载 PDF…' : 'Loading PDF…');
+    try {
+      const task = lib.getDocument({
+        url: `${API_BASE}/documents/${encodeURIComponent(id)}/file`,
+        withCredentials: true,
+      });
+      _pdfDoc = await task.promise;
+      _hideStatus();
+      $('#pg-total').textContent = String(_pdfDoc.numPages);
+      $('#pg-current').value = '1';
+      _currentPage = 1;
+      await renderCurrentPage();
+    } catch (err) {
+      console.warn('[doc-viewer] PDF load failed:', err);
+      _setStatus(_zh() ? '无法加载 PDF · 未读取' : 'Failed to load PDF · Not loaded', true);
+    }
+  }
+
+  async function renderCurrentPage() {
+    if (!_pdfDoc) return;
+    if (_renderTask) { try { _renderTask.cancel(); } catch {} }
+    const page = await _pdfDoc.getPage(_currentPage);
+    const scale = ZOOM_LEVELS[_zoomIdx];
+    // Bump device pixel ratio for crisp rendering on retina.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const viewport = page.getViewport({ scale: scale * dpr });
+    const canvas = $('#pdf-canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    canvas.style.width = `${viewport.width / dpr}px`;
+    canvas.style.height = `${viewport.height / dpr}px`;
+    _renderTask = page.render({ canvasContext: canvas.getContext('2d'), viewport });
+    await _renderTask.promise;
+    $('#pg-current').value = String(_currentPage);
+    $('#pg-zoom-val').textContent = `${Math.round(ZOOM_LEVELS[_zoomIdx] * 100)}%`;
+  }
+
+  function wireViewer() {
+    $('#pg-prev')?.addEventListener('click', () => {
+      if (!_pdfDoc) return;
+      _currentPage = Math.max(1, _currentPage - 1);
+      renderCurrentPage();
+    });
+    $('#pg-next')?.addEventListener('click', () => {
+      if (!_pdfDoc) return;
+      _currentPage = Math.min(_pdfDoc.numPages, _currentPage + 1);
+      renderCurrentPage();
+    });
+    $('#pg-current')?.addEventListener('change', (e) => {
+      if (!_pdfDoc) return;
+      const n = parseInt(e.target.value, 10);
+      if (!Number.isFinite(n)) return;
+      _currentPage = Math.max(1, Math.min(_pdfDoc.numPages, n));
+      renderCurrentPage();
+    });
+    $('#pg-zoom-out')?.addEventListener('click', () => {
+      _zoomIdx = Math.max(0, _zoomIdx - 1);
+      renderCurrentPage();
+    });
+    $('#pg-zoom-in')?.addEventListener('click', () => {
+      _zoomIdx = Math.min(ZOOM_LEVELS.length - 1, _zoomIdx + 1);
+      renderCurrentPage();
+    });
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (!_pdfDoc) return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        _currentPage = Math.max(1, _currentPage - 1);
+        renderCurrentPage();
+      } else if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        _currentPage = Math.min(_pdfDoc.numPages, _currentPage + 1);
+        renderCurrentPage();
+        if (e.key === ' ') e.preventDefault();
+      } else if (e.key === '+' || e.key === '=') {
+        _zoomIdx = Math.min(ZOOM_LEVELS.length - 1, _zoomIdx + 1);
+        renderCurrentPage();
+      } else if (e.key === '-' || e.key === '_') {
+        _zoomIdx = Math.max(0, _zoomIdx - 1);
+        renderCurrentPage();
+      }
+    });
+  }
+
+  // ─── Header actions: Download / Print / Share ──────────────────────
+  function wireActions(doc) {
+    const fileUrl = `${API_BASE}/documents/${encodeURIComponent(doc.id)}/file`;
+    const safeName = (doc.displayCode || doc.title || 'document').replace(/[^a-zA-Z0-9._-]+/g, '_') + '.pdf';
+
+    $('#action-download')?.addEventListener('click', async () => {
+      const btn = $('#action-download');
+      btn.disabled = true;
+      try {
+        const res = await fetch(fileUrl, { credentials: 'include' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = safeName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.warn('[doc-viewer] download failed:', err);
+        alert(_zh() ? '下载失败' : 'Download failed');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    $('#action-print')?.addEventListener('click', async () => {
+      // Fetch the PDF as a blob then open in a hidden iframe for printing.
+      try {
+        const res = await fetch(fileUrl, { credentials: 'include' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.left = '-10000px';
+        iframe.src = url;
+        document.body.appendChild(iframe);
+        iframe.onload = () => {
+          try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch {}
+        };
+        // Cleanup after a minute (printing dialogs vary in lifecycle).
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+          URL.revokeObjectURL(url);
+        }, 60_000);
+      } catch (err) {
+        console.warn('[doc-viewer] print failed:', err);
+        alert(_zh() ? '打印失败' : 'Print failed');
+      }
+    });
+
+    $('#action-share')?.addEventListener('click', async () => {
+      const url = window.location.href;
+      const title = doc.title;
+      // Prefer the native share sheet on supported browsers (mobile + macOS Safari).
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, url });
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+        }
+      }
+      // Fallback: copy link to clipboard.
+      try {
+        await navigator.clipboard.writeText(url);
+        alert(_zh() ? '链接已复制' : 'Link copied');
+      } catch {
+        alert(_zh() ? `分享链接：${url}` : `Share link: ${url}`);
+      }
+    });
+  }
+
+  // ─── boot ──────────────────────────────────────────────────────────
+  async function boot() {
+    _blankAllBindings();
+    const url = new URL(window.location.href);
+    const id = url.searchParams.get('id');
+    if (!id) {
+      _markFailed();
+      console.warn('[doc-viewer] no ?id= in URL');
+      _setStatus('Missing document id', true);
+      return;
+    }
+    try {
+      const data = await fetchDoc(id);
+      _docCache = data.document;
+      renderHeader(_docCache);
+      wireActions(_docCache);
+      wireViewer();
+      await loadPdf(id);
+    } catch (err) {
+      console.warn('[doc-viewer] fetch failed:', err.message || err);
+      _markFailed();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
 })();
 </script>
 
