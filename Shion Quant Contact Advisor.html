@@ -594,6 +594,9 @@
     .portal-foot { padding: 1.4rem 1.5rem; flex-direction: column; gap: 0.6rem; text-align: center; }
   }
 </style>
+<!-- SQ-RUNTIME-V1 -->
+<link rel="stylesheet" href="Shion%20Quant%20runtime.css">
+<script defer src="Shion%20Quant%20runtime.js"></script>
 </head>
 <body id="body">
 
@@ -1339,190 +1342,132 @@
 </script>
 
 <script>
-/* SQ-CONTACT-V1 — wires the Contact Advisor page to:
- *   GET  /communication/contact/advisor        → header card
- *   GET  /communication/contact/slots?type=…   → call grid + in-person locations
- *   POST /communication/contact/requests       → submit a message / call / in-person
- *   GET  /communication/contact/requests       → "Recent requests" list
+/* SQ-CONTACT-V2 — Contact Advisor page wiring, built on Shion Quant runtime.
  *
- * Pane visibility (message vs call vs in-person) is owned by the original
- * inline script earlier in the file; this script just renders into the
- * data-rebuild containers and wires the three Submit buttons.
+ * Strategy (matches /Shion Quant runtime.js docstring):
+ *   - SQ.section() owns each [data-rebuild] target: paints skeleton at boot,
+ *     fetches in parallel, renders on resolve, retries via SWR on revisit.
+ *   - SQ.api() handles credentials + 401 + JSON envelope.
+ *   - SQ.fetch() caches the same key in sessionStorage so cross-page nav
+ *     never hits the network twice within 5 min.
+ *   - SQ.toast() / SQ.escape() / SQ.fmt.* replace the per-page copies.
+ *
+ * State that survives across renders (current call selection, advisor blob)
+ * is held in module-scoped vars and re-applied when sections re-render.
  */
-(function() {
-  const API_BASE = (() => {
-    if (typeof window.__SQ_API_BASE__ === 'string') return window.__SQ_API_BASE__;
-    const meta = document.querySelector('meta[name="sq-api-base"]');
-    if (meta && meta.content) return meta.content;
-    const host = window.location.hostname;
-    const isLocal = window.location.protocol === 'file:' ||
-                    host === 'localhost' || host === '127.0.0.1' || host === '';
-    return isLocal ? 'http://localhost:8787/api/v1' : '/api/v1';
-  })();
+(function () {
+  if (!window.SQ) {
+    console.error("[contact] SQ runtime missing; check <script src="Shion%20Quant%20runtime.js">");
+    return;
+  }
 
-  let advisor = null;
+  // ─── Cross-render state ────────────────────────────────────────────────
   let callSlots = [];
-  let inPersonSlots = [];
   let selectedCallSlotId = null;
-  let recentRequests = [];
+  let advisor = null;
 
-  // ─── DOM helpers ───────────────────────────────────────────────────────
-  function setRebuild(key, html) {
-    const el = document.querySelector(`[data-rebuild="${key}"]`);
-    if (el) el.innerHTML = html;
-    return el;
-  }
-  function showLoading(key) {
-    setRebuild(key, '<div class="rebuild-loading"><span class="en-inline">Loading…</span><span class="zh-inline">加载中…</span></div>');
-  }
-  function showError(key, msg) {
-    setRebuild(key, `<div class="rebuild-error">${msg}</div>`);
-  }
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  }
-  function setBind(key, value) {
-    document.querySelectorAll(`[data-bind="${key}"]`).forEach((el) => {
-      el.textContent = value;
-    });
-  }
-  function isZh() { return document.body.classList.contains('lang-zh'); }
-
-  // Toast
-  const toastEl = document.createElement('div');
-  toastEl.className = 'sq-toast';
-  document.body.appendChild(toastEl);
-  let toastTimer = null;
-  function toast(msg, opts) {
-    toastEl.textContent = msg;
-    toastEl.classList.toggle('err', !!(opts && opts.error));
-    toastEl.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2800);
+  // Build a deduped list of in-person locations as soon as that section
+  // loads; the in-person form pulls its <option>s from this list.
+  function populateInPersonLocations(slots) {
+    const el = SQ.$("#ip-location");
+    if (!el) return;
+    const distinct = Array.from(new Set(slots.map((s) => s.location)));
+    if (distinct.length === 0) distinct.push("San Diego · INTELLIGENCE INVESTMENT office");
+    distinct.push("Other · specify in notes");
+    el.innerHTML = distinct
+      .map((loc, i) => `<option value="${SQ.escape(loc)}" ${i === 0 ? "selected" : ""}>${SQ.escape(loc)}</option>`)
+      .join("");
   }
 
-  // ─── Date / time formatting ───────────────────────────────────────────
-  function fmtDay(d, zh) {
-    return d.toLocaleDateString(zh ? 'zh-CN' : 'en-US', {
-      weekday: 'short', month: 'short', day: 'numeric',
-    });
-  }
-  function fmtTime(d) {
-    return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-  }
-  function fmtTzShort() {
+  // ─── Section: advisor card ─────────────────────────────────────────────
+  SQ.section({
+    target: SQ.$("[data-bind="advisor.fullName"]"),
+    skeleton: () => {}, // card has its own static layout; just hydrate
+    cacheKey: "contact.advisor",
+    fetcher: () => SQ.api("/communication/contact/advisor"),
+    render: (data) => {
+      advisor = data.advisor;
+      if (!advisor) return;
+      SQ.bind("advisor.initials", advisor.initials || "?");
+      SQ.bind("advisor.fullName", advisor.fullName || "—");
+      SQ.bind("advisor.role", advisor.role || "—");
+      SQ.bind("advisor.location", advisor.location || advisor.timezone || "—");
+      tickClock();
+    },
+  });
+  function tickClock() {
+    if (!advisor || !advisor.timezone) { SQ.bind("advisor.localTime", "local"); return; }
     try {
-      const dtf = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' });
-      const part = dtf.formatToParts(new Date()).find((p) => p.type === 'timeZoneName');
-      return part?.value || 'local';
-    } catch { return 'local'; }
+      const time = new Date().toLocaleTimeString("en-US", {
+        timeZone: advisor.timezone, hour: "2-digit", minute: "2-digit", hour12: false,
+      });
+      const hourStr = new Date().toLocaleString("en-US", {
+        timeZone: advisor.timezone, hour: "numeric", hour12: false,
+      });
+      const h = parseInt(hourStr, 10);
+      const afterHours = h < 7 || h >= 18;
+      SQ.bind("advisor.localTime", `${time} ${afterHours ? "· after hours" : "local"}`);
+    } catch { SQ.bind("advisor.localTime", "local"); }
   }
-  function fmtAbsolute(iso) {
-    const d = new Date(iso);
-    return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
-  }
-  function fmtRelative(iso) {
-    const ms = Date.now() - new Date(iso).getTime();
-    const min = Math.round(ms / 60_000);
-    const zh = isZh();
-    if (min < 60) return zh ? `${min} 分钟前` : `${min}m ago`;
-    const hr = Math.round(min / 60);
-    if (hr < 24) return zh ? `${hr} 小时前` : `${hr}h ago`;
-    const day = Math.round(hr / 24);
-    if (day < 7) return zh ? `${day} 天前` : `${day}d ago`;
-    const wk = Math.round(day / 7);
-    return zh ? `${wk} 周前` : `${wk}w ago`;
-  }
+  setInterval(tickClock, 30_000);
 
-  // ─── Advisor card ──────────────────────────────────────────────────────
-  function renderAdvisorCard() {
-    if (!advisor) return;
-    setBind('advisor.initials', advisor.initials || '?');
-    setBind('advisor.fullName', advisor.fullName || '—');
-    setBind('advisor.role', advisor.role || '—');
-    setBind('advisor.location', advisor.location || advisor.timezone || '—');
-
-    // Advisor's local clock — recompute on a 30s tick so it stays current.
-    function tick() {
-      if (!advisor.timezone) return;
-      try {
-        const now = new Date();
-        const time = now.toLocaleTimeString('en-US', {
-          timeZone: advisor.timezone,
-          hour: '2-digit', minute: '2-digit', hour12: false,
+  // ─── Section: call slot grid ───────────────────────────────────────────
+  SQ.section({
+    target: "[data-rebuild="call.slots"]",
+    skeleton: "list:4",
+    cacheKey: "contact.slots.call",
+    fetcher: () => SQ.api("/communication/contact/slots?type=call"),
+    isEmpty: (data) => !data.slots || data.slots.length === 0,
+    emptyHtml: `<div class="sq-empty">
+      <span class="en-inline">No call slots available right now. KT will publish more soon — try a message instead.</span>
+      <span class="zh-inline">暂无可预约电话时段，KT 将很快补充。可改为发送消息。</span>
+    </div>`,
+    render: (data) => {
+      callSlots = data.slots || [];
+      const tz = SQ.fmt.tzShort();
+      const byDay = groupByDay(callSlots);
+      const html = byDay.map((g) => {
+        const chips = g.slots.map((s) => {
+          const t = SQ.fmt.time(s.startsAt);
+          const taken = s.isTaken ? "taken" : "";
+          const sel = s.id === selectedCallSlotId ? "selected" : "";
+          return `<div class="slot ${taken} ${sel}" data-slot-id="${SQ.escape(s.id)}">${SQ.escape(t)}<span class="tz">${SQ.escape(tz)}</span></div>`;
+        }).join("");
+        return `<div class="slots-day">
+          <div class="slots-date"><span class="day">${SQ.escape(SQ.fmt.date(g.date))}</span></div>
+          <div class="slots-list">${chips}</div>
+        </div>`;
+      }).join("");
+      SQ.rebuild("call.slots", html);
+      // Wire slot click — event listeners are torn down with innerHTML so
+      // we re-attach on every render.
+      SQ.$$("[data-slot-id]").forEach((el) => {
+        el.addEventListener("click", () => {
+          if (el.classList.contains("taken")) return;
+          SQ.$$("[data-slot-id]").forEach((x) => x.classList.remove("selected"));
+          el.classList.add("selected");
+          selectedCallSlotId = el.getAttribute("data-slot-id");
+          updateCallMeta();
         });
-        const isLate = (() => {
-          try {
-            const hourStr = new Date().toLocaleString('en-US', {
-              timeZone: advisor.timezone, hour: 'numeric', hour12: false,
-            });
-            const h = parseInt(hourStr, 10);
-            return h < 7 || h >= 18;
-          } catch { return false; }
-        })();
-        setBind('advisor.localTime', `${time} ${isLate ? '· after hours' : 'local'}`);
-      } catch {
-        setBind('advisor.localTime', 'local');
-      }
-    }
-    tick();
-    setInterval(tick, 30_000);
-  }
+      });
+      updateCallMeta();
+    },
+  });
 
-  // ─── Call slot grid ────────────────────────────────────────────────────
-  function groupSlotsByDay(slots) {
+  function groupByDay(slots) {
     const map = new Map();
     for (const s of slots) {
       const d = new Date(s.startsAt);
-      const key = d.toISOString().slice(0, 10); // YYYY-MM-DD in UTC; same row globally
+      const key = d.toISOString().slice(0, 10);
       if (!map.has(key)) map.set(key, { date: d, slots: [] });
       map.get(key).slots.push(s);
     }
     return Array.from(map.values()).sort((a, b) => a.date - b.date);
   }
 
-  function renderCallSlots() {
-    if (callSlots.length === 0) {
-      setRebuild('call.slots', `<div class="empty-state">
-        <span class="en-inline">No call slots available right now. KT will publish more soon — try a message instead.</span>
-        <span class="zh-inline">暂无可预约电话时段，KT 将很快补充。可改为发送消息。</span>
-      </div>`);
-      return;
-    }
-    const tz = fmtTzShort();
-    const grouped = groupSlotsByDay(callSlots);
-    const html = grouped.map((g) => {
-      const slotChips = g.slots.map((s) => {
-        const t = fmtTime(new Date(s.startsAt));
-        const taken = s.isTaken ? 'taken' : '';
-        return `<div class="slot ${taken}" data-slot-id="${s.id}">${escapeHtml(t)}<span class="tz">${escapeHtml(tz)}</span></div>`;
-      }).join('');
-      return `
-        <div class="slots-day">
-          <div class="slots-date">
-            <span class="day">${escapeHtml(fmtDay(g.date, isZh()))}</span>
-          </div>
-          <div class="slots-list">${slotChips}</div>
-        </div>
-      `;
-    }).join('');
-    setRebuild('call.slots', html);
-
-    // Wire slot click
-    document.querySelectorAll('[data-slot-id]').forEach((el) => {
-      el.addEventListener('click', () => {
-        if (el.classList.contains('taken')) return;
-        document.querySelectorAll('[data-slot-id]').forEach((x) => x.classList.remove('selected'));
-        el.classList.add('selected');
-        selectedCallSlotId = el.getAttribute('data-slot-id');
-        updateCallMeta();
-      });
-    });
-  }
-
   function updateCallMeta() {
-    const meta = document.querySelector('[data-bind="call.selectedMeta"]');
-    const btn = document.getElementById('btn-confirm-call');
+    const meta = SQ.$("[data-bind="call.selectedMeta"]");
+    const btn = SQ.$("#btn-confirm-call");
     if (!selectedCallSlotId) {
       if (meta) meta.innerHTML = `
         <span class="en-inline">Pick a slot above to enable booking</span>
@@ -1533,289 +1478,210 @@
     const slot = callSlots.find((s) => s.id === selectedCallSlotId);
     if (!slot) return;
     const d = new Date(slot.startsAt);
-    const dur = document.getElementById('call-duration')?.value || slot.durationMinutes;
-    const tool = document.getElementById('call-video')?.selectedOptions[0]?.textContent || 'Zoom';
+    const dur = SQ.$("#call-duration") ? SQ.$("#call-duration").value : slot.durationMinutes;
+    const tool = SQ.$("#call-video") && SQ.$("#call-video").selectedOptions[0]
+      ? SQ.$("#call-video").selectedOptions[0].textContent : "Zoom";
     if (meta) meta.innerHTML = `
-      <span class="en-inline"><strong>${escapeHtml(fmtDay(d, false))} · ${escapeHtml(fmtTime(d))} ${escapeHtml(fmtTzShort())}</strong> · ${dur} min · ${escapeHtml(tool.split(' · ')[0])}</span>
-      <span class="zh-inline"><strong>${escapeHtml(fmtDay(d, true))} · ${escapeHtml(fmtTime(d))} ${escapeHtml(fmtTzShort())}</strong> · ${dur} 分钟 · ${escapeHtml(tool.split(' · ')[0])}</span>
-    `;
+      <span class="en-inline"><strong>${SQ.escape(SQ.fmt.date(d))} · ${SQ.escape(SQ.fmt.time(d))} ${SQ.escape(SQ.fmt.tzShort())}</strong> · ${dur} min · ${SQ.escape(tool.split(" · ")[0])}</span>
+      <span class="zh-inline"><strong>${SQ.escape(SQ.fmt.date(d))} · ${SQ.escape(SQ.fmt.time(d))} ${SQ.escape(SQ.fmt.tzShort())}</strong> · ${dur} 分钟 · ${SQ.escape(tool.split(" · ")[0])}</span>`;
     if (btn) btn.disabled = false;
   }
 
-  // ─── In-person locations ───────────────────────────────────────────────
-  function renderInPersonLocations() {
-    const el = document.getElementById('ip-location');
-    if (!el) return;
-    // Build distinct locations from in-person slots, then fall back to a
-    // default if no slots came back.
-    const distinct = Array.from(new Set(inPersonSlots.map((s) => s.location)));
-    if (distinct.length === 0) {
-      distinct.push('San Diego · INTELLIGENCE INVESTMENT office');
-    }
-    distinct.push('Other · specify in notes');
-    el.innerHTML = distinct.map((loc, i) =>
-      `<option value="${escapeHtml(loc)}" ${i === 0 ? 'selected' : ''}>${escapeHtml(loc)}</option>`
-    ).join('');
-  }
+  // ─── Section: in-person locations ──────────────────────────────────────
+  SQ.section({
+    target: "#ip-location",
+    skeleton: () => {}, // <select> already shows a default option
+    cacheKey: "contact.slots.in_person",
+    fetcher: () => SQ.api("/communication/contact/slots?type=in_person"),
+    render: (data) => populateInPersonLocations(data.slots || []),
+  });
 
-  // ─── Recent requests ───────────────────────────────────────────────────
+  // ─── Section: recent requests ──────────────────────────────────────────
+  SQ.section({
+    target: "[data-rebuild="recent.requests"]",
+    skeleton: "list:3",
+    cacheKey: "contact.requests",
+    fetcher: () => SQ.api("/communication/contact/requests?limit=6"),
+    isEmpty: (data) => !data.requests || data.requests.length === 0,
+    emptyHtml: `<div class="sq-empty">
+      <span class="en-inline">No requests yet. Submit your first one above.</span>
+      <span class="zh-inline">暂无请求记录。在上方提交您的第一个请求。</span>
+    </div>`,
+    render: (data) => SQ.rebuild("recent.requests", renderRecentRows(data.requests || [])),
+  });
+
+  function renderRecentRows(requests) {
+    const zh = SQ.isZh();
+    return requests.slice(0, 6).map((r) => {
+      const subject = (r.reason || "").slice(0, 70).replace(/\s+/g, " ").trim() + ((r.reason || "").length > 70 ? "…" : "");
+      const meta = [];
+      if (r.location) meta.push(r.location);
+      if (r.preferredStartsAt) meta.push(SQ.fmt.datetime(r.preferredStartsAt));
+      if (r.durationMinutes) meta.push(SQ.fmt.duration(r.durationMinutes));
+      const submitters = (r.submitters && r.submitters.length > 0) ? r.submitters.join(", ") : null;
+      const parts = [];
+      if (submitters) parts.push(zh ? "提交人：" + submitters : "Submitted by: " + submitters);
+      parts.push(...meta);
+      return `<a href="#" class="thread" data-request-id="${SQ.escape(r.id)}">
+        <div class="thread-info">
+          <div class="thread-subject">
+            <span class="req-kind">${SQ.escape(kindLabel(r.requestType, zh))}</span>
+            <span>${SQ.escape(subject)}</span>
+            <span class="req-status ${SQ.escape(r.status)}">${SQ.escape(statusLabel(r.status, zh))}</span>
+          </div>
+          <div class="thread-preview">${SQ.escape(parts.join(" · ") || "—")}</div>
+        </div>
+        <div class="thread-time">${SQ.escape(SQ.fmt.relative(r.createdAt))}</div>
+      </a>`;
+    }).join("");
+  }
   function statusLabel(status, zh) {
-    const labels = {
-      pending:      [ 'Pending',      '待处理' ],
-      acknowledged: [ 'Acknowledged', '已查看' ],
-      confirmed:    [ 'Confirmed',    '已确认' ],
-      declined:     [ 'Declined',     '已婉拒' ],
-      completed:    [ 'Completed',    '已完成' ],
-      cancelled:    [ 'Cancelled',    '已取消' ],
-    };
-    return labels[status]?.[zh ? 1 : 0] || status;
+    return ({
+      pending:      zh ? "待处理" : "Pending",
+      acknowledged: zh ? "已查看" : "Acknowledged",
+      confirmed:    zh ? "已确认" : "Confirmed",
+      declined:     zh ? "已婉拒" : "Declined",
+      completed:    zh ? "已完成" : "Completed",
+      cancelled:    zh ? "已取消" : "Cancelled",
+    })[status] || status;
   }
   function kindLabel(t, zh) {
     return ({
-      message:   zh ? '消息'   : 'MESSAGE',
-      call:      zh ? '电话'   : 'CALL',
-      in_person: zh ? '当面'   : 'IN-PERSON',
+      message:   zh ? "消息"     : "MESSAGE",
+      call:      zh ? "电话"     : "CALL",
+      in_person: zh ? "当面"     : "IN-PERSON",
     })[t] || t;
-  }
-
-  function renderRecentRequests() {
-    if (recentRequests.length === 0) {
-      setRebuild('recent.requests', `<div class="empty-state">
-        <span class="en-inline">No requests yet. Submit your first one above.</span>
-        <span class="zh-inline">暂无请求记录。在上方提交您的第一个请求。</span>
-      </div>`);
-      return;
-    }
-    const zh = isZh();
-    const rows = recentRequests.slice(0, 6).map((r) => {
-      const subject = (r.reason || '').slice(0, 70).replace(/\s+/g, ' ').trim() + ((r.reason || '').length > 70 ? '…' : '');
-      const meta = [];
-      if (r.location) meta.push(r.location);
-      if (r.preferredStartsAt) meta.push(fmtAbsolute(r.preferredStartsAt));
-      if (r.durationMinutes) meta.push(`${r.durationMinutes >= 60 ? Math.round(r.durationMinutes / 60) + 'h' : r.durationMinutes + 'm'}`);
-      const submitters = (r.submitters && r.submitters.length > 0) ? r.submitters.join(', ') : null;
-      const previewParts = [];
-      if (submitters) previewParts.push(zh ? `提交人：${submitters}` : `Submitted by: ${submitters}`);
-      previewParts.push(...meta);
-      return `
-        <a href="#" class="thread" data-request-id="${escapeHtml(r.id)}">
-          <div class="thread-info">
-            <div class="thread-subject">
-              <span class="req-kind">${escapeHtml(kindLabel(r.requestType, zh))}</span>
-              <span>${escapeHtml(subject)}</span>
-              <span class="req-status ${escapeHtml(r.status)}">${escapeHtml(statusLabel(r.status, zh))}</span>
-            </div>
-            <div class="thread-preview">${escapeHtml(previewParts.join(' · ') || '—')}</div>
-          </div>
-          <div class="thread-time">${escapeHtml(fmtRelative(r.createdAt))}</div>
-        </a>
-      `;
-    }).join('');
-    setRebuild('recent.requests', rows);
-  }
-
-  // ─── Loaders ───────────────────────────────────────────────────────────
-  async function loadAdvisor() {
-    try {
-      const res = await fetch(API_BASE + '/communication/contact/advisor', { credentials: 'include' });
-      if (!res.ok) return;
-      const data = await res.json();
-      advisor = data.advisor;
-      renderAdvisorCard();
-    } catch (err) {
-      console.warn('[contact] advisor load failed:', err);
-    }
-  }
-
-  async function loadCallSlots() {
-    showLoading('call.slots');
-    try {
-      const res = await fetch(API_BASE + '/communication/contact/slots?type=call', { credentials: 'include' });
-      if (!res.ok) {
-        showError('call.slots', `<span class="en-inline">Failed to load slots (${res.status})</span><span class="zh-inline">加载时间段失败 (${res.status})</span>`);
-        return;
-      }
-      const data = await res.json();
-      callSlots = data.slots || [];
-      renderCallSlots();
-    } catch (err) {
-      showError('call.slots', `<span class="en-inline">Network error</span><span class="zh-inline">网络错误</span>`);
-    }
-  }
-
-  async function loadInPersonSlots() {
-    try {
-      const res = await fetch(API_BASE + '/communication/contact/slots?type=in_person', { credentials: 'include' });
-      if (!res.ok) return;
-      const data = await res.json();
-      inPersonSlots = data.slots || [];
-      renderInPersonLocations();
-    } catch { /* silent — falls back to default option */ }
-  }
-
-  async function loadRecentRequests() {
-    showLoading('recent.requests');
-    try {
-      const res = await fetch(API_BASE + '/communication/contact/requests?limit=6', { credentials: 'include' });
-      if (!res.ok) {
-        showError('recent.requests', `<span class="en-inline">Failed to load requests (${res.status})</span><span class="zh-inline">加载请求失败 (${res.status})</span>`);
-        return;
-      }
-      const data = await res.json();
-      recentRequests = data.requests || [];
-      renderRecentRequests();
-    } catch {
-      showError('recent.requests', `<span class="en-inline">Network error</span><span class="zh-inline">网络错误</span>`);
-    }
   }
 
   // ─── Submit handlers ───────────────────────────────────────────────────
   async function postRequest(payload, buttonEl) {
     if (buttonEl) buttonEl.disabled = true;
     try {
-      const res = await fetch(API_BASE + '/communication/contact/requests', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        let detail = res.status + '';
-        try {
-          const j = await res.json();
-          detail = j.error || j.message || detail;
-        } catch { /* keep status */ }
-        toast((isZh() ? '提交失败：' : 'Submit failed: ') + detail, { error: true });
-        if (buttonEl) buttonEl.disabled = false;
-        return null;
-      }
-      const data = await res.json();
-      toast(isZh() ? '请求已提交' : 'Request submitted');
-      await loadRecentRequests();
+      const data = await SQ.api("/communication/contact/requests", { method: "POST", body: payload });
+      SQ.toast(SQ.isZh() ? "请求已提交" : "Request submitted");
+      // Invalidate cached requests + slots so the page reflects the new state
+      // on next nav, and re-render the recent-requests section immediately.
+      SQ.invalidate("contact.");
+      reloadRecent();
+      if (payload.requestType === "call") reloadCallSlots();
       if (buttonEl) buttonEl.disabled = false;
       return data;
     } catch (err) {
-      toast((isZh() ? '网络错误：' : 'Network error: ') + (err.message || err), { error: true });
+      const msg = (err && err.message) || "Network error";
+      SQ.toast((SQ.isZh() ? "提交失败：" : "Submit failed: ") + msg, { error: true });
       if (buttonEl) buttonEl.disabled = false;
       return null;
     }
   }
-
-  function wireMessageSubmit() {
-    const btn = document.getElementById('btn-send-message');
-    if (!btn) return;
-    btn.addEventListener('click', async () => {
-      const subject = (document.getElementById('msg-subject')?.value || '').trim();
-      const body = (document.getElementById('msg-body')?.value || '').trim();
-      const urgency = document.querySelector('input[name="urgency"]:checked')?.value || 'routine';
-      if (!subject && !body) {
-        toast(isZh() ? '请填写主题或内容' : 'Please fill in subject or message');
-        return;
-      }
-      const reason = subject ? (body ? subject + '\n\n' + body : subject) : body;
-      const result = await postRequest({
-        requestType: 'message',
-        reason,
-        urgency,
-      }, btn);
-      if (result) {
-        document.getElementById('msg-subject').value = '';
-        document.getElementById('msg-body').value = '';
-      }
+  function reloadRecent() {
+    return SQ.section({
+      target: "[data-rebuild="recent.requests"]",
+      skeleton: "list:3",
+      fetcher: () => SQ.api("/communication/contact/requests?limit=6"),
+      isEmpty: (data) => !data.requests || data.requests.length === 0,
+      render: (data) => SQ.rebuild("recent.requests", renderRecentRows(data.requests || [])),
     });
   }
-
-  function wireCallSubmit() {
-    const btn = document.getElementById('btn-confirm-call');
-    if (!btn) return;
-    btn.addEventListener('click', async () => {
-      if (!selectedCallSlotId) return;
-      const duration = parseInt(document.getElementById('call-duration')?.value || '60', 10);
-      const agenda = (document.getElementById('call-agenda')?.value || '').trim();
-      const videoTool = document.getElementById('call-video')?.value || 'zoom';
-      if (!agenda) {
-        toast(isZh() ? '请填写议题' : 'Please add an agenda');
-        return;
-      }
-      const result = await postRequest({
-        requestType: 'call',
-        linkedSlotId: selectedCallSlotId,
-        durationMinutes: duration,
-        reason: agenda,
-        metadata: { videoTool },
-      }, btn);
-      if (result) {
-        document.getElementById('call-agenda').value = '';
-        // Refresh slots so the just-booked one shows as taken.
-        await loadCallSlots();
+  function reloadCallSlots() {
+    return SQ.section({
+      target: "[data-rebuild="call.slots"]",
+      skeleton: "list:4",
+      fetcher: () => SQ.api("/communication/contact/slots?type=call"),
+      render: (data) => {
+        callSlots = data.slots || [];
+        // Re-trigger the original section render path by calling SQ.section again
+        const byDay = groupByDay(callSlots);
+        const tz = SQ.fmt.tzShort();
+        const html = byDay.map((g) => {
+          const chips = g.slots.map((s) => {
+            const taken = s.isTaken ? "taken" : "";
+            return `<div class="slot ${taken}" data-slot-id="${SQ.escape(s.id)}">${SQ.escape(SQ.fmt.time(s.startsAt))}<span class="tz">${SQ.escape(tz)}</span></div>`;
+          }).join("");
+          return `<div class="slots-day"><div class="slots-date"><span class="day">${SQ.escape(SQ.fmt.date(g.date))}</span></div><div class="slots-list">${chips}</div></div>`;
+        }).join("");
+        SQ.rebuild("call.slots", html);
+        SQ.$$("[data-slot-id]").forEach((el) => {
+          el.addEventListener("click", () => {
+            if (el.classList.contains("taken")) return;
+            SQ.$$("[data-slot-id]").forEach((x) => x.classList.remove("selected"));
+            el.classList.add("selected");
+            selectedCallSlotId = el.getAttribute("data-slot-id");
+            updateCallMeta();
+          });
+        });
         selectedCallSlotId = null;
         updateCallMeta();
-      }
-    });
-
-    // Live-update meta strip when duration / video tool changes.
-    document.getElementById('call-duration')?.addEventListener('change', updateCallMeta);
-    document.getElementById('call-video')?.addEventListener('change', updateCallMeta);
-  }
-
-  function wireInPersonSubmit() {
-    const btn = document.getElementById('btn-submit-inperson');
-    if (!btn) return;
-    btn.addEventListener('click', async () => {
-      const location = document.getElementById('ip-location')?.value || '';
-      const dateFrom = document.getElementById('ip-date-from')?.value;
-      const dateTo = document.getElementById('ip-date-to')?.value;
-      const duration = parseInt(document.getElementById('ip-duration')?.value || '360', 10);
-      const reason = (document.getElementById('ip-reason')?.value || '').trim();
-      if (!dateFrom) {
-        toast(isZh() ? '请选择期望开始日期' : 'Please select a preferred start date');
-        return;
-      }
-      if (!reason) {
-        toast(isZh() ? '请填写事由 / 议题' : 'Please add a reason or agenda');
-        return;
-      }
-      // Convert YYYY-MM-DD to ISO with offset, anchored to local midnight.
-      const startIso = new Date(dateFrom + 'T00:00:00').toISOString();
-      const endIso = dateTo ? new Date(dateTo + 'T23:59:59').toISOString() : null;
-      const result = await postRequest({
-        requestType: 'in_person',
-        location,
-        preferredStartsAt: startIso,
-        preferredEndsAt: endIso,
-        durationMinutes: duration,
-        reason,
-      }, btn);
-      if (result) {
-        document.getElementById('ip-reason').value = '';
-        document.getElementById('ip-date-from').value = '';
-        document.getElementById('ip-date-to').value = '';
-      }
+      },
     });
   }
 
-  // Re-render dates / status labels when language switches.
-  document.querySelectorAll('.lang-btn').forEach((b) => b.addEventListener('click', () => {
-    renderCallSlots();
-    renderRecentRequests();
-    updateCallMeta();
-    // Re-select the slot DOM if one was selected
-    if (selectedCallSlotId) {
-      const el = document.querySelector(`[data-slot-id="${selectedCallSlotId}"]`);
-      el?.classList.add('selected');
+  // Wire the three submit buttons.
+  SQ.$("#btn-send-message") && SQ.$("#btn-send-message").addEventListener("click", async () => {
+    const subject = (SQ.$("#msg-subject").value || "").trim();
+    const body = (SQ.$("#msg-body").value || "").trim();
+    const urgency = (SQ.$("input[name="urgency"]:checked") || {}).value || "routine";
+    if (!subject && !body) {
+      SQ.toast(SQ.isZh() ? "请填写主题或内容" : "Please fill in subject or message");
+      return;
     }
-  }));
+    const reason = subject ? (body ? subject + "\n\n" + body : subject) : body;
+    const r = await postRequest({ requestType: "message", reason, urgency }, SQ.$("#btn-send-message"));
+    if (r) { SQ.$("#msg-subject").value = ""; SQ.$("#msg-body").value = ""; }
+  });
 
-  // Boot
-  wireMessageSubmit();
-  wireCallSubmit();
-  wireInPersonSubmit();
-  loadAdvisor();
-  loadCallSlots();
-  loadInPersonSlots();
-  loadRecentRequests();
+  SQ.$("#btn-confirm-call") && SQ.$("#btn-confirm-call").addEventListener("click", async () => {
+    if (!selectedCallSlotId) return;
+    const duration = parseInt(SQ.$("#call-duration").value || "60", 10);
+    const agenda = (SQ.$("#call-agenda").value || "").trim();
+    const videoTool = SQ.$("#call-video").value || "zoom";
+    if (!agenda) { SQ.toast(SQ.isZh() ? "请填写议题" : "Please add an agenda"); return; }
+    const r = await postRequest({
+      requestType: "call",
+      linkedSlotId: selectedCallSlotId,
+      durationMinutes: duration,
+      reason: agenda,
+      metadata: { videoTool },
+    }, SQ.$("#btn-confirm-call"));
+    if (r) SQ.$("#call-agenda").value = "";
+  });
+
+  SQ.$("#call-duration") && SQ.$("#call-duration").addEventListener("change", updateCallMeta);
+  SQ.$("#call-video")    && SQ.$("#call-video").addEventListener("change", updateCallMeta);
+
+  SQ.$("#btn-submit-inperson") && SQ.$("#btn-submit-inperson").addEventListener("click", async () => {
+    const location = SQ.$("#ip-location").value || "";
+    const dateFrom = SQ.$("#ip-date-from").value;
+    const dateTo   = SQ.$("#ip-date-to").value;
+    const duration = parseInt(SQ.$("#ip-duration").value || "360", 10);
+    const reason   = (SQ.$("#ip-reason").value || "").trim();
+    if (!dateFrom) { SQ.toast(SQ.isZh() ? "请选择期望开始日期" : "Please select a preferred start date"); return; }
+    if (!reason)   { SQ.toast(SQ.isZh() ? "请填写事由 / 议题" : "Please add a reason or agenda"); return; }
+    const startIso = new Date(dateFrom + "T00:00:00").toISOString();
+    const endIso   = dateTo ? new Date(dateTo + "T23:59:59").toISOString() : null;
+    const r = await postRequest({
+      requestType: "in_person",
+      location,
+      preferredStartsAt: startIso,
+      preferredEndsAt: endIso,
+      durationMinutes: duration,
+      reason,
+    }, SQ.$("#btn-submit-inperson"));
+    if (r) {
+      SQ.$("#ip-reason").value = "";
+      SQ.$("#ip-date-from").value = "";
+      SQ.$("#ip-date-to").value = "";
+    }
+  });
+
+  // Re-render localized strings on language switch.
+  SQ.onLang(() => {
+    if (callSlots.length > 0) reloadCallSlots();
+    reloadRecent();
+    updateCallMeta();
+  });
 })();
 </script>
+
 
 </body>
 </html>

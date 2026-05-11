@@ -26,9 +26,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = resolve(__dirname, "../..")
 const DEST = resolve(__dirname, "../public")
 
-// File extensions we want to ship with the Worker. Add more here if you
-// introduce CSS/JS/image assets at the repo root later.
-const STATIC_EXTENSIONS = [".html", ".svg", ".ico", ".png", ".webmanifest"]
+// File extensions we want to ship with the Worker. The shared runtime
+// (`Shion Quant runtime.js` + `.css`) is the reason `.js` and `.css` are
+// here — page-level inline scripts/styles still live in their HTML files.
+const STATIC_EXTENSIONS = [".html", ".svg", ".ico", ".png", ".webmanifest", ".js", ".css"]
 
 // 1. Wipe the destination so removed files at root don't linger.
 if (existsSync(DEST)) rmSync(DEST, { recursive: true, force: true })
